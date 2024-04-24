@@ -42,6 +42,8 @@ The content here will be continuously updated and periodically released with ver
 
 The only difference of note between functions here and in grambank/grambank-analysed concerns the treatment of missing data for the calculation of the theoretical scores. In grambank/grambank-analysed we did a subsetting of the entire dataset where we pruned away features and languages with large amounts of missing data. We then used this subset in several parts of the analysis, including PCA and calculation of theoretical scores. The function `make_theo_scores` in `R_scripts/make_theo_scores.R` instead prunes for missing data with respect to the specific features involved in each of the theoretical scores. Furthermore, the function allows the users to set a different cut-off (default = 0.75). The difference is very small in practice. Below are two scatterplot of two central theoretical scores, Fusion and Informativity. In each plot, the x-axis represents the newer way of computing the score (as in `HedvigS/R_grambank_cookbok`) and the y-axis the older (`grambank/grambank-analysed`).
 
+For more details on the theoretical scores, see the supplmenetary material to [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175).
+
 ![new_old_theo_score_fusion](https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/b187b78a-6175-4494-8ae5-499efa96887d)
 
 ![new_old_theo_score_inform](https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/9e9237d8-b7f5-4dc2-b82e-5d488e152965)
