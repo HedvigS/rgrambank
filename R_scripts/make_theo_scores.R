@@ -6,6 +6,7 @@
 #' @author Hedvig Skirgård and Hannah Haynie and Shcherbakova
 #' @return A data-frame with theoretical scores per language.
 #' @export
+
 make_theo_scores <- function(ValueTable,
                              ParameterTable,
                              missing_cut_off = 0.75){
@@ -22,8 +23,8 @@ if("GB203b" %in% ValueTable$Parameter_ID){
         ValueTable <- ValueTable %>% rgrambank::binarise()
 }
 
-if("GB203b" %in% ParameterTable$ID){
-    ParameterTable <- ParameterTable %>% rgrambank::make_binary_ParameterTable()
+if(!"GB203b" %in% ParameterTable$ID){
+    ParameterTable <- ParameterTable  %>% make_binary_ParameterTable()
 }
 
     #read in sheet with scores for whether a feature denotes fusion
