@@ -38,6 +38,12 @@ The entire set of code of the Grambank release-paper and grambank-analysed was p
 
 The content here will be continuously updated and periodically released with version tags. Git allows for accessing the state of the repos at a particular time via commit labels or tags. This can be used when cloning or accessing content via URLs. We _strongly_ encourage you to keep track of when you copied code, this makes it easier to identify issues later.
 
+# Review
+The functions in this repos are in the process of going through internal peer-review. The list below tracks which have been reviewed.
+
+- [ ] make_binary_ParameterTable.R- [ ] make_binary_ValueTable.R- [ ] make_theo_scores.R
+- [ ] varcov.spatial.3D.R- [ ] add_family_name_column.R- [ ] add_isolate_info.R- [ ] add_language_level_id_to_languages.R- [ ] as_grambank_wide.R- [ ] crop_missing_data.R- [ ] drop_duplicate_tips_random.R- [ ] get_shared_features.R- [ ] get_values_for_clade.R- [ ] get_zenodo.R- [ ] reduce_ValueTable_to_unique_glottocodes.R
+
 # Differences between grambank/grambank-analysed and HedvigS/R_grambank_cookbok
 
 The only difference of note between functions here and in grambank/grambank-analysed concerns the treatment of missing data for the calculation of the theoretical scores. In grambank/grambank-analysed we did a subsetting of the entire dataset where we pruned away features and languages with large amounts of missing data. We then used this subset in several parts of the analysis, including PCA and calculation of theoretical scores. The function `make_theo_scores` in `R_scripts/make_theo_scores.R` instead prunes for missing data with respect to the specific features involved in each of the theoretical scores. Furthermore, the function allows the users to set a different cut-off (default = 0.75). The difference is very small in practice. Below are two scatterplot of two central theoretical scores, Fusion and Informativity. In each plot, the x-axis represents the newer way of computing the score (as in `HedvigS/R_grambank_cookbok`) and the y-axis the older (`grambank/grambank-analysed`).
