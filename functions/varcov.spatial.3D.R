@@ -22,7 +22,7 @@
 #' @details
 #' The elements of the covariance matrix are computed by the function cov.spatial. Typically this is an auxiliary function called by other functions in the geoR package.
 #'
-#' @author Original function: Paulo J. Ribeiro Jr. <paulojus@leg.ufpr.br>, Peter J. Diggle <p.diggle@lancaster.ac.uk.>. Updated function in package SH.misc: Hedvig Skirgård.
+#' @author Original function: Paulo J. Ribeiro Jr. and Peter J. Diggle. Updated function in this script (correcting stat:dist() -> fields::rdist.earth()): Hedvig Skirgård.
 
 #' @returns The result is always list of the same kind as geoR::varcov.spatial. The components will vary according to the input options. The possible components are:
 #' varcov the covariance matrix.
@@ -68,7 +68,7 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
   
   #to make the dists more similar to what stats::dist would produce, and therefore easier to apply the same kappa and sigma values, we divide the distances by 100. This means that the distances are measured in 100’s of km rather than km’s.
   
-  rdist.earth_dists <-  rdist.earth_dists / 100
+  rdist.earth_dists <-  rdist.earth_dists / 100 #divide by 100 to make the scale similar to stat::dist
   
   rdist.earth_dists[upper.tri(rdist.earth_dists, diag = TRUE)] <- NA
   
