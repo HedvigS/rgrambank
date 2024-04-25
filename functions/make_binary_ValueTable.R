@@ -72,7 +72,7 @@ gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
 #'
 #' @return Data-frame (long ValueTable)
 #' @export
-binarise <- function(ValueTable = NULL,
+make_binary_ValueTable <- function(ValueTable = NULL,
                      drop_multistate = TRUE,
                      keep_raw_binary = TRUE,
                      trim_to_only_raw_binary = FALSE){
