@@ -19,13 +19,11 @@ make_theo_scores <- function(ValueTable,
 #ValueTable <-   grambank_cldf_object$tables$ValueTable
 #ParameterTable <-   grambank_cldf_object$tables$ParameterTable
 
-if("GB203b" %in% ValueTable$Parameter_ID){
-  source("functions/make_binary_ValueTable.R")
+if(!"GB203b" %in% ValueTable$Parameter_ID){
         ValueTable <- ValueTable %>% make_binary_ValueTable
 }
 
 if(!"GB203b" %in% ParameterTable$ID){
-  source("functions/make_binary_ParameterTable.R")
     ParameterTable <- ParameterTable  %>% make_binary_ParameterTable()
 }
 
