@@ -24,8 +24,8 @@ GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/gr
 # load_bib is set to FALSE because the bib-file is not necessary for these actions, and the package that rcldf dependes on for bibTeX parsin (bib2df) has some not-harmful but outdated code which generates warnings.
 
 #loading the necessary functions for making Grambank data binary
-source("functions/make_binary_ValueTable.R")
-source("functions/make_binary_ParameterTable.R")
+source("../functions/make_binary_ValueTable.R")
+source("../functions/make_binary_ParameterTable.R")
 
 #turning multistate features and their values in Grambank ValueTable to their binary versions
 GB_ValueTable_binary <- make_binary_ValueTable(ValueTable = GB_rcldf_obj$tables$ValueTable, 
@@ -38,9 +38,9 @@ GB_ValueTable_binary <- make_binary_ValueTable(ValueTable = GB_rcldf_obj$tables$
 GB_ParameterTable_binary <- make_binary_ParameterTable(ParameterTable = GB_rcldf_obj$tables$ParameterTable,
                                                        keep_multi_state_features = FALSE
                                                       )
-dir <- "example_scripts/output"
+dir <- "output"
 if(!dir.exists(dir)){dir.create(dir)}
 
-write_tsv(GB_ValueTable_binary, file = "example_scripts/output/Grambank_ValueTable_binary.tsv", quote = "all", na = "")
+write_tsv(GB_ValueTable_binary, file = "output/Grambank_ValueTable_binary.tsv", quote = "all", na = "")
 
-write_tsv(GB_ParameterTable_binary, file = "example_scripts/output/Grambank_ParameterTable_binary.tsv", quote = "all", na = "")
+write_tsv(GB_ParameterTable_binary, file = "output/Grambank_ParameterTable_binary.tsv", quote = "all", na = "")
