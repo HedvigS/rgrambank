@@ -17,9 +17,7 @@
 #' @importFrom tidyr drop_na
 #' @author Simon Greenhill
 #' @examples
-#' gb <- rcldf::cldf(system.file("tests/testthat/fixtures/testdata/", "StructureDataset-metadata.json", package = "rgrambank"))
-#  s <- get_shared_features(gb, 'stan1293', 'murr1258')
-#  print(sprintf("English and Murrinpatha shared %d/%d features", s$identical, s$compared))
+
 get_shared_features <- function(gb, language1, language2) {
     df <- gb$tables$ValueTable %>%
         # select languages

@@ -4,10 +4,7 @@
 #' @importFrom dplyr %>%
 #' @export
 #' @examples
-#' gb <- rcldf::cldf(system.file("tests/testthat/fixtures/testdata/", "StructureDataset-metadata.json", package = "rgrambank"))
-#' values <- as_grambank_wide(gb$tables$ValueTable)
-#' # or:
-#' values <- gb$tables$ValueTable %>% as_grambank_wide()
+
 as_grambank_wide <- function(ValueTable = NULL) {
     if (!inherits(ValueTable, "data.frame")) stop("'ValueTable' must be a dataframe.")
 

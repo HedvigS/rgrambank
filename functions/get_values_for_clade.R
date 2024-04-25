@@ -6,8 +6,7 @@
 #' @importFrom dplyr filter
 #' @author Simon Greenhill
 #' @examples
-#' gb <- rcldf::cldf(system.file("tests/testthat/fixtures/testdata/", "StructureDataset-metadata.json", package = "rgrambank"))
-#  get_values_for_clade(gb, 'west2435')
+
 #' @export
 get_values_for_clade <- function(gb, glottocode) {
     languages <- gb$tables$LanguageTable %>%

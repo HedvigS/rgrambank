@@ -1,7 +1,7 @@
 #' Computes scores based on theoretical linguistics on grambank data.
 #'
-#' @param ValueTable data-frame, long format, of Grambank values. If not already binarised, rgrambank::binarise() will be applied.
-#' @param ParameterTable data-frame of Grambank ParameterTable. . If not already binarised, rgrambank::make_binary_ParameterTable will be applied.
+#' @param ValueTable data-frame, long format, of Grambank values. If not already binarised, make_binary_ValueTable() will be applied.
+#' @param ParameterTable data-frame of Grambank ParameterTable. . If not already binarised, make_binary_ParameterTable will be applied.
 #' @param missing_cut_off numeric value between 0 and 1 representing cut-off for how much coverage each language should have, for each feature set. For each set of features for the theoretical scores, if a language falls under the threshold, it is not considered for the theoretical score (but may be considered for other sets). 0.75 means that languages with 75% of feature values non-missing for that set of features are included, less than 75% coverage are dropped.
 #' @author Hedvig Skirgård and Hannah Haynie and Shcherbakova
 #' @return A data-frame with theoretical scores per language.
@@ -20,10 +20,12 @@ make_theo_scores <- function(ValueTable,
 #ParameterTable <-   grambank_cldf_object$tables$ParameterTable
 
 if("GB203b" %in% ValueTable$Parameter_ID){
-        ValueTable <- ValueTable %>% rgrambank::binarise()
+  source("functions/make_binary_ValueTable.R")
+        ValueTable <- ValueTable %>% make_binary_ValueTable
 }
 
 if(!"GB203b" %in% ParameterTable$ID){
+  source("functions/make_binary_ParameterTable.R")
     ParameterTable <- ParameterTable  %>% make_binary_ParameterTable()
 }
 
