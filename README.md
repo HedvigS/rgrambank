@@ -16,7 +16,7 @@ dir <- "R_grambank_cookbook"
 if(!dir.exists(dir)){dir.create(dir)}
 
 # specify the specific script you are interested in
-script_url <- "https://raw.githubusercontent.com/HedvigS/R_grambank_cookbook/main/R_scripts/add_family_name_column.R"
+script_url <- "https://raw.githubusercontent.com/HedvigS/R_grambank_cookbook/main/functions/add_family_name_column.R"
 
 # check if the script has already been fetched, if not then download it.
 if(!file.exists(
