@@ -34,7 +34,7 @@
 #' log.det.to.half the logarithmic of the square root of the determinant of the covariance matrix.
 #' @export
 
-varcov.spatial = function (coords = NULL, dists.lowertri = NULL, cov.model = "matern",
+varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = "matern",
                            kappa = 0.5, nugget = 0, cov.pars = stop("no cov.pars argument"),
                            inv = FALSE, det = FALSE, func.inv = c("cholesky", "eigen",
                                                                   "svd", "solve"), scaled = FALSE, only.decomposition = FALSE,
