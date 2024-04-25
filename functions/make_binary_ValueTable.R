@@ -1,5 +1,4 @@
-
-#' @author Hedvig Skirgård and Simon Greenhill
+#' @author Hedvig Skirgård and Simon Gfreenhill
 
 binary_parameters <- c(
     "GB024a", "GB024b",
@@ -65,7 +64,7 @@ gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
 #' Makes multi-state Grambank-features binary in the appropriate manner.
 #'
 #' @param ValueTable data frame of the ValueTable from grambank-cldf (long).
-#' @param drop_multistate logical vector. If TRUE,the multistate parent features of the binarised features are dropped, only binary and/or binarised features remain. If FALSE, they are kept alongside their binarised versions.
+#' @param keep_multistate logical vector. If FALSE,the multistate parent features of the binarised features are dropped, only binary and/or binarised features remain. If TRUE, they are kept alongside their binarised versions.
 #' @param keep_raw_binary logical vector. If TRUE and if the value table already contains some binarised features, they are kept. If false, they are overriden and replaced by values derived from the multi-state features. Note that raw binary coding and binarised coding principally differs in terms of ? and 0 coding. See note.
 #' @param  trim_to_only_raw_binary logical vector. If TRUE, multi-state features are dropped and not binarised.
 #' @note The Grambank questionnaire contains multi-state features, all related to word-order. They ask: "Is the order 1) X~Y, 2) Y~X or 3) both?". This function turns them into sets of two binary features: "Is the order X~Y?" and "Is the order Y~X?". If the multi-state feature is coded as "1", the binarised features are "1" and "0" respectively. Please note that absence is inferred, we recode to "1" and "0", not to "1" and "?". Since summer 2023, Grambank coders can also code the binary features from scratch, i.e. code the binary features directly and skip the multi-state. We call this "raw binary". If they find clear evidence for presence of one order but not as clear absence of the other, they may code "1" and "?". This means that released version after 1.0 has raw binary coding as well as multi-state coding which can be binarised, for the same phenomena for different languages. If you prefer to only have the recoded binarised feature values, set keep_raw_binary to FALSE. If you prefer to ONLY have the raw binary features, set trim_to_only_raw_binary to TRUE. If you prefer a mix, set keep_raw_binary to TRUE and trim_to_only_raw_binary to FALSE. The last option is the default. There are much fewer raw binary feature coding than there are multi-state-coding.
@@ -73,7 +72,7 @@ gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
 #' @return Data-frame (long ValueTable)
 #' @export
 make_binary_ValueTable <- function(ValueTable = NULL,
-                     drop_multistate = TRUE,
+                     keep_multistate = FALSE,
                      keep_raw_binary = TRUE,
                      trim_to_only_raw_binary = FALSE){
     if (!inherits(ValueTable, "data.frame")) stop("'ValueTable' must be a dataframe.")
@@ -121,7 +120,7 @@ make_binary_ValueTable <- function(ValueTable = NULL,
                 by = c("ID", "Language_ID", "Parameter_ID", "Value", "Code_ID", "Comment", "Source", "Source_comment", "Coders"))
 
     }
-    if (drop_multistate == TRUE) {
+    if (keep_multistate == FALSE) {
         ValueTable <- ValueTable %>%
             dplyr::filter(!(Parameter_ID %in% multistate_parameters))
         }
