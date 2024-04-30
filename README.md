@@ -1,6 +1,9 @@
 # What this is
 
-This repository contains a set of R functions that are useful for analysis of Grambank data, and other CLDF-datasets. Most of the functions are adapted from the code behind [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175). The code of the paper was also published as grambank-analysed on [Zenodo](https://zenodo.org/doi/10.5281/zenodo.7740821) and [GitHub](https://github.com/grambank/grambank-analysed/tree/v1.0/R_grambank). Part of that code has been been re-written to produce more general functions.
+This repository contains a set of R functions that are useful for analysis of Grambank data, and other CLDF-datasets. Most of the functions are adapted from the code behind [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175). The code of the paper was also published as grambank-analysed on [Zenodo](https://zenodo.org/doi/10.5281/zenodo.7740821) and [GitHub](https://github.com/grambank/grambank-analysed/tree/v1.0/R_grambank). Part of that code has been been re-written here to produce more general functions that can easily be applied to future Grambank releases.
+
+## Structure of content
+Within this repository, functions are found in the directory called `functions` and examples in `example_scripts`. Each function-script comes with information on how arguments work etc, like functions in `R`-packages. The directory `example_scripts` contain `R`-scripts which illustrate sepcific functions. For example, the script `example_scripts/binarise.R` showcases the functions `functions/make_binary_ParameterTable`and `functions/make_binary_ValueTable`. In order to run the example scripts you need to set your working directory to `example_scripts`, as this is how the file-paths to `functions`and `fixed` are set up.
 
 # What this is not
 
@@ -41,12 +44,28 @@ The content here will be continuously updated and periodically released with ver
 # Review
 The functions in this repos are in the process of going through internal peer-review. The list below tracks which have been reviewed.
 
-- [ ] make_binary_ParameterTable.R- [ ] make_binary_ValueTable.R- [ ] make_theo_scores.R
-- [ ] varcov.spatial.3D.R- [ ] add_family_name_column.R- [ ] add_isolate_info.R- [ ] add_language_level_id_to_languages.R- [ ] as_grambank_wide.R- [ ] crop_missing_data.R- [ ] drop_duplicate_tips_random.R- [ ] get_shared_features.R- [ ] get_values_for_clade.R- [ ] get_zenodo.R- [ ] reduce_ValueTable_to_unique_glottocodes.R
+
+
+|reviewed | Function | Short description | example scripts | Function author(s) |Review Pull Request | Reviewer | 
+| -- | --| --| --| -- |-- |-- |
+| :x: |make_binary_ParameterTable.R| Takes the Grambank ParameterTable and adds binarised features for the multistate-features. | [example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R) |Hedvig Skirgård|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |make_binary_ValueTable.R|Takes the GrambankValueTable and transforms mulistate feature values into binarised counter parts appropraitely.|[example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R)|Hedvig Skirgård|PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |make_theo_scores.R|Calculates metrics per language based on theoretical linguistics: fusion, informativity, gender/noun class, flexivity, locus of marking and word order. For more details, see supplementary material of the [Grambank release paper (2023)](https://www.science.org/doi/10.1126/sciadv.adg6175) |[example_scripts/theo_scores.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/theo_scores.R)|Hedvig Skirgård, Hannah Haynie and Olena Shcherbakova|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |varcov.spatial.3D.R| Adjusted function based on geoR::varcov.spatial. If given Longitude and Latitude, it makes haversine distances that take into account curvature of the earth and handles the antimeridian correctly (unlike geoR::varcov.spatial||Original function: Paulo J. Ribeiro Jr. and Peter J. Diggle. Update: Hedvig Skirgård.|
+| :x: |add_family_name_column.R||
+| :x: |add_isolate_info.R||
+| :x: |add_language_level_id_to_languages.R||
+| :x: |as_grambank_wide.R||
+| :x: |crop_missing_data.R||
+| :x: |drop_duplicate_tips_random.R|Drops duplicate tips of a tree at random. Option for merging dialects to one tip (i.e. dropping all dialects but one).|
+| :x: |get_shared_features.R|
+| :x: |get_values_for_clade.R|
+| :x: |get_zenodo.R|Fetches content from Zenodo based on a download-URL, places it in a given spot on the local machine. Back-up function for rcldf::cldf.|
+| :x: |reduce_ValueTable_to_unique_glottocodes.R| Removes duplicates in ValueTable. Option for merging dialects into one entry. Read specification of method for merging closely.|
 
 # Differences between grambank/grambank-analysed and HedvigS/R_grambank_cookbok
 
-The only difference of note between functions here and in grambank/grambank-analysed concerns the treatment of missing data for the calculation of the theoretical scores. In grambank/grambank-analysed we did a subsetting of the entire dataset where we pruned away features and languages with large amounts of missing data. We then used this subset in several parts of the analysis, including PCA and calculation of theoretical scores. The function `make_theo_scores` in `R_scripts/make_theo_scores.R` instead prunes for missing data with respect to the specific features involved in each of the theoretical scores. Furthermore, the function allows the users to set a different cut-off (default = 0.75). The difference is very small in practice. Below are two scatterplot of two central theoretical scores, Fusion and Informativity. In each plot, the x-axis represents the newer way of computing the score (as in `HedvigS/R_grambank_cookbok`) and the y-axis the older (`grambank/grambank-analysed`).
+The only difference of note between functions in [grambank/grambank-analysed](https://github.com/grambank/grambank-analysed/) (Grambank release paper of 2023) and here in HedvigS/R_grambank_cookbook concerns the treatment of missing data for the calculation of the theoretical scores. In grambank/grambank-analysed we did a subsetting of the entire dataset where we pruned away features and languages with large amounts of missing data. We then used this subset in several parts of the analysis, including PCA and calculation of theoretical scores. The function `make_theo_scores` in `R_scripts/make_theo_scores.R` instead prunes for missing data with respect to the specific features involved in each of the theoretical scores. Furthermore, the function allows the users to set a different cut-off (default = 0.75). The difference is very small in practice. Below are two scatterplot of two central theoretical scores, Fusion and Informativity. In each plot, the x-axis represents the newer way of computing the score (as in `HedvigS/R_grambank_cookbok`) and the y-axis the older (`grambank/grambank-analysed`).
 
 For more details on the theoretical scores, see the supplmenetary material to [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175).
 
