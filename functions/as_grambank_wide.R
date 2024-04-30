@@ -2,6 +2,7 @@
 #' @param ValueTable a ValueTable dataframe containing the columns Language_ID, Parameter_ID, and Value
 #' @return a wide dataframe.
 #' @importFrom dplyr %>%
+#' @author Simon Greenhill
 #' @export
 #' @examples
 

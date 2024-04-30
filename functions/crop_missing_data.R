@@ -6,6 +6,7 @@
 #' @param turn_question_mark_into_NA Logical. If TRUE Value cells consisting of "?" are treated the same as missing data.
 #' @param verbose  Logical. If TRUE, the function reports on the number of languages, features and percentage of missing data before and after cropping.
 #' @return A data-frame of the long ValueTable type where features and languages that don't meet the cut-off for missing data are removed.
+#' @author Hedvig Skirgård
 #' @export
 
 crop_missing_data <- function(ValueTable,
