@@ -46,11 +46,11 @@ The functions in this repos are in the process of going through internal peer-re
 
 
 
-|reviewed | Function | Short description | example scripts | Pull Request | Reviewer | 
+|reviewed | Function | Short description | example scripts | Review Pull Request | Reviewer | 
 | -- | --| --| --| -- |-- |
 | :x: |make_binary_ParameterTable.R| Takes the Grambank ParameterTable and adds binarised features for the multistate-features. | [example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R) |[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
 | :x: |make_binary_ValueTable.R|Takes the GrambankValueTable and transforms mulistate feature values into binarised counter parts appropraitely.|[example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R)|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
-| :x: |make_theo_scores.R||[example_scripts/theo_scores.R]([https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/theo_scores.R))|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |make_theo_scores.R|Calculates metrics per language based on theoretical linguistics: fusion, informativity, gender/noun class, flexivity, locus of marking and word order. For more details, see supplementary material of the [Grambank release paper (2023)](https://www.science.org/doi/10.1126/sciadv.adg6175) |[example_scripts/theo_scores.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/theo_scores.R)|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
 | :x: |varcov.spatial.3D.R|
 | :x: |add_family_name_column.R|
 | :x: |add_isolate_info.R|
