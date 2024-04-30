@@ -2,6 +2,9 @@
 
 This repository contains a set of R functions that are useful for analysis of Grambank data, and other CLDF-datasets. Most of the functions are adapted from the code behind [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175). The code of the paper was also published as grambank-analysed on [Zenodo](https://zenodo.org/doi/10.5281/zenodo.7740821) and [GitHub](https://github.com/grambank/grambank-analysed/tree/v1.0/R_grambank). Part of that code has been been re-written to produce more general functions.
 
+## Structure of content
+Within this repository, functions are found in the directory called `functions` and examples in `example_scripts`. Each function-script comes with information on how arguments work etc, like functions in `R`-packages. The directory `example_scripts` contain `R`-scripts which illustrate sepcific functions. For example, the script `example_scripts/binarise.R` showcases the functions `functions/make_binary_ParameterTable`and `functions/make_binary_ValueTable`. In order to run the example scripts you need to set your working directory to `example_scripts`, as this is how the file-paths to `functions`and `fixed` are set up.
+
 # What this is not
 
 This is not a package, and can therefore not be installed as such. If you want to use the functions here, you can manually copy them over, clone the repos or fetch individual files as described below.
@@ -41,8 +44,20 @@ The content here will be continuously updated and periodically released with ver
 # Review
 The functions in this repos are in the process of going through internal peer-review. The list below tracks which have been reviewed.
 
-- [ ] make_binary_ParameterTable.R- [ ] make_binary_ValueTable.R- [ ] make_theo_scores.R
-- [ ] varcov.spatial.3D.R- [ ] add_family_name_column.R- [ ] add_isolate_info.R- [ ] add_language_level_id_to_languages.R- [ ] as_grambank_wide.R- [ ] crop_missing_data.R- [ ] drop_duplicate_tips_random.R- [ ] get_shared_features.R- [ ] get_values_for_clade.R- [ ] get_zenodo.R- [ ] reduce_ValueTable_to_unique_glottocodes.R
+- [ ] make_binary_ParameterTable.R
+- [ ] make_binary_ValueTable.R
+- [ ] make_theo_scores.R
+- [ ] varcov.spatial.3D.R
+- [ ] add_family_name_column.R
+- [ ] add_isolate_info.R
+- [ ] add_language_level_id_to_languages.R
+- [ ] as_grambank_wide.R
+- [ ] crop_missing_data.R
+- [ ] drop_duplicate_tips_random.R
+- [ ] get_shared_features.R
+- [ ] get_values_for_clade.R
+- [ ] get_zenodo.R
+- [ ] reduce_ValueTable_to_unique_glottocodes.R
 
 # Differences between grambank/grambank-analysed and HedvigS/R_grambank_cookbok
 
