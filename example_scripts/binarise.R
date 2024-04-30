@@ -6,6 +6,8 @@
 
 # written by Hedvig Skirgård 2024-04-25.
 
+# the working directory should be set to R_grambank_cookbook/example_scripts, the location of this file.
+
 #install.packages("devtools")
 library(devtools)
 
