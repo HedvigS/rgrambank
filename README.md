@@ -44,20 +44,24 @@ The content here will be continuously updated and periodically released with ver
 # Review
 The functions in this repos are in the process of going through internal peer-review. The list below tracks which have been reviewed.
 
-- [ ] make_binary_ParameterTable.R
-- [ ] make_binary_ValueTable.R
-- [ ] make_theo_scores.R
-- [ ] varcov.spatial.3D.R
-- [ ] add_family_name_column.R
-- [ ] add_isolate_info.R
-- [ ] add_language_level_id_to_languages.R
-- [ ] as_grambank_wide.R
-- [ ] crop_missing_data.R
-- [ ] drop_duplicate_tips_random.R
-- [ ] get_shared_features.R
-- [ ] get_values_for_clade.R
-- [ ] get_zenodo.R
-- [ ] reduce_ValueTable_to_unique_glottocodes.R
+
+
+|reviewed | Function | Short description | example scripts | Pull Request | Reviewer | 
+| -- | --| --| --| -- |-- |
+| :x: |make_binary_ParameterTable.R| Takes the Grambank ParameterTable and adds binarised features for the multistate-features. | [example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R) |[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |make_binary_ValueTable.R|Takes the GrambankValueTable and transforms mulistate feature values into binarised counter parts appropraitely.|[example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R)|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |make_theo_scores.R||[example_scripts/theo_scores.R]([https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/theo_scores.R))|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |varcov.spatial.3D.R|
+| :x: |add_family_name_column.R|
+| :x: |add_isolate_info.R|
+| :x: |add_language_level_id_to_languages.R|
+| :x: |as_grambank_wide.R|
+| :x: |crop_missing_data.R|
+| :x: |drop_duplicate_tips_random.R|
+| :x: |get_shared_features.R|
+| :x: |get_values_for_clade.R|
+| :x: |get_zenodo.R|
+| :x: |reduce_ValueTable_to_unique_glottocodes.R|
 
 # Differences between grambank/grambank-analysed and HedvigS/R_grambank_cookbok
 
