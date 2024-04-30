@@ -70,6 +70,5 @@ The only difference of note between functions in [grambank/grambank-analysed](ht
 
 For more details on the theoretical scores, see the supplmenetary material to [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175).
 
-![new_old_theo_score_fusion](https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/b187b78a-6175-4494-8ae5-499efa96887d)
-
-![new_old_theo_score_inform](https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/9e9237d8-b7f5-4dc2-b82e-5d488e152965)
+<img src="https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/b187b78a-6175-4494-8ae5-499efa96887d" width="300" height="300">
+<img src="https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/9e9237d8-b7f5-4dc2-b82e-5d488e152965" width="300" height="300">
