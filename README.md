@@ -46,22 +46,22 @@ The functions in this repos are in the process of going through internal peer-re
 
 
 
-|reviewed | Function | Short description | example scripts | Review Pull Request | Reviewer | 
-| -- | --| --| --| -- |-- |
-| :x: |make_binary_ParameterTable.R| Takes the Grambank ParameterTable and adds binarised features for the multistate-features. | [example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R) |[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
-| :x: |make_binary_ValueTable.R|Takes the GrambankValueTable and transforms mulistate feature values into binarised counter parts appropraitely.|[example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R)|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
-| :x: |make_theo_scores.R|Calculates metrics per language based on theoretical linguistics: fusion, informativity, gender/noun class, flexivity, locus of marking and word order. For more details, see supplementary material of the [Grambank release paper (2023)](https://www.science.org/doi/10.1126/sciadv.adg6175) |[example_scripts/theo_scores.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/theo_scores.R)|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
-| :x: |varcov.spatial.3D.R|
-| :x: |add_family_name_column.R|
-| :x: |add_isolate_info.R|
-| :x: |add_language_level_id_to_languages.R|
-| :x: |as_grambank_wide.R|
-| :x: |crop_missing_data.R|
-| :x: |drop_duplicate_tips_random.R|
+|reviewed | Function | Short description | example scripts | Function author(s) |Review Pull Request | Reviewer | 
+| -- | --| --| --| -- |-- |-- |
+| :x: |make_binary_ParameterTable.R| Takes the Grambank ParameterTable and adds binarised features for the multistate-features. | [example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R) |Hedvig Skirgård|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |make_binary_ValueTable.R|Takes the GrambankValueTable and transforms mulistate feature values into binarised counter parts appropraitely.|[example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R)|Hedvig Skirgård|PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |make_theo_scores.R|Calculates metrics per language based on theoretical linguistics: fusion, informativity, gender/noun class, flexivity, locus of marking and word order. For more details, see supplementary material of the [Grambank release paper (2023)](https://www.science.org/doi/10.1126/sciadv.adg6175) |[example_scripts/theo_scores.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/theo_scores.R)|Hedvig Skirgård, Hannah Haynie and Olena Shcherbakova|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |varcov.spatial.3D.R| Adjusted function based on geoR::varcov.spatial. If given Longitude and Latitude, it makes haversine distances that take into account curvature of the earth and handles the antimeridian correctly (unlike geoR::varcov.spatial||Original function: Paulo J. Ribeiro Jr. and Peter J. Diggle. Update: Hedvig Skirgård.|
+| :x: |add_family_name_column.R||
+| :x: |add_isolate_info.R||
+| :x: |add_language_level_id_to_languages.R||
+| :x: |as_grambank_wide.R||
+| :x: |crop_missing_data.R||
+| :x: |drop_duplicate_tips_random.R|Drops duplicate tips of a tree at random. Option for merging dialects to one tip (i.e. dropping all dialects but one).|
 | :x: |get_shared_features.R|
 | :x: |get_values_for_clade.R|
-| :x: |get_zenodo.R|
-| :x: |reduce_ValueTable_to_unique_glottocodes.R|
+| :x: |get_zenodo.R|Fetches content from Zenodo based on a download-URL, places it in a given spot on the local machine. Back-up function for rcldf::cldf.|
+| :x: |reduce_ValueTable_to_unique_glottocodes.R| Removes duplicates in ValueTable. Option for merging dialects into one entry. Read specification of method for merging closely.|
 
 # Differences between grambank/grambank-analysed and HedvigS/R_grambank_cookbok
 
