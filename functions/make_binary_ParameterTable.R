@@ -8,8 +8,6 @@
 make_binary_ParameterTable<- function(ParameterTable,
                                       keep_multi_state_features = TRUE){
 
-#ParameterTable <- grambank_cldf_object $tables$ParameterTable
-
 Parameter_binary <- data.frame(
     ID = c(
         "G024", "G024",

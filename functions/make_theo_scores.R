@@ -11,14 +11,6 @@ make_theo_scores <- function(ValueTable,
                              ParameterTable,
                              missing_cut_off = 0.75){
 
-#    grambank_cldf_object <- rcldf::cldf(mdpath = "https://zenodo.org/records/7844558/files/grambank/grambank-v1.0.3.zip",load_bib = FALSE)
-#   source("R/make_binary_ParameterTable.R")
-#   source("R/binarise.R")
-#   library(tidyverse)
-
-#ValueTable <-   grambank_cldf_object$tables$ValueTable
-#ParameterTable <-   grambank_cldf_object$tables$ParameterTable
-
 if(!"GB203b" %in% ValueTable$Parameter_ID){
         ValueTable <- ValueTable %>% make_binary_ValueTable
 }
