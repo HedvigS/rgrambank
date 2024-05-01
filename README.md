@@ -42,26 +42,27 @@ The entire set of code of the Grambank release-paper and grambank-analysed was p
 The content here will be continuously updated and periodically released with version tags. Git allows for accessing the state of the repos at a particular time via commit labels or tags. This can be used when cloning or accessing content via URLs. We _strongly_ encourage you to keep track of when you copied code, this makes it easier to identify issues later.
 
 # Review
-The functions in this repos are in the process of going through internal peer-review. The list below tracks which have been reviewed.
+The functions in this repos are in the process of going through internal peer-review. The table below tracks which have been reviewed and by whom.
 
-
+# Functions
 
 |reviewed | Function | Short description | example scripts | Function author(s) |Review Pull Request | Reviewer | 
 | -- | --| --| --| -- |-- |-- |
 | :x: |make_binary_ParameterTable.R| Takes the Grambank ParameterTable and adds binarised features for the multistate-features. | [example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R) |Hedvig Skirgård|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
-| :x: |make_binary_ValueTable.R|Takes the GrambankValueTable and transforms mulistate feature values into binarised counter parts appropraitely.|[example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R)|Hedvig Skirgård|PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
+| :x: |make_binary_ValueTable.R|Takes the GrambankValueTable and transforms mulistate feature values into binarised counter parts appropraitely.|[example_scripts/binarise.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/binarise.R)|Hedvig Skirgård|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
 | :x: |make_theo_scores.R|Calculates metrics per language based on theoretical linguistics: fusion, informativity, gender/noun class, flexivity, locus of marking and word order. For more details, see supplementary material of the [Grambank release paper (2023)](https://www.science.org/doi/10.1126/sciadv.adg6175) |[example_scripts/theo_scores.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/theo_scores.R)|Hedvig Skirgård, Hannah Haynie and Olena Shcherbakova|[PR](https://github.com/dlce-eva/papers/pull/7)|Olena Shcherbakova|
 | :x: |varcov.spatial.3D.R| Adjusted function based on geoR::varcov.spatial. If given Longitude and Latitude, it makes haversine distances that take into account curvature of the earth and handles the antimeridian correctly (unlike geoR::varcov.spatial||Original function: Paulo J. Ribeiro Jr. and Peter J. Diggle. Update: Hedvig Skirgård.|
-| :x: |add_family_name_column.R||
-| :x: |add_isolate_info.R||
-| :x: |add_language_level_id_to_languages.R||
-| :x: |as_grambank_wide.R||
-| :x: |crop_missing_data.R||
-| :x: |drop_duplicate_tips_random.R|Drops duplicate tips of a tree at random. Option for merging dialects to one tip (i.e. dropping all dialects but one).|
-| :x: |get_shared_features.R|
-| :x: |get_values_for_clade.R|
-| :x: |get_zenodo.R|Fetches content from Zenodo based on a download-URL, places it in a given spot on the local machine. Back-up function for rcldf::cldf.|
-| :x: |reduce_ValueTable_to_unique_glottocodes.R| Removes duplicates in ValueTable. Option for merging dialects into one entry. Read specification of method for merging closely.|
+| :x: |get_zenodo.R|Fetches content from Zenodo based on a download-URL, places it in a given spot on the local machine. Back-up function for rcldf::cldf. Can be used on any Zenodo-record, not just CLDF.||Hedvig Skirgård|
+| :x: |reduce_ValueTable_to_unique_glottocodes.R| Removes duplicate glottocodes in ValueTable for the same Parameter. Option for merging dialects into one entry. Read specification of method for merging closely.||Hedvig Skirgård|
+| :x: |drop_duplicate_tips_random.R|Drops duplicate tips of a tree at random. Option for merging dialects to one tip (i.e. dropping all dialects but one).||Hedvig Skirgård|
+| :x: |add_family_name_column.R|||Hedvig Skirgård|
+| :x: |add_isolate_info.R|||Hedvig Skirgård|
+| :x: |add_language_level_id_to_languages.R|||Hedvig Skirgård|
+| :x: |crop_missing_data.R|||Hedvig Skirgård|
+| :x: |as_grambank_wide.R|||Simon Greenhill|
+| :x: |get_shared_features.R|||Simon Greenhill|
+| :x: |get_values_for_clade.R|||Simon Greenhill|
+
 
 # Differences between grambank/grambank-analysed and HedvigS/R_grambank_cookbok
 
@@ -69,6 +70,5 @@ The only difference of note between functions in [grambank/grambank-analysed](ht
 
 For more details on the theoretical scores, see the supplmenetary material to [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175).
 
-![new_old_theo_score_fusion](https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/b187b78a-6175-4494-8ae5-499efa96887d)
-
-![new_old_theo_score_inform](https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/9e9237d8-b7f5-4dc2-b82e-5d488e152965)
+<img src="https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/b187b78a-6175-4494-8ae5-499efa96887d" width="300" height="300">
+<img src="https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/9e9237d8-b7f5-4dc2-b82e-5d488e152965" width="300" height="300">
