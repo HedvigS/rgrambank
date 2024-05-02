@@ -34,217 +34,210 @@
 #' log.det.to.half the logarithmic of the square root of the determinant of the covariance matrix.
 #' @export
 
-varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = "matern", 
-                              kappa = 0.5, nugget = 0, cov.pars = stop("no cov.pars argument"), 
-                              inv = FALSE, det = FALSE, func.inv = c("cholesky", "eigen", 
-                                                                     "svd", "solve"), scaled = FALSE, only.decomposition = FALSE, 
-                              sqrt.inv = FALSE, try.another.decomposition = TRUE, only.inv.lower.diag = FALSE, 
-                              ...) 
-{
-  func.inv <- match.arg(func.inv)
-  cov.model <- sapply(cov.model, match.arg, choices = .geoR.cov.models)
-  if (only.inv.lower.diag) 
-    inv <- TRUE
-  if (is.null(coords) & is.null(dists.lowertri)) 
-    stop("one of the arguments, coords or dists.lowertri must be provided")
-  if (!is.null(coords) & !is.null(dists.lowertri)) 
-    stop("only ONE argument, either coords or dists.lowertri must be provided")
-  if (!is.null(coords)) 
-    n <- nrow(coords)
-  if (!is.null(dists.lowertri)) 
-    n <- as.integer(round(0.5 * (1 + sqrt(1 + 8 * length(dists.lowertri)))))
-  tausq <- nugget
-  if (is.vector(cov.pars)) {
-    sigmasq <- cov.pars[1]
-    phi <- cov.pars[2]
-  }
-  else {
-    sigmasq <- cov.pars[, 1]
-    phi <- cov.pars[, 2]
-  }
-  if (!is.null(coords)) {
-  rdist.earth_dists <- fields::rdist.earth(x1 = coords, x2 = coords, miles = FALSE)
-  
-  #to make the dists more similar to what stats::dist would produce, and therefore easier to apply the same kappa and sigma values, we divide the distances by 100. This means that the distances are measured in 100’s of km rather than km’s.
-  
-  rdist.earth_dists <-  rdist.earth_dists / 100 #divide by 100 to make the scale similar to stat::dist
-  
-  rdist.earth_dists[upper.tri(rdist.earth_dists, diag = TRUE)] <- NA
-  
-  dists.lowertri <- as.vector(rdist.earth_dists) %>% na.omit()}
-  
-    if (round(1e+12 * min(dists.lowertri)) == 0) 
-    warning("Two or more pairs of data at coincident (or very close) locations. \nThis may cause crashes in some matrices operations.\n")
-  varcov <- matrix(0, n, n)
-  if (scaled) {
-    if (all(phi < 1e-12)) 
-      varcov <- diag(x = (1 + (tausq/sum(sigmasq))), n)
-    else {
-      if (is.vector(cov.pars)) 
-        cov.pars.sc <- c(1, phi)
-      else cov.pars.sc <- cbind(1, phi)
-      covvec <- cov.spatial(obj = dists.lowertri, cov.model = cov.model, 
-                            kappa = kappa, cov.pars = cov.pars.sc)
-      varcov[lower.tri(varcov)] <- covvec
-      varcov <- t(varcov)
-      varcov[lower.tri(varcov)] <- covvec
-      remove("covvec")
-      if (sum(sigmasq) < 1e-16) 
-        diag(varcov) <- 1
-      else diag(varcov) <- 1 + (tausq/sum(sigmasq))
-    }
-  }
-  else {
-    if (all(sigmasq < 1e-10) | all(phi < 1e-10)) {
-      varcov <- diag(x = (tausq + sum(sigmasq)), n)
-    }
-    else {
-      covvec <- cov.spatial(obj = dists.lowertri, cov.model = cov.model, 
-                            kappa = kappa, cov.pars = cov.pars)
-      varcov[lower.tri(varcov)] <- covvec
-      varcov <- t(varcov)
-      varcov[lower.tri(varcov)] <- covvec
-      remove("covvec")
-      diag(varcov) <- tausq + sum(sigmasq)
-    }
-  }
-  if (inv | det | only.decomposition | sqrt.inv | only.inv.lower.diag) {
-    if (func.inv == "cholesky") {
-      varcov.sqrt <- try(chol(varcov), silent = TRUE)
-      if (inherits(varcov.sqrt, "try-error")) {
-        if (try.another.decomposition) {
-          cat("trying another decomposition (svd)\n")
-          func.inv <- "svd"
+varcov.spatial.3D =
+
+
+
+
+
+"varcov.spatial" <-
+    function(coords = NULL, dists.lowertri = NULL, cov.model = "matern",
+             kappa = 0.5, nugget = 0, cov.pars = stop("no cov.pars argument"),
+             inv = FALSE, det = FALSE,
+             func.inv = c("cholesky", "eigen", "svd", "solve"),
+             scaled = FALSE, only.decomposition = FALSE,
+             sqrt.inv = FALSE, try.another.decomposition = TRUE,
+             only.inv.lower.diag = FALSE, ...)
+    {
+        func.inv <- match.arg(func.inv)
+        cov.model <- sapply(cov.model, match.arg, choices = .geoR.cov.models)
+        if(only.inv.lower.diag)  inv <- TRUE
+        if(is.null(coords) & is.null(dists.lowertri))
+            stop("one of the arguments, coords or dists.lowertri must be provided")
+        if (!is.null(coords) & !is.null(dists.lowertri))
+            stop("only ONE argument, either coords or dists.lowertri must be provided")
+        if (!is.null(coords))  n <- nrow(coords)
+        if (!is.null(dists.lowertri))
+            n <- as.integer(round(0.5 * (1 + sqrt(1 + 8 * length(dists.lowertri)))))
+        tausq <- nugget
+        if (is.vector(cov.pars)) {
+            sigmasq <- cov.pars[1]
+            phi <- cov.pars[2]
         }
         else {
-          print(varcov.sqrt[1])
-          stop()
+            sigmasq <- cov.pars[, 1]
+            phi <- cov.pars[, 2]
         }
-      }
-      else {
-        if (only.decomposition | inv) 
-          remove("varcov")
+        ##  print(c(tausq=tausq, sigmasq=sigmasq, phi=phi, kappa=kappa))
+
+        if (!is.null(coords)) {
+            rdist.earth_dists <- fields::rdist.earth(x1 = coords, x2 = coords, miles = FALSE)
+
+            #to make the dists more similar to what stats::dist would produce, and therefore easier to apply the same kappa and sigma values, we divide the distances by 100. This means that the distances are measured in 100’s of km rather than km’s.
+
+            rdist.earth_dists <-  rdist.earth_dists / 100 #divide by 100 to make the scale similar to stat::dist
+
+            rdist.earth_dists[upper.tri(rdist.earth_dists, diag = TRUE)] <- NA
+
+            dists.lowertri <- as.vector(rdist.earth_dists) %>% na.omit()}
+
+        if (round(1e+12 * min(dists.lowertri)) == 0)
+            warning("Two or more pairs of data at coincident (or very close) locations. \nThis may cause crashes in some matrices operations.\n")
+        varcov <- matrix(0, n, n)
+        if (scaled) {
+            if (all(phi < 1e-12))
+                varcov <- diag(x = (1 + (tausq/sum(sigmasq))), n)
+            else {
+                if (is.vector(cov.pars)) cov.pars.sc <- c(1, phi)
+                else cov.pars.sc <- cbind(1, phi)
+                covvec <- cov.spatial(obj = dists.lowertri, cov.model = cov.model,
+                                      kappa = kappa, cov.pars = cov.pars.sc)
+                varcov[lower.tri(varcov)] <- covvec
+                varcov <- t(varcov)
+                varcov[lower.tri(varcov)] <- covvec
+                remove("covvec")
+                if(sum(sigmasq) < 1e-16) diag(varcov) <- 1
+                else diag(varcov) <- 1 + (tausq/sum(sigmasq))
+            }
+        }
+        else {
+            if (all(sigmasq < 1e-10) | all(phi < 1e-10)) {
+                varcov <- diag(x = (tausq + sum(sigmasq)), n)
+            }
+            else {
+                covvec <- cov.spatial(obj = dists.lowertri, cov.model = cov.model,
+                                      kappa = kappa, cov.pars = cov.pars)
+                varcov[lower.tri(varcov)] <- covvec
+                varcov <- t(varcov)
+                varcov[lower.tri(varcov)] <- covvec
+                remove("covvec")
+                diag(varcov) <- tausq + sum(sigmasq)
+            }
+        }
+        if (inv | det | only.decomposition | sqrt.inv | only.inv.lower.diag) {
+            if (func.inv == "cholesky") {
+                varcov.sqrt <- try(chol(varcov), silent=TRUE)
+                if (inherits(varcov.sqrt, "try-error")) {
+                    if (try.another.decomposition){
+                        cat("trying another decomposition (svd)\n")
+                        func.inv <- "svd"
+                    }
+                    else {
+                        print(varcov.sqrt[1])
+                        stop()
+                    }
+                }
+                else {
+                    if (only.decomposition | inv) remove("varcov")
+                    if (!only.decomposition) {
+                        if (det) cov.logdeth <- sum(log(diag(varcov.sqrt)))
+                        if (sqrt.inv) inverse.sqrt <- solve(varcov.sqrt)
+                        if (inv) {
+                            invcov <- chol2inv(varcov.sqrt)
+                            if (!sqrt.inv) remove("varcov.sqrt")
+                        }
+                    }
+                }
+            }
+            if (func.inv == "svd") {
+                varcov.svd <- svd(varcov, nv = 0)
+                cov.logdeth <- try(sum(log(sqrt(varcov.svd$d))), silent=TRUE)
+                if (inherits(cov.logdeth, "try-error")) {
+                    if (try.another.decomposition){
+                        cat("trying another decomposition (eigen)\n")
+                        func.inv <- "eigen"
+                    }
+                    else {
+                        print(cov.logdeth[1])
+                        stop()
+                    }
+                }
+                else {
+                    if (only.decomposition | inv) remove("varcov")
+                    if (only.decomposition)
+                        varcov.sqrt <- crossprod(t(varcov.svd$u) * sqrt(sqrt(varcov.svd$d)))
+                    if (inv) {
+                        invcov <- crossprod(t(varcov.svd$u)/sqrt(varcov.svd$d))
+                    }
+                    if (sqrt.inv)
+                        inverse.sqrt <- crossprod(t(varcov.svd$u)/sqrt(sqrt(varcov.svd$d)))
+                }
+            }
+            if (func.inv == "solve") {
+                if (det)
+                    stop("the option func.inv == \"solve\" does not allow computation of determinants. \nUse func.inv = \"chol\",\"svd\" or \"eigen\"\n")
+                invcov <- try(solve(varcov), silent=TRUE)
+                if (inherits(cov.logdeth, "try-error")) {
+                    if (try.another.decomposition)
+                        func.inv <- "eigen"
+                    else {
+                        print(invcov[1])
+                        stop()
+                    }
+                }
+                remove("varcov")
+            }
+            if (func.inv == "eigen") {
+                varcov.eig <- try(eigen(varcov, symmetric = TRUE), silent=TRUE)
+                cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), silent=TRUE)
+                if (inherits(cov.logdeth, "try.error") | inherits(varcov.eig, "try-error")) {
+                    diag(varcov) <- 1.0001 * diag(varcov)
+                    varcov.eig <- try(eigen(varcov, symmetric = TRUE), silent=TRUE)
+                    cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), silent=TRUE)
+                    if (inherits(cov.logdeth, "try.error") | inherits(varcov.eig, "try-error")) {
+                        return(list(crash.parms = c(tausq=tausq, sigmasq=sigmasq, phi=phi, kappa=kappa)))
+                    }
+                }
+                else {
+                    if (only.decomposition | inv) remove("varcov")
+                    if (only.decomposition)
+                        varcov.sqrt <- crossprod(t(varcov.eig$vec)* sqrt(sqrt(varcov.eig$val)))
+                    if (inv) invcov <- crossprod(t(varcov.eig$vec)/sqrt(varcov.eig$val))
+                    if (sqrt.inv)
+                        inverse.sqrt <- crossprod(t(varcov.eig$vec)/sqrt(sqrt(varcov.eig$val)))
+                }
+            }
+        }
         if (!only.decomposition) {
-          if (det) 
-            cov.logdeth <- sum(log(diag(varcov.sqrt)))
-          if (sqrt.inv) 
-            inverse.sqrt <- solve(varcov.sqrt)
-          if (inv) {
-            invcov <- chol2inv(varcov.sqrt)
-            if (!sqrt.inv) 
-              remove("varcov.sqrt")
-          }
+            if (det) {
+                if (inv) {
+                    if (only.inv.lower.diag)
+                        result <- list(lower.inverse = invcov[lower.tri(invcov)],
+                                       diag.inverse = diag(invcov), log.det.to.half = cov.logdeth)
+                    else result <- list(inverse = invcov, log.det.to.half = cov.logdeth)
+                }
+                else {
+                    result <- list(varcov = varcov, log.det.to.half = cov.logdeth)
+                }
+                if (sqrt.inv)
+                    result$sqrt.inverse <- inverse.sqrt
+            }
+            else {
+                if (inv) {
+                    if (only.inv.lower.diag)
+                        result <- list(lower.inverse = invcov[lower.tri(invcov)],
+                                       diag.inverse = diag(invcov))
+                    else {
+                        if (sqrt.inv)
+                            result <- list(inverse = invcov, sqrt.inverse = inverse.sqrt)
+                        else result <- list(inverse = invcov)
+                    }
+                }
+                else result <- list(varcov = varcov)
+            }
         }
-      }
+        else result <- list(sqrt.varcov = varcov.sqrt)
+        result$crash.parms <- NULL
+        return(result)
     }
-    if (func.inv == "svd") {
-      varcov.svd <- svd(varcov, nv = 0)
-      cov.logdeth <- try(sum(log(sqrt(varcov.svd$d))), 
-                         silent = TRUE)
-      if (inherits(cov.logdeth, "try-error")) {
-        if (try.another.decomposition) {
-          cat("trying another decomposition (eigen)\n")
-          func.inv <- "eigen"
-        }
-        else {
-          print(cov.logdeth[1])
-          stop()
-        }
-      }
-      else {
-        if (only.decomposition | inv) 
-          remove("varcov")
-        if (only.decomposition) 
-          varcov.sqrt <- crossprod(t(varcov.svd$u) * 
-                                     sqrt(sqrt(varcov.svd$d)))
-        if (inv) {
-          invcov <- crossprod(t(varcov.svd$u)/sqrt(varcov.svd$d))
-        }
-        if (sqrt.inv) 
-          inverse.sqrt <- crossprod(t(varcov.svd$u)/sqrt(sqrt(varcov.svd$d)))
-      }
-    }
-    if (func.inv == "solve") {
-      if (det) 
-        stop("the option func.inv == \"solve\" does not allow computation of determinants. \nUse func.inv = \"chol\",\"svd\" or \"eigen\"\n")
-      invcov <- try(solve(varcov), silent = TRUE)
-      if (inherits(cov.logdeth, "try-error")) {
-        if (try.another.decomposition) 
-          func.inv <- "eigen"
-        else {
-          print(invcov[1])
-          stop()
-        }
-      }
-      remove("varcov")
-    }
-    if (func.inv == "eigen") {
-      varcov.eig <- try(eigen(varcov, symmetric = TRUE), 
-                        silent = TRUE)
-      cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), 
-                         silent = TRUE)
-      if (inherits(cov.logdeth, "try.error") | inherits(varcov.eig, 
-                                                        "try-error")) {
-        diag(varcov) <- 1.0001 * diag(varcov)
-        varcov.eig <- try(eigen(varcov, symmetric = TRUE), 
-                          silent = TRUE)
-        cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), 
-                           silent = TRUE)
-        if (inherits(cov.logdeth, "try.error") | inherits(varcov.eig, 
-                                                          "try-error")) {
-          return(list(crash.parms = c(tausq = tausq, 
-                                      sigmasq = sigmasq, phi = phi, kappa = kappa)))
-        }
-      }
-      else {
-        if (only.decomposition | inv) 
-          remove("varcov")
-        if (only.decomposition) 
-          varcov.sqrt <- crossprod(t(varcov.eig$vec) * 
-                                     sqrt(sqrt(varcov.eig$val)))
-        if (inv) 
-          invcov <- crossprod(t(varcov.eig$vec)/sqrt(varcov.eig$val))
-        if (sqrt.inv) 
-          inverse.sqrt <- crossprod(t(varcov.eig$vec)/sqrt(sqrt(varcov.eig$val)))
-      }
-    }
-  }
-  if (!only.decomposition) {
-    if (det) {
-      if (inv) {
-        if (only.inv.lower.diag) 
-          result <- list(lower.inverse = invcov[lower.tri(invcov)], 
-                         diag.inverse = diag(invcov), log.det.to.half = cov.logdeth)
-        else result <- list(inverse = invcov, log.det.to.half = cov.logdeth)
-      }
-      else {
-        result <- list(varcov = varcov, log.det.to.half = cov.logdeth)
-      }
-      if (sqrt.inv) 
-        result$sqrt.inverse <- inverse.sqrt
-    }
-    else {
-      if (inv) {
-        if (only.inv.lower.diag) 
-          result <- list(lower.inverse = invcov[lower.tri(invcov)], 
-                         diag.inverse = diag(invcov))
-        else {
-          if (sqrt.inv) 
-            result <- list(inverse = invcov, sqrt.inverse = inverse.sqrt)
-          else result <- list(inverse = invcov)
-        }
-      }
-      else result <- list(varcov = varcov)
-    }
-  }
-  else result <- list(sqrt.varcov = varcov.sqrt)
-  result$crash.parms <- NULL
-  return(result)
-}
 
 
 
 
+
+
+
+########################
 
 ".geoR.cov.models" <-
   c("matern", "exponential", "gaussian", "spherical",
@@ -252,35 +245,14 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
     "powered.exponential", "stable", "cauchy", "gencauchy",
     "gneiting", "gneiting.matern", "pure.nugget")
 
-"geoRCovModels" <- .geoR.cov.models
-
-"practicalRange" <-
-  function (cov.model, phi, kappa=0.5, correlation = 0.05, ...) 
-  {
-    cov.model <- match.arg(cov.model, choices = .geoR.cov.models)
-    .check.cov.model(cov.model = cov.model, cov.pars=c(1,phi), kappa=kappa, output=FALSE)
-    if(cov.model %in% c("circular","cubic","spherical"))
-      return(phi)
-    if(any(cov.model %in% c("pure.nugget")))
-      return(0)  
-    if(any(cov.model %in% c("linear")))
-      return(Inf)  
-    if(any(cov.model %in% c("power")))
-      return(Inf)  
-    findRange <- function(range, cm, p, k, cor)
-      cov.spatial(range, cov.model = cm, kappa = k, cov.pars = c(1, p))-cor
-    pr <- uniroot(findRange, interval = c(0, 50 * phi + 1), 
-                  cm = cov.model, p = phi, k = kappa, cor = correlation, 
-                  ...)$root
-    return(pr)
-  }
-
+########################
 ".check.cov.model" <-
   function(cov.model, cov.pars, kappa, env=NULL, output=TRUE)
     return(list(cov.model=cov.model, sigmasq=sigmasq, phi=phi, kappa=kappa, ns=ns))
 
+########################
 "matern" <-
-  function (u, phi, kappa) 
+  function (u, phi, kappa)
   {
     if(is.vector(u)) names(u) <- NULL
     if(is.matrix(u)) dimnames(u) <- list(NULL, NULL)
@@ -288,40 +260,12 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
     uphi <- ifelse(u > 0,
                    (((2^(-(kappa-1)))/ifelse(0, Inf,gamma(kappa))) *
                       (uphi^kappa) *
-                      besselK(x=uphi, nu=kappa)), 1)    
-    uphi[u > 600*phi] <- 0 
+                      besselK(x=uphi, nu=kappa)), 1)
+    uphi[u > 600*phi] <- 0
     return(uphi)
   }
 
-".cor.number" <- 
-  function(cov.model= c("exponential", "matern", "gaussian",
-                        "spherical", "circular", "linear", "cubic", "wave", "power",
-                        "powered.exponential", "stable", "cauchy", "gencauchy", "gneiting",
-                        "gneiting.matern", "pure.nugget"))
-  {
-    ###	WARNING: codes for covariance functions below
-    ###              MUST be the same as in the C code "cor_diag"
-    cov.model <- match.arg(cov.model)
-    if(cov.model == "stable") cov.model <- "powered.exponential"
-    cornumber <- switch(cov.model,
-                        pure.nugget = as.integer(1),
-                        exponential = as.integer(2),
-                        spherical = as.integer(3),
-                        gaussian = as.integer(4),
-                        wave = as.integer(5),
-                        cubic = as.integer(6),
-                        power = as.integer(7),
-                        powered.exponential = as.integer(8),
-                        cauchy = as.integer(9),
-                        gneiting = as.integer(10),
-                        circular = as.integer(11),
-                        matern = as.integer(12),
-                        gneiting.matern = as.integer(13),
-                        gencauchy = as.integer(14),
-                        stop("wrong or no specification of cov.model")
-    )
-    return(cornumber)
-  }
+########################
 
 ".check.cov.model" <-
   function(cov.model, cov.pars, kappa, env=NULL, output=TRUE)
@@ -346,7 +290,7 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
     cov.model[cov.model == "stable"] <- "powered.exponential"
     if(any(cov.model == c("gneiting.matern", "gencauchy"))){
       if(length(kappa) != 2*ns)
-        stop(paste("wrong length for kappa, ", cov.model, "model requires two values for the argument kappa")) 
+        stop(paste("wrong length for kappa, ", cov.model, "model requires two values for the argument kappa"))
     }
     else{
       if(length(kappa) != ns) stop('wrong length for kappa')
@@ -356,7 +300,7 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
     cov.model[cov.model == "linear"] <- "power"
     ## checking input for cov. models with extra parameter(s)
     if(any(cov.model == 'gneiting.matern') && ns > 1)
-      stop('nested models including the gneiting.matern are not implemented') 
+      stop('nested models including the gneiting.matern are not implemented')
     for(i in 1:ns){
       if(any(cov.model[i] == c("matern","powered.exponential", "cauchy",
                                "gneiting.matern", "gencauchy"))){
@@ -368,11 +312,11 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
           if(is.na(kappa[i]) | is.null(kappa[i]))
             stop("for matern, powered.exponential and cauchy covariance functions the parameter kappa must be provided")
         }
-        if((cov.model[i] == "matern" | cov.model[i] == "powered.exponential" | 
+        if((cov.model[i] == "matern" | cov.model[i] == "powered.exponential" |
             cov.model[i] == "cauchy") & length(kappa) != 1*ns)
           stop("kappa must have 1 parameter for this correlation function")
         if(cov.model[i] == "matern" & kappa[i] == 0.5) cov.model[i] == "exponential"
-      }      
+      }
       if(cov.model[i] == "power")
         if(any(phi[i] >= 2) | any(phi[i] <= 0))
           stop("for power model the phi parameters must be in the interval ]0,2[")
@@ -389,6 +333,8 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
     else return(invisible())
   }
 
+######################
+
 "cov.spatial" <-
   function(obj, cov.model = "matern",
            cov.pars = stop("no cov.pars argument provided"),
@@ -403,7 +349,7 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
     ## computing correlations/covariances
     ##
     #  covs <- array(0, dim = dim(obj))
-    covs <- obj; covs[] <- 0 
+    covs <- obj; covs[] <- 0
     for(i in 1:get("ns", envir=fn.env)) {
       if(phi[i] < 1e-16)
         cov.model[i] <- "pure.nugget"
@@ -434,7 +380,7 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
                            powered.exponential = exp( - ((obj.sc)^kappa[i])),
                            cauchy = (1 + (obj.sc)^2)^(-kappa[i]),
                            gneiting = {
-                             obj.sc <- 0.301187465825 * obj.sc;   
+                             obj.sc <- 0.301187465825 * obj.sc;
                              t2 <- (1 - obj.sc);
                              t2 <- ifelse(t2 > 0, (t2^8), 0);
                              (1 + 8 * obj.sc + 25 * (obj.sc^2) + 32 * (obj.sc^3)) * t2
@@ -446,7 +392,7 @@ varcov.spatial.3D = function (coords = NULL, dists.lowertri = NULL, cov.model = 
                              t2 <- ifelse(t2 > 0, (t2^8), 0);
                              cov.values <- (1 + 8 * obj.sc + 25 * (obj.sc^2) + 32 * (obj.sc^3)) * t2;
                              cov.values * matern(u = obj, phi = phi[i], kappa = kappa[1])
-                             
+
                            },
                            stop("wrong or no specification of cov.model")
       )
