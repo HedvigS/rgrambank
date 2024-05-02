@@ -1,5 +1,5 @@
 #This script contains the code from the package geoR for the particular funciton varcov.spatial. It was not possible to load the package itself due to problems with XQuartz from xquartz.macosforge.org no longer part of  OS X, making it cumbersome for many mac-users to run the code. We are grateful to the creators of the package (Paulo J. Ribeiro Jr, Peter J. Diggle, Ole Christensen, Martin Schlather, Roger Bivand and Brian Ripley) for their labour acknowledge that this is their funciton.
-# ' Computes Covariance Matrix and Related Results. Adjusted function from geoR which computes earth distances better.
+# ' Computes Covariance Matrix and Related Results. Adjusted function from geoR which computes earth distances better. The functions in the package files for geoR are in the script named "geoR/R/corcov.R".
 
 #' @description
 #' This function builds the covariance matrix for a set of spatial locations, given the covariance parameters. According to the input options other results related to the covariance matrix (such as decompositions, determinants, inverse. etc) can also be returned.
@@ -23,6 +23,8 @@
 #' The elements of the covariance matrix are computed by the function cov.spatial. Typically this is an auxiliary function called by other functions in the geoR package.
 #'
 #' @author Original function: Paulo J. Ribeiro Jr. and Peter J. Diggle. Updated function in this script (correcting stat:dist() -> fields::rdist.earth()): Hedvig Skirgård.
+#' @note The differences between this function and the function in geoR (version 1.9-4) are as follows: when the user has not supplied the dists.lowertri-argument but has supplied coords, distances are calculated between the longitude latitude points using fields::rdist.earth instead of stats::dist. To make the scale more comparable to that of stats::dist, the distances are all divded by 100. Minor changes: the functions varcov.spatial and matern are now preceeded by a ".", making them hidden (as they are not to be used directly by the user of varcov.spatial.3D).
+#' 
 
 #' @returns The result is always list of the same kind as geoR::varcov.spatial. The components will vary according to the input options. The possible components are:
 #' varcov the covariance matrix.
@@ -34,13 +36,7 @@
 #' log.det.to.half the logarithmic of the square root of the determinant of the covariance matrix.
 #' @export
 
-varcov.spatial.3D =
-
-
-
-
-
-"varcov.spatial" <-
+varcov.spatial.3D <-
     function(coords = NULL, dists.lowertri = NULL, cov.model = "matern",
              kappa = 0.5, nugget = 0, cov.pars = stop("no cov.pars argument"),
              inv = FALSE, det = FALSE,
@@ -90,7 +86,7 @@ varcov.spatial.3D =
             else {
                 if (is.vector(cov.pars)) cov.pars.sc <- c(1, phi)
                 else cov.pars.sc <- cbind(1, phi)
-                covvec <- cov.spatial(obj = dists.lowertri, cov.model = cov.model,
+                covvec <- .cov.spatial(obj = dists.lowertri, cov.model = cov.model,
                                       kappa = kappa, cov.pars = cov.pars.sc)
                 varcov[lower.tri(varcov)] <- covvec
                 varcov <- t(varcov)
@@ -105,7 +101,7 @@ varcov.spatial.3D =
                 varcov <- diag(x = (tausq + sum(sigmasq)), n)
             }
             else {
-                covvec <- cov.spatial(obj = dists.lowertri, cov.model = cov.model,
+                covvec <- .cov.spatial(obj = dists.lowertri, cov.model = cov.model,
                                       kappa = kappa, cov.pars = cov.pars)
                 varcov[lower.tri(varcov)] <- covvec
                 varcov <- t(varcov)
@@ -251,8 +247,9 @@ varcov.spatial.3D =
     return(list(cov.model=cov.model, sigmasq=sigmasq, phi=phi, kappa=kappa, ns=ns))
 
 ########################
-"matern" <-
-  function (u, phi, kappa)
+
+".matern" <-
+  function (u, phi, kappa) 
   {
     if(is.vector(u)) names(u) <- NULL
     if(is.matrix(u)) dimnames(u) <- list(NULL, NULL)
@@ -260,8 +257,8 @@ varcov.spatial.3D =
     uphi <- ifelse(u > 0,
                    (((2^(-(kappa-1)))/ifelse(0, Inf,gamma(kappa))) *
                       (uphi^kappa) *
-                      besselK(x=uphi, nu=kappa)), 1)
-    uphi[u > 600*phi] <- 0
+                      besselK(x=uphi, nu=kappa)), 1)    
+    uphi[u > 600*phi] <- 0 
     return(uphi)
   }
 
@@ -290,7 +287,7 @@ varcov.spatial.3D =
     cov.model[cov.model == "stable"] <- "powered.exponential"
     if(any(cov.model == c("gneiting.matern", "gencauchy"))){
       if(length(kappa) != 2*ns)
-        stop(paste("wrong length for kappa, ", cov.model, "model requires two values for the argument kappa"))
+        stop(paste("wrong length for kappa, ", cov.model, "model requires two values for the argument kappa")) 
     }
     else{
       if(length(kappa) != ns) stop('wrong length for kappa')
@@ -300,7 +297,7 @@ varcov.spatial.3D =
     cov.model[cov.model == "linear"] <- "power"
     ## checking input for cov. models with extra parameter(s)
     if(any(cov.model == 'gneiting.matern') && ns > 1)
-      stop('nested models including the gneiting.matern are not implemented')
+      stop('nested models including the gneiting.matern are not implemented') 
     for(i in 1:ns){
       if(any(cov.model[i] == c("matern","powered.exponential", "cauchy",
                                "gneiting.matern", "gencauchy"))){
@@ -312,11 +309,11 @@ varcov.spatial.3D =
           if(is.na(kappa[i]) | is.null(kappa[i]))
             stop("for matern, powered.exponential and cauchy covariance functions the parameter kappa must be provided")
         }
-        if((cov.model[i] == "matern" | cov.model[i] == "powered.exponential" |
+        if((cov.model[i] == "matern" | cov.model[i] == "powered.exponential" | 
             cov.model[i] == "cauchy") & length(kappa) != 1*ns)
           stop("kappa must have 1 parameter for this correlation function")
         if(cov.model[i] == "matern" & kappa[i] == 0.5) cov.model[i] == "exponential"
-      }
+      }      
       if(cov.model[i] == "power")
         if(any(phi[i] >= 2) | any(phi[i] <= 0))
           stop("for power model the phi parameters must be in the interval ]0,2[")
@@ -335,7 +332,7 @@ varcov.spatial.3D =
 
 ######################
 
-"cov.spatial" <-
+".cov.spatial" <-
   function(obj, cov.model = "matern",
            cov.pars = stop("no cov.pars argument provided"),
            kappa = 0.5)
@@ -349,7 +346,7 @@ varcov.spatial.3D =
     ## computing correlations/covariances
     ##
     #  covs <- array(0, dim = dim(obj))
-    covs <- obj; covs[] <- 0
+    covs <- obj; covs[] <- 0 
     for(i in 1:get("ns", envir=fn.env)) {
       if(phi[i] < 1e-16)
         cov.model[i] <- "pure.nugget"
@@ -360,7 +357,7 @@ varcov.spatial.3D =
                            exponential = exp( - (obj.sc)),
                            matern = {
                              if(kappa[i] == 0.5) exp( - (obj.sc))
-                             else matern(u = obj, phi = phi[i], kappa = kappa[i])},
+                             else .matern(u = obj, phi = phi[i], kappa = kappa[i])},
                            gaussian = exp( - ((obj.sc)^2)),
                            spherical = ifelse(obj < phi[i], (1 - 1.5 * (obj.sc) +
                                                                0.5 * (obj.sc)^3), 0),
@@ -380,7 +377,7 @@ varcov.spatial.3D =
                            powered.exponential = exp( - ((obj.sc)^kappa[i])),
                            cauchy = (1 + (obj.sc)^2)^(-kappa[i]),
                            gneiting = {
-                             obj.sc <- 0.301187465825 * obj.sc;
+                             obj.sc <- 0.301187465825 * obj.sc;   
                              t2 <- (1 - obj.sc);
                              t2 <- ifelse(t2 > 0, (t2^8), 0);
                              (1 + 8 * obj.sc + 25 * (obj.sc^2) + 32 * (obj.sc^3)) * t2
@@ -391,8 +388,8 @@ varcov.spatial.3D =
                              t2 <- (1 - obj.sc);
                              t2 <- ifelse(t2 > 0, (t2^8), 0);
                              cov.values <- (1 + 8 * obj.sc + 25 * (obj.sc^2) + 32 * (obj.sc^3)) * t2;
-                             cov.values * matern(u = obj, phi = phi[i], kappa = kappa[1])
-
+                             cov.values * .matern(u = obj, phi = phi[i], kappa = kappa[1])
+                             
                            },
                            stop("wrong or no specification of cov.model")
       )
@@ -410,8 +407,8 @@ varcov.spatial.3D =
     #    covs <- max(covs) - covs
     #  else covs[obj < 1e-16] <- sum(sigmasq)
     if(sum(sigmasq) < 1e-16) covs[obj < 1e-16] <- 1
-    if(any(!is.finite(covs))) warning("Infinity value in cov.spatial")
-    if(any(is.na(covs))) warning("NA value in cov.spatial")
-    if(any(is.nan(covs))) warning("NaN value in cov.spatial")
+    if(any(!is.finite(covs))) warning("Infinity value in .cov.spatial")
+    if(any(is.na(covs))) warning("NA value in .cov.spatial")
+    if(any(is.nan(covs))) warning("NaN value in .cov.spatial")
     return(covs)
   }
