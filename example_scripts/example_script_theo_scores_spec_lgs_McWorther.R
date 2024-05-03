@@ -86,7 +86,7 @@ plot <- function(theo_score, focus, n){
   geom_histogram(mapping = aes(x = Theo_score), 
                  alpha = 0.5,fill = "gray", bins = 20) +
   geom_point(data = joined %>% filter(!is.na(Focus)), 
-             mapping = aes(x = Theo_score, color = Focus), y = sample(x = y_jitter, size = n, replace = TRUE), na.rm = T) +
+             mapping = aes(x = Theo_score, color = Focus), y = sample(x = y_jitter, size = n, replace = TRUE), na.rm = T, alpha = 0.8) +
   theme_classic() +		
   theme(axis.title = element_text(size=18), 		
         legend.title = element_blank(),
