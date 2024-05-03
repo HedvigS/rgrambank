@@ -28,6 +28,7 @@ contact_lgs <- read_tsv("output/tables/contact_languages.tsv", show_col_types = 
 LanguageTable <- GB_rcldf_obj$tables$LanguageTable %>%
   dplyr::select(ID, Glottocode, lineage, Name, Family_name) %>% 
   left_join(contact_lgs, by = "Glottocode") %>% 
+  mutate(Family_name = ifelse(is.na(Family_name), "?", Family_name)) %>% 
   mutate(Contact_lgs = ifelse(Contact_lg == "YES" , Family_name, NA)) %>% 
   mutate(English = ifelse(str_detect(lineage, "indo1319") |
                             str_detect(Glottocode, "indo1319") , "Indo-European", NA)) %>% 
