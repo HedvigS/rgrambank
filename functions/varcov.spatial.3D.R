@@ -22,7 +22,7 @@
 #' @details
 #' The elements of the covariance matrix are computed by the function cov.spatial. Typically this is an auxiliary function called by other functions in the geoR package.
 #'
-#' @author Original function: Paulo J. Ribeiro Jr. and Peter J. Diggle. Updated function in this script (correcting stat:dist() -> fields::rdist.earth()): Hedvig Skirgård.
+#' @author Original function: Paulo J. Ribeiro Jr. and Peter J. Diggle. Updated function in this script (correcting stat:dist() -> fields::rdist.earth()): Hedvig Skirgård and Sam Passmore.
 #' @note The differences between this function and the function in geoR (version 1.9-4) are as follows: when the user has not supplied the dists.lowertri-argument but has supplied coords, distances are calculated between the longitude latitude points using fields::rdist.earth instead of stats::dist. To make the scale more comparable to that of stats::dist, the distances are all divded by 100. Minor changes: the functions varcov.spatial and matern are now preceeded by a ".", making them hidden (as they are not to be used directly by the user of varcov.spatial.3D).
 #' 
 
