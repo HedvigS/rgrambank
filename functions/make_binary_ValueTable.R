@@ -1,4 +1,4 @@
-#' @author Hedvig Skirgård and Simon Gfreenhill
+#' @author Hedvig Skirgård and Simon Greenhill
 
 binary_parameters <- c(
     "GB024a", "GB024b",
