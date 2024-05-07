@@ -8,7 +8,7 @@
 make_binary_ParameterTable<- function(ParameterTable,
                                       keep_multi_state_features = TRUE){
 
-Parameter_binary <- data.frame(
+.Parameter_binary <- data.frame(
     ID = c(
         "G024", "G024",
         "G025", "G025",
@@ -73,7 +73,7 @@ Parameter_binary <- data.frame(
 multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
 
 ParameterTable_new <- ParameterTable %>%
-    full_join(Parameter_binary, by = "ID") %>%
+    full_join(.Parameter_binary, by = "ID") %>%
     mutate(ID = ifelse(!is.na(ID_binary), ID_binary, ID)) %>%
     mutate(Name = ifelse(!is.na(Name_binary), Name_binary, Name)) %>%
     mutate(Grambank_ID_desc = ifelse(!is.na(Grambank_ID_desc_binary), Grambank_ID_desc_binary, Grambank_ID_desc)) %>%

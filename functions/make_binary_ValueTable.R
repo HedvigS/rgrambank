@@ -1,6 +1,6 @@
 #' @author Hedvig Skirgård and Simon Gfreenhill
 
-binary_parameters <- c(
+.binary_parameters <- c(
     "GB024a", "GB024b",
     "GB025a", "GB025b",
     "GB065a", "GB065b",
@@ -8,7 +8,7 @@ binary_parameters <- c(
     "GB193a","GB193b",
     "GB203a", "GB203b")
 
-multistate_parameters <- c(
+.multistate_parameters <- c(
     "GB024",
     "GB025",
     "GB065",
@@ -21,7 +21,7 @@ multistate_parameters <- c(
 #GB025 multistate 1: Dem-N; 2: N-Dem; 3: both.
 #GB065 multistate 1:Possessor-Possessed; 2:Possessed-Possessor; 3: both
 #GB130 multistate 1: SV; 2: VS; 3: both
-binarise_GBXXX_to_GBXXXa_without_zero <- function(values) {
+.binarise_GBXXX_to_GBXXXa_without_zero <- function(values) {
     if ("0" %in% values) {
         stop("Feature contains zero-values which are not permitted.")
     }
@@ -29,7 +29,7 @@ binarise_GBXXX_to_GBXXXa_without_zero <- function(values) {
 }
 
 
-binarise_GBXXX_to_GBXXXb_without_zero <- function(values) {
+.binarise_GBXXX_to_GBXXXb_without_zero <- function(values) {
     if ("0" %in% values) {
         stop("Feature contains zero-values which are not permitted.")
     }
@@ -41,15 +41,15 @@ binarise_GBXXX_to_GBXXXb_without_zero <- function(values) {
 
 #GB193 multistate 0: they cannot be used attributively, 1: ANM-N; 2: N-ANM; 3: both.
 #GB203 multistate 0: no UQ, 1: UQ-N; 2: N-UQ; 3: both.
-binarise_GBXXX_to_GBXXXa_with_zero <- function(values) {
+.binarise_GBXXX_to_GBXXXa_with_zero <- function(values) {
     dplyr::case_match(values, "0"~"0", "1" ~ "1", "2" ~ "0", "3" ~ "1", "?" ~ "?",  NA ~ NA)
 }
 
-binarise_GBXXX_to_GBXXXb_with_zero <- function(values) {
+.binarise_GBXXX_to_GBXXXb_with_zero <- function(values) {
     dplyr::case_match(values, "0"~"0", "1" ~ "0", "2" ~ "1", "3" ~ "1",  "?" ~ "?", NA ~ NA)
 }
 
-gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
+.gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
     ValueTable %>% dplyr::filter(Parameter_ID == oldvariable) %>%
         dplyr::mutate(
             ID=paste0(newvariable, "-", Language_ID),
@@ -80,9 +80,9 @@ make_binary_ValueTable <- function(ValueTable = NULL,
 
     if (trim_to_only_raw_binary == TRUE) {
         ValueTable <- ValueTable %>%
-            dplyr::filter(!(Parameter_ID %in% multistate_parameters))
+            dplyr::filter(!(Parameter_ID %in% .multistate_parameters))
 
-        if(!(any(Parameter_ID %in% binary_parameters))){
+        if(!(any(Parameter_ID %in% .binary_parameters))){
             stop("There is no raw binary coding at all.")
         }
 
@@ -90,25 +90,25 @@ make_binary_ValueTable <- function(ValueTable = NULL,
 
     if (keep_raw_binary == FALSE) {
         ValueTable <- ValueTable %>%
-            dplyr::filter(!(Parameter_ID %in% binary_parameters))
+            dplyr::filter(!(Parameter_ID %in% .binary_parameters))
     } else {
         ValueTable_raw_binary <- ValueTable %>%
-            dplyr::filter(Parameter_ID %in% binary_parameters)
+            dplyr::filter(Parameter_ID %in% .binary_parameters)
     }
 
     # BINARISING MULTISTATE FEATURES
-    ValueTable <- gb_recode(ValueTable, 'GB024', 'GB024a', binarise_GBXXX_to_GBXXXa_without_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB024', 'GB024b', binarise_GBXXX_to_GBXXXb_without_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB025', 'GB025a', binarise_GBXXX_to_GBXXXa_without_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB025', 'GB025b', binarise_GBXXX_to_GBXXXb_without_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB065', 'GB065a', binarise_GBXXX_to_GBXXXa_without_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB065', 'GB065b', binarise_GBXXX_to_GBXXXb_without_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB130', 'GB130a', binarise_GBXXX_to_GBXXXa_without_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB130', 'GB130b', binarise_GBXXX_to_GBXXXb_without_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB193', 'GB193a', binarise_GBXXX_to_GBXXXa_with_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB193', 'GB193b', binarise_GBXXX_to_GBXXXb_with_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB203', 'GB203a', binarise_GBXXX_to_GBXXXa_with_zero)
-    ValueTable <- gb_recode(ValueTable, 'GB203', 'GB203b', binarise_GBXXX_to_GBXXXb_with_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB024', 'GB024a', .binarise_GBXXX_to_GBXXXa_without_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB024', 'GB024b', .binarise_GBXXX_to_GBXXXb_without_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB025', 'GB025a', .binarise_GBXXX_to_GBXXXa_without_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB025', 'GB025b', .binarise_GBXXX_to_GBXXXb_without_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB065', 'GB065a', .binarise_GBXXX_to_GBXXXa_without_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB065', 'GB065b', .binarise_GBXXX_to_GBXXXb_without_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB130', 'GB130a', .binarise_GBXXX_to_GBXXXa_without_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB130', 'GB130b', .binarise_GBXXX_to_GBXXXb_without_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB193', 'GB193a', .binarise_GBXXX_to_GBXXXa_with_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB193', 'GB193b', .binarise_GBXXX_to_GBXXXb_with_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB203', 'GB203a', .binarise_GBXXX_to_GBXXXa_with_zero)
+    ValueTable <- .gb_recode(ValueTable, 'GB203', 'GB203b', .binarise_GBXXX_to_GBXXXb_with_zero)
 
     if (keep_raw_binary == TRUE) {
         ValueTable <- ValueTable %>%
@@ -122,7 +122,7 @@ make_binary_ValueTable <- function(ValueTable = NULL,
     }
     if (keep_multistate == FALSE) {
         ValueTable <- ValueTable %>%
-            dplyr::filter(!(Parameter_ID %in% multistate_parameters))
+            dplyr::filter(!(Parameter_ID %in% .multistate_parameters))
         }
     }
 ValueTable
