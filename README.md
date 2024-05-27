@@ -23,7 +23,7 @@ script_url <- "https://raw.githubusercontent.com/HedvigS/R_grambank_cookbook/mai
 
 # check if the script has already been fetched, if not then download it.
 if(!file.exists(
-  paste0(dir, "/", basename(script_url))){
+  paste0(dir, "/", basename(script_url)))){
 script <- readLines(script_url, warn = F)
 
 date_line <- paste0("# fetched: ", date(), "\n") #adding a line with the date of the download
