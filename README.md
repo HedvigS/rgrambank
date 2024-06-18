@@ -13,7 +13,7 @@ This is not a package, and can therefore not be installed as such. If you want t
 
 ## Suggestion for how to fetch individual files
 
-In `R` you can, if you'd like, fetch scripts individually in this fashion:
+In `R` you can, if you'd like, fetch scripts from the internet to your local machine individually in this fashion:
 
 ```
 # set up a folder where the scripts are stored
@@ -28,7 +28,7 @@ if(!file.exists(
   paste0(dir, "/", basename(script_url)))){
 script <- readLines(script_url, warn = F)
 
-date_line <- paste0("# fetched: ", date(), "\n") #adding a line with the date of the download
+date_line <- paste0("# fetched: ", date(), "\n") #adding a line with the date of the download so that you know what version you've used in case there are changes.
 script <- c(date_line, script)
 
 writeLines(text = script, paste0(dir, "/", basename(script_url)))
