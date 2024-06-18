@@ -1,16 +1,16 @@
-#install.packages("devtools")
-library(devtools)
+#install.packages("remotes")
+library(remotes)
 
-#install_version("tidyverse", version = "2.0.0", repos = "http://cran.us.r-project.org")
+#remotes::install_version("tidyverse", version = "2.0.0", repos = "http://cran.us.r-project.org")
 library(tidyverse)
 
-#install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
-library(rcldf)
+devtools::install_version(package = "spam", version = "2.10.0")
+packageVersion("spam")
 
-#install_version("fields", version = "14.1", repos = "http://cran.us.r-project.org")
-library(fields)
+remotes::install_version("fields", version = "14.2", repos = "http://cran.us.r-project.org",  dependencies = F, )
+library(fields, attach.required = F)
 
-#install_version("reshape2", version = "1.4.4", repos = "http://cran.us.r-project.org")
+#devtools::install_version("reshape2", version = "1.4.4", repos = "http://cran.us.r-project.org")
 library(reshape2)
 
 source("../functions/varcov.spatial.3D.R")
