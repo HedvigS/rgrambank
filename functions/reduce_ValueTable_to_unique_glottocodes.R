@@ -2,8 +2,8 @@
 #'
 #' @param ValueTable data-frame, long format. ValueTable from cldf.
 #' @param LanguageTable data-frame of a cldf LanguageTable from the same cldf-dataset as ValueTable. Needs to minimally have the columns "ID" (for matching to ValueTable) and "Glottocode" (for identification of duplicates).
-#' @param merge_dialects logical. In the case of multiple dialects of the same language, if TRUE they are replaced by the glottocode of their language-parent and all but one is dropped as with other duplicate glottocodes.
-#' @param LanguageTable2 data-frame. If merge_dialects is TRUE and LanguageTable does not have the columns "Language_ID" or "Language_level_ID", then the function will need an additional LanguageTable with the necessary columns and it should be supplied here. Needs to minimally have the columns "Glottocode" and "Language_ID" or "Language_level_ID". Glottolog-cldf LanguageTable recommended.
+#' @param merge_dialects logical. In the case of multiple dialects of the same language, if TRUE they are replaced by the glottocode of their language-parent and all but one is dropped according to the merge method specified, as with other duplicate glottocodes.
+#' @param LanguageTable2 data-frame. If merge_dialects is TRUE and LanguageTable does not have the column  "Language_level_ID", then the function will need an additional LanguageTable with the necessary columns and it should be supplied here. Needs to minimally have the columns Glottocode" and "Language_level_ID". Glottolog-cldf LanguageTable recommended.
 #' @param method character vector, choice between "singular_least_missing_data", "combine_random", "singular_random". combine_random = combine all datapoints for all the dialects/duplicates and if there is more than one datapoint for a given feature/word/variable choose randomly between them, singular_random = choose randomly between the dialects/duplicates, singular_least_missing_data = choose the dialect/duplicate which has the most datapoints.
 #' @param treat_question_mark_as_missing logical. If TRUE, values which are ? are treated as missing.
 #' @param replace_missing_language_level_ID logical. If TRUE and there is a missing value in the column Language_level ID, the Glottocode value is filled in. If FALSE, it remains missing. Only relevant if merge_dialects is TRUE.
@@ -89,8 +89,11 @@ if(treat_question_mark_as_missing == TRUE){
 if(merge_dialects == TRUE){
 
   if(!"Language_level_ID" %in% colnames(LanguageTable)){
+    LanguageTable2 <- LanguageTable2 %>%
+      dplyr::distinct(Glottocode, Language_level_ID)
+      
     LanguageTable <- LanguageTable %>% 
-      full_join(LanguageTable2)
+      full_join(LanguageTable2, by = "Glottocode")
   }
 
 if(replace_missing_language_level_ID == TRUE){
