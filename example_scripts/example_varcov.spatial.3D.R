@@ -1,13 +1,16 @@
 #install.packages("remotes")
 library(remotes)
 
+#install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
+library(rcldf)
+
 #remotes::install_version("tidyverse", version = "2.0.0", repos = "http://cran.us.r-project.org")
 library(tidyverse)
 
-devtools::install_version(package = "spam", version = "2.10.0")
-packageVersion("spam")
+#devtools::install_version(package = "spam", version = "2.10.0")
+library(spam)
 
-remotes::install_version("fields", version = "14.2", repos = "http://cran.us.r-project.org",  dependencies = F, )
+#remotes::install_version("fields", version = "14.1", repos = "http://cran.us.r-project.org",  dependencies = F)
 library(fields, attach.required = F)
 
 #devtools::install_version("reshape2", version = "1.4.4", repos = "http://cran.us.r-project.org")
@@ -44,12 +47,13 @@ fiji_dists_3D < 100){
 kappa = 2 # smoothness parameter as recommended by Dinnage et al. (2020)
 sigma = c(1, 1.15) # Sigma parameter. First value is not used. 
 
-
+#computing the co-variance with the new varcov.spatial function but giving the dists directly as from stats::dist, i.e. the 2D approach
 vcv_2D <- varcov.spatial.3D(dists.lowertri = as.vector(dist(coords)), 
                             cov.pars  = sigma, kappa = kappa)$varcov
 
 colnames(vcv_2D) <- rownames(vcv_2D) <- rownames(coords)
 
+#computing the co-variance with the new function giving it the coordinates directly, which it will pass to fields::rdist.earth.
 vcv_3D <- varcov.spatial.3D(coords = coords, 
                             cov.pars  = sigma, kappa = kappa)$varcov
 
@@ -58,3 +62,10 @@ colnames(vcv_3D) <- rownames(vcv_3D) <- rownames(coords)
 fiji_vcv_2D <- abs(vcv_2D["fiji1242", "bisl1239"] - vcv_2D["fiji1242", "samo1305"])
 
 fiji_vcv_3D <- abs(vcv_3D["fiji1242", "bisl1239"] - vcv_3D["fiji1242", "samo1305"])  
+
+  cat(paste0("the co-variation betweenfiji1242, bisl1239 and samo1305 are different in the 2D dist compared to the 3D dists.\n", 
+           "2D: ",   format(fiji_vcv_2D, scientific = F), "\n",
+           "3D: ",   format(fiji_vcv_3D, scientific = F), "\n"
+  ))
+  
+
