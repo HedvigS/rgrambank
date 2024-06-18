@@ -7,6 +7,8 @@ This repository contains a set of R functions that are useful for analysis of Gr
 ## Structure of content
 Within this repository, functions are found in the directory called `functions` and examples in `example_scripts`. Each function-script comes with information on how arguments work etc, like functions in `R`-packages. The directory `example_scripts` contain `R`-scripts which illustrate sepcific functions. For example, the script `example_scripts/binarise.R` showcases the functions `functions/make_binary_ParameterTable`and `functions/make_binary_ValueTable`. In order to run the example scripts you need to set your working directory to `example_scripts`, as this is how the file-paths to `functions`and `fixed` are set up.
 
+Detailed descriptions of the functions parameters and behaviour can be found in their respective scripts in the dir `functions`.
+
 # What this is not
 
 This is not a package, and can therefore not be installed as such. If you want to use the functions here, you can manually copy them over, clone the repos or fetch individual files as described below.
