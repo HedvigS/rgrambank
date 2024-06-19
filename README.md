@@ -15,7 +15,7 @@ This is not a package, and can therefore not be installed as such. If you want t
 
 ## Suggestion for how to fetch individual files
 
-In `R` you can, if you'd like, fetch scripts from the internet to your local machine individually in this fashion:
+In `R` you can, if you'd like, fetch scripts from the internet to your local machine individually in the manner exemplified below. This method will only download the script if you don't already have it, and it'll keep track of the date you made the download in case there are any changes to the function in future.
 
 ```
 # set up a folder where the scripts are stored
