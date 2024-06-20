@@ -6,8 +6,28 @@
 #' @export
 
 make_binary_ParameterTable<- function(ParameterTable,
-                                      keep_multi_state_features = TRUE){
+                                      keep_multi_state_features = TRUE,
+                                      keep_raw_binary = FALSE){
 
+ 
+  binarised_feats <-  c(
+    "GB024a", "GB024b",
+    "GB025a", "GB025b",
+    "GB065a", "GB065b",
+    "GB130a","GB130b",
+    "GB193a","GB193b",
+    "GB203a", "GB203b")
+  
+  if(keep_raw_binary == TRUE & all(  binarised_feats %in% ParameterTable$ID)){
+
+    ParameterTable_new <- ParameterTable
+    
+  }else{
+  
+  
+  
+  
+  
 .Parameter_binary <- data.frame(
     ID = c(
         "G024", "G024",
@@ -69,7 +89,6 @@ make_binary_ParameterTable<- function(ParameterTable,
     ),
     Binary_Multistate = c("Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised"))
 
-
 multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
 
 ParameterTable_new <- ParameterTable %>%
@@ -82,10 +101,15 @@ ParameterTable_new <- ParameterTable %>%
     mutate(Binary_Multistate= ifelse(ID %in% multistate_features, "Multi", Binary_Multistate)) %>%
     mutate(Binary_Multistate = ifelse(is.na(Binary_Multistate), "Binary", Binary_Multistate))
 
+  }
+
 if(keep_multi_state_features == FALSE){
 ParameterTable_new <-     ParameterTable_new %>%
     filter(!(ID %in% multistate_features))
 }
+
+
+
 
 ParameterTable_new
 }
