@@ -37,7 +37,7 @@ if(!"GB203b" %in% ParameterTable$ID){
     n_word_order_feats <- length(ParameterTable$Word_Order %>% na.omit())
 
     ValueTable <- ValueTable %>%
-        dplyr::inner_join(ParameterTable , by = "Parameter_ID") %>%
+        dplyr::inner_join(ParameterTable , by = "Parameter_ID", relationship = "many-to-many") %>%
         dplyr::filter(!is.na(Value)) %>%
         dplyr::filter(Value != "?") %>%
         dplyr::mutate(Value = as.numeric(Value))  # drop out ? marking and makes it possible to sum, mean etc
