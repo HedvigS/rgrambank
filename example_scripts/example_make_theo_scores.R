@@ -8,7 +8,9 @@ library(tidyverse)
 #install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
-GB_rcldf_obj <- rcldf::cldf("../../../../Grambank 2.0/grambank/cldf/StructureDataset-metadata.json", load_bib = F)
+#GB_rcldf_obj <- rcldf::cldf("../../../../Grambank 2.0/grambank/cldf/StructureDataset-metadata.json", load_bib = F)
+# fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
+GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
 
 LanguageTable <- GB_rcldf_obj$tables$LanguageTable
 ValueTable <- GB_rcldf_obj$tables$ValueTable
