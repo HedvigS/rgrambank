@@ -35,7 +35,17 @@ if(!"GB203b" %in% ParameterTable$ID){
     n_flexivity_feats <- length(ParameterTable$Flexivity %>% na.omit())
     n_locus_marking_feats <- length(ParameterTable$Locus_of_Marking %>% na.omit())
     n_word_order_feats <- length(ParameterTable$Word_Order %>% na.omit())
-
+    
+    if(any(n_fusion_feats == 0, 
+        n_informativity_feats == 0, 
+        n_gender_NC_feats == 0, 
+        n_flexivity_feats == 0, 
+        n_locus_marking_feats == 0, 
+        n_word_order_feats == 0
+    ) ){
+      stop("There is something wrong with the ParameterTable, some of the columns for the metric weights are empty. ")
+          }
+    
     ValueTable <- ValueTable %>%
         dplyr::inner_join(ParameterTable , by = "Parameter_ID", relationship = "many-to-many") %>%
         dplyr::filter(!is.na(Value)) %>%
