@@ -1,5 +1,5 @@
 
-Grambank_version <- 2
+Grambank_version <- 1
 
 #install.packages("devtools")
 library(devtools)
@@ -16,7 +16,7 @@ if(Grambank_version == 2){
 #https://github.com/glottobank/Grambank/issues/2782
 #in the meantime, grambank v2 will need to be complemented with the ParameterTable from v1.
 
-GB_rcldf_obj_v2 <- rcldf::cldf("../../../../Grambank 2.0/grambank/cldf/StructureDataset-metadata.json", load_bib = F)
+GB_rcldf_obj_v2 <- rcldf::cldf("../../../../Grambank 2.0/cldf/StructureDataset-metadata.json", load_bib = F)
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj_v1 <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
 LanguageTable <- GB_rcldf_obj_v2$tables$LanguageTable
