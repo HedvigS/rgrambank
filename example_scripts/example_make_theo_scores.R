@@ -1,4 +1,6 @@
 
+Grambank_version <- 2
+
 #install.packages("devtools")
 library(devtools)
 
@@ -8,13 +10,29 @@ library(tidyverse)
 #install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
+if(Grambank_version == 2){
+
+# Word_Order was missing from Grambank 2.0, this is being fixed:
+#https://github.com/glottobank/Grambank/issues/2782
+#in the meantime, grambank v2 will need to be complemented with the ParameterTable from v1.
+
 GB_rcldf_obj_v2 <- rcldf::cldf("../../../../Grambank 2.0/grambank/cldf/StructureDataset-metadata.json", load_bib = F)
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj_v1 <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
-
 LanguageTable <- GB_rcldf_obj_v2$tables$LanguageTable
 ValueTable <- GB_rcldf_obj_v2$tables$ValueTable
 ParameterTable <- GB_rcldf_obj_v1$tables$ParameterTable
+}
+
+
+if(Grambank_version == 1){
+  # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
+  GB_rcldf_obj_v1 <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
+  LanguageTable <- GB_rcldf_obj_v1$tables$LanguageTable
+  ValueTable <- GB_rcldf_obj_v1$tables$ValueTable
+  ParameterTable <- GB_rcldf_obj_v1$tables$ParameterTable
+  }
+
 
 source("../functions/make_binary_ParameterTable.R")
 source("../functions/make_binary_ValueTable.R")
