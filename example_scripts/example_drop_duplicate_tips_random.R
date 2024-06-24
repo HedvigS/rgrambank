@@ -6,6 +6,9 @@ library(ape)
 
 library(R.utils)
 
+#install.packages("devtools")
+library(devtools)
+
 #install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
