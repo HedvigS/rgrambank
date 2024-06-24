@@ -12,6 +12,16 @@ GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/gr
 
 source("../functions/reduce_ValueTable_to_unique_glottocodes.R")
 
+overview_duplicates <- GB_rcldf_obj$tables$ValueTable %>% 
+  distinct(Language_ID) %>%
+  left_join(GB_rcldf_obj$tables$LanguageTable, by = c("Language_ID" = "ID")) %>% 
+  distinct(Language_ID, Language_level_ID) %>%
+  group_by(Language_level_ID) %>% 
+  mutate(n = n()) %>% 
+  filter(n >1)
+
+cat("There are " , nrow(overview_duplicates), " duplicates of Language_leveL_ID in ValueTable.\n", sep = "")
+
 ValueTable_reduced <- reduce_ValueTable_to_unique_glottocodes(ValueTable = GB_rcldf_obj$tables$ValueTable,
                                                               LanguageTable =  GB_rcldf_obj$tables$LanguageTable, 
                                                               method = "singular_least_missing_data", 

@@ -6,11 +6,14 @@ library(ape)
 
 library(R.utils)
 
+#install.packages("devtools")
+library(devtools)
+
 #install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
 
-source("../functions/drop_duplicate_tips_random.R")
+source("../functions/reduce_tree_to_unique_glottocodes.R")
 
 #fecthing the global world tree from:
 #Bouckaert, R., Redding, D., Sheehan, O., Kyritsis, T., Gray, R., Jones, K. E., & Atkinson, Q. (2022, July 20). Global language diversification is linked to socio-ecology and threat status. https://doi.org/10.31235/osf.io/f8tr6
@@ -21,19 +24,31 @@ utils::download.file("https://github.com/rbouckaert/global-language-tree-pipelin
 R.utils::gunzip(filename = "fixed/global-language-tree-MCC-labelled.tree.gz")
 }
 
-#readin in tree
+#reading in tree
 tree <- ape::read.nexus("fixed/global-language-tree-MCC-labelled.tree")
 
-cat(paste("The original tree has ", Ntip(tree), " tips.\n"))
+cat(paste("The original tree has ", ape::Ntip(tree), " tips.\n"))
+
+LanguageTable <- data.frame(taxon= tree$tip.label, 
+           Glottocode = tree$tip.label %>% substr(1, 8))
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
 
-LanguageTable <- glottolog_rcldf_obj$tables$LanguageTable %>% 
+LanguageTable2 <- glottolog_rcldf_obj$tables$LanguageTable %>% 
   dplyr::select(Glottocode, Language_level_ID = Language_ID)
 
 #pruning
 #for the global tree from Bouckaert has no duplicate tip labels
-pruned_tree <- drop_duplicate_tips_random(tree = tree, merge_dialects = TRUE, trim_tip_label_to_first_eight = TRUE, LanguageTable = LanguageTable)
+
+pruned_tree <- reduce_tree_to_unique_glottocodes(tree = tree, merge_dialects = TRUE, 
+                                                 LanguageTable = LanguageTable, 
+                                                 LanguageTable2 = LanguageTable2, 
+                                                 rename_tips_to_glottocodes = TRUE)
+
+pruned_tree <- reduce_tree_to_unique_glottocodes(tree = tree, merge_dialects = TRUE, 
+                                                 LanguageTable = LanguageTable, 
+                                                 LanguageTable2 = LanguageTable2, 
+                                                 rename_tips_to_glottocodes = FALSE)
 
 cat(paste("The pruned tree has ", Ntip(pruned_tree), " tips.\n"))
