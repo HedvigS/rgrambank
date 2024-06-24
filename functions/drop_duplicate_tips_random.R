@@ -20,6 +20,12 @@ if(trim_tip_label_to_first_eight == TRUE){
     tree$tip.label <- tree$tip.label %>% substr(1, 8)
 }
 
+if(!ape::Ntip(tree) == tree$tip.label %in% LanguageTable$Glottocode %>% sum() ){
+  stop("There are tips in the tree that cannot be matched to an entry in LanguageTable.")
+  }
+  
+
+  
 if(merge_dialects == TRUE){
 
 if(is.null(LanguageTable)){
