@@ -27,7 +27,7 @@ R.utils::gunzip(filename = "fixed/global-language-tree-MCC-labelled.tree.gz")
 #readin in tree
 tree <- ape::read.nexus("fixed/global-language-tree-MCC-labelled.tree")
 
-cat(paste("The original tree has ", Ntip(tree), " tips.\n"))
+cat(paste("The original tree has ", ape::Ntip(tree), " tips.\n"))
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
