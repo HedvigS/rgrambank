@@ -6,12 +6,12 @@
 #' @param LanguageTable2 data-frame. If merge_dialects is TRUE and LanguageTable does not have the column  "Language_level_ID", then the function will need an additional LanguageTable with the necessary columns and it should be supplied here. Needs to minimally have the columns "Glottocode" and "Language_level_ID". Glottolog-cldf LanguageTable recommended (requires renaming Language_ID -> Language_level_ID)
 #' @param method character vector, choice between "singular_least_missing_data", "combine_random", "singular_random". combine_random = combine all datapoints for all the dialects/duplicates and if there is more than one datapoint for a given feature/word/variable choose uniformly between the values across all entries, singular_random = choose one entry randomly between the dialects/duplicates, singular_least_missing_data = choose the dialect/duplicate which has the least missing values.
 #' @param treat_question_mark_as_missing logical. If TRUE, values which are ? are treated as missing.
-#' @param replace_missing_language_level_ID logical. If TRUE and there is a missing value in the column Language_level ID, the Glottocode value is filled in. If FALSE, it remains missing. Only relevant if merge_dialects is TRUE.
+#' @param replace_missing_language_level_ID logical. If TRUE and there is a missing value in the column Language_level ID, the Glottocode value is filled in. If FALSE, it remains missing (highly discouraged). Only relevant if merge_dialects is TRUE.
 #' @author Hedvig Skirgård
 #' @description
 #' This function takes a CLDF ValueTable and reduces it down to only entries with unique Glottocodes. If there are dialects of the same language, merge_dialects can be set to TRUE and then they are also treated as duplicates and reduced in the same manner as method specifies.
 #' @note
-#' Any non-missing data in ValueTable is counted as data, i.e. if there are "?"-Values they are treated the same as "1", "0" etc. If you want to treat them as missing, you need to replace them with NAs before applying the function.
+#'  treat_question_mark_as_missing is set to TRUE by default, that means that '?' values are turned into NA.
 #' @return data-frame of ValueTable without duplicates
 #' @export
 #'
