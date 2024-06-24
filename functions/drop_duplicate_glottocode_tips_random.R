@@ -8,28 +8,37 @@
 #' @author Hedvig Skirgård
 #' @export
 
-drop_duplicate_tips_random <- function(tree = NULL,
+drop_duplicate_glottocode_tips_random <- function(tree = NULL,
                                       merge_dialects = TRUE,
                                       LanguageTable = NULL,
+                                      LanguageTable2 = NULL, 
                                       trim_tip_label_to_first_eight = TRUE){
 
     #tree <- ape::read.tree("tests/testthat/fixtures/example_tree.tree")
     #LanguageTable <- read.delim("tests/testthat/fixtures/taxa.csv", sep = ",")
-#if the tip labels has glottocodes as the first 8 characters and then something else, like a name, then prune that off. This is for example true for the EDGE-trees.
-if(trim_tip_label_to_first_eight == TRUE){
-    tree$tip.label <- tree$tip.label %>% substr(1, 8)
-}
 
-if(!ape::Ntip(tree) == tree$tip.label %in% LanguageTable$Glottocode %>% sum() ){
+  #check that all tip-labels also occur in LanguageTable
+if(!ape::Ntip(tree) == tree$tip.label %in% LanguageTable$taxon %>% sum() ){
   stop("There are tips in the tree that cannot be matched to an entry in LanguageTable.")
   }
-  
 
+if(tree$tip.label %>% unique() %>% length() != ape::Ntip(tree)){
+  stop("Tip-labels are not unique.")
+  }
+
+  if(!"Glottocode" %in% colnames(LanguageTable)){
+    stop("LanguageTable lacks the column 'Glottocode'.\n")
+  }
+  
+  
+    
   
 if(merge_dialects == TRUE){
 
-if(is.null(LanguageTable)){
-    stop("LanguageTable is NULL. LanguageTable is necessary for merging dialects.\n")
+if(all(!"Language_level_ID" %in% colnames(LanguageTable),
+   !"Language_level_ID" %in% colnames(LanguageTable2)) ){
+
+      stop("Neither LanguageTable or LanguageTable2 has the column 'Language_level_ID' which is necessary for merging dialects.\n")
 }else{
 
 if(!("Glottocode" %in% colnames(LanguageTable)  &  "Language_level_ID" %in% colnames(LanguageTable))){
@@ -57,9 +66,16 @@ to_keep <- tree$tip.label %>%
               as.data.frame() %>%
     dplyr::rename(tip.label = ".") %>%
     dplyr::group_by(tip.label) %>%
+    dplyr::mutate(n = n()) %>% 
     dplyr::slice_sample(n = 1)
 
 tree <- ape::keep.tip(tree, tip = to_keep$tip.label)
+
+#if the tip labels has glottocodes as the first 8 characters and then something else, like a name, then prune that off. This is for example true for the EDGE-trees.
+if(trim_tip_label_to_first_eight == TRUE){
+  tree$tip.label <- tree$tip.label %>% substr(1, 8)
+}
+
 
 tree
 }
