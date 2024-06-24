@@ -57,7 +57,7 @@ to_keep <- tree$tip.label %>%
               as.data.frame() %>%
     dplyr::rename(tip.label = ".") %>%
     dplyr::group_by(tip.label) %>%
-    dplyr::sample_n(1)
+    dplyr::slice_sample(n = 1)
 
 tree <- ape::keep.tip(tree, tip = to_keep$tip.label)
 
