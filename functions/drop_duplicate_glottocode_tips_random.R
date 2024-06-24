@@ -9,7 +9,7 @@
 #' @author Hedvig Skirgård
 #' @export
 
-drop_duplicate_glottocode_tips_random <- function(tree = NULL,
+reduce_tree_to_unique_glottocodes <- function(tree = NULL,
                                       merge_dialects = TRUE,
                                       LanguageTable = NULL,
                                       LanguageTable2 = NULL, 
@@ -31,35 +31,39 @@ if(tree$tip.label %>% unique() %>% length() != ape::Ntip(tree)){
     stop("LanguageTable lacks the column 'Glottocode'.\n")
   }
   
-  
-    
-  
+
 if(merge_dialects == TRUE){
 
 if(all(!"Language_level_ID" %in% colnames(LanguageTable),
    !"Language_level_ID" %in% colnames(LanguageTable2)) ){
 
       stop("Neither LanguageTable or LanguageTable2 has the column 'Language_level_ID' which is necessary for merging dialects.\n")
-}else{
+}
 
 if(!("Glottocode" %in% colnames(LanguageTable)  &  "Language_level_ID" %in% colnames(LanguageTable))){
 stop("LanguageTable does not contain all the necessary columns: ´Glottocode' and 'Language_level_ID'.")
     }
 
-#some LanguageTables only contain values for Language_level_ID if the languoid is a dialect. Here we insert the language level glottocode if the level is language or family as well.
-LanguageTable <-    LanguageTable %>%
+  if(!"Language_level_ID" %in% colnames(LanguageTable)){
+    LanguageTable2 <- LanguageTable2 %>%
+      dplyr::distinct(Glottocode, Language_level_ID)
+    
+    LanguageTable <- LanguageTable %>% 
+      full_join(LanguageTable2, by = "Glottocode")
+  }
+  
+  #some LanguageTables only contain values for Language_level_ID if the languoid is a dialect. Here we insert the language level glottocode if the level is language or family as well.  
+  LanguageTable <-    LanguageTable %>%
         dplyr::mutate(Language_level_ID = ifelse(is.na(Language_level_ID) |
                                                      Language_level_ID == "", Glottocode, Language_level_ID))
 
-#rename tip labels to the glottocode of the language level if tip is dialect
-tip_labels_df <- tree$tip.label %>%
-    as.data.frame() %>%
-    dplyr::rename(Glottocode = ".") %>%
-    dplyr::left_join(LanguageTable, by = "Glottocode")
-
-tree$tip.label <- tip_labels_df$Language_level_ID
-
-}}
+  # Still in the merge_dialect == TRUE if loop
+  # Replacing the col glottocode with Language_level_ID merges dialects for the rest of the duplicate pruning
+  LanguageTable <- LanguageTable %>%
+    dplyr::select(-Glottocode) %>% 
+    dplyr::select(Language_ID = ID, Glottocode = Language_level_ID)
+  
+}
 
 
 #keeping just one tip per unique glottocode tip label in the entire tree. Anytime where there are duplicate tip labels, only one tip is kept. Selection is random.
