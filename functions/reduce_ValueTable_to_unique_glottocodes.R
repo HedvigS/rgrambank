@@ -78,11 +78,9 @@ if(multiple_values_per_parameter > 1){
     dplyr::ungroup()
     }
 
-
 if(treat_question_mark_as_missing == TRUE){
   ValueTable <- ValueTable %>% 
     mutate(Value = ifelse(Value == "?", NA, Value))
-
 }
 
 ## Check if LanguageTables are able to be used for merging dialects (if merge_dialects == TRUE) and set-up LanguageTable for use later.
@@ -169,17 +167,14 @@ if(merge_dialects == FALSE){
     } 
 
     if (method == "singular_random") {
-      lgs  <- ValueTable %>%
-          dplyr::left_join(LanguageTable, by = "Language_ID",
-                           relationship = "many-to-many") %>%
+      lgs  <- LanguageTable %>%
             dplyr::group_by(Glottocode) %>%
-            dplyr::slice_sample(n = 1) %>% 
-        distinct(Glottocode)
-    
+            dplyr::slice_sample(n = 1) %>%
+        ungroup() %>% 
+        distinct(Language_ID, .keep_all = T) 
+      
     levelled_ValueTable <- ValueTable %>% 
-      dplyr::left_join(LanguageTable, by = "Language_ID",
-                       relationship = "many-to-many") %>%
-      inner_join(lgs, by = "Glottocode") 
+      inner_join(lgs, by = "Language_ID") 
 
     } 
 
