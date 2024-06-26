@@ -13,7 +13,8 @@ library(devtools)
 library(rcldf)
 
 
-source("../functions/reduce_tree_to_unique_glottocodes.R")
+
+source("../functions/drop_duplicate_glottocode_tips.R")
 
 #fecthing the global world tree from:
 #Bouckaert, R., Redding, D., Sheehan, O., Kyritsis, T., Gray, R., Jones, K. E., & Atkinson, Q. (2022, July 20). Global language diversification is linked to socio-ecology and threat status. https://doi.org/10.31235/osf.io/f8tr6
@@ -29,8 +30,8 @@ tree <- ape::read.nexus("fixed/global-language-tree-MCC-labelled.tree")
 
 cat(paste("The original tree has ", ape::Ntip(tree), " tips.\n"))
 
-LanguageTable <- data.frame(taxon= tree$tip.label, 
-           Glottocode = tree$tip.label %>% substr(1, 8))
+LanguageTable <- data.frame(taxon= tree$tip.label,
+                            Glottocode = tree$tip.label %>% substr(1, 8)) 
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
@@ -41,12 +42,12 @@ LanguageTable2 <- glottolog_rcldf_obj$tables$LanguageTable %>%
 #pruning
 #for the global tree from Bouckaert has no duplicate tip labels
 
-pruned_tree <- reduce_tree_to_unique_glottocodes(tree = tree, merge_dialects = TRUE, 
+pruned_tree <- drop_duplicate_glottocode_tips(tree = tree, merge_dialects = TRUE, 
                                                  LanguageTable = LanguageTable, 
                                                  LanguageTable2 = LanguageTable2, 
                                                  rename_tips_to_glottocodes = TRUE)
 
-pruned_tree <- reduce_tree_to_unique_glottocodes(tree = tree, merge_dialects = TRUE, 
+pruned_tree <- drop_duplicate_glottocode_tips(tree = tree, merge_dialects = TRUE, 
                                                  LanguageTable = LanguageTable, 
                                                  LanguageTable2 = LanguageTable2, 
                                                  rename_tips_to_glottocodes = FALSE)

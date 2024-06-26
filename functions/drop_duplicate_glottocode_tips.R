@@ -2,14 +2,14 @@
 #'
 #' @param tree 	an object of class "phylo". Tip-labels need to be unique within the tree, but can represent duplicates of Glottocodes.
 #' @param merge_dialects a logical specifying whether to replace dialect tip labels with the glottocode of the language that is their parent, and then drop all but one
-#' @param LanguageTable data-frame of tip-labels matched to Glottocodes.
-#' @param LanguageTable2 data-frame of Glottocodes matched to Language_level_ID. If merge-dialects is TRUE and LanguageTable lacks the column 'Language_level_ID', LanguageTable2 needs to be specified.
+#' @param LanguageTable data-frame of tip-labels matched to Glottocodes. Needs the columns "taxon" and "Glottocode". If merge_dialects == TRUE then the column "Language_level_ID" is also necessary in either LangugeTable or LanguageTable2.
+#' @param LanguageTable2 data-frame of Glottocodes matched to Language_level_ID. If merge-dialects is TRUE and LanguageTable lacks the column 'Language_level_ID', LanguageTable2 needs to be specified. requires the columns "Glottocode" and "Language_level_ID".
 #' @param rename_tips_to_glottocodes logical. If TRUE, the tip-labels of the output tree are renamed to the corresponding Glottocodes. If FALSE, the original tip-labels are retained.
-#' @return tree without tips with duplicate Glottocodes, optionally also merged dialects.
+#' @return tree without tips with duplicate Glottocodes, optionally all but one dialect is dropped as well.
 #' @author Hedvig Skirgård
 #' @export
 
-reduce_tree_to_unique_glottocodes <- function(tree = NULL,
+drop_duplicate_glottocode_tips <- function(tree = NULL,
                                       merge_dialects = TRUE,
                                       LanguageTable = NULL,
                                       LanguageTable2 = NULL, 
@@ -20,12 +20,12 @@ reduce_tree_to_unique_glottocodes <- function(tree = NULL,
   }
   
   #check that all tip-labels also occur in LanguageTable
-if(!ape::Ntip(tree) == tree$tip.label %in% LanguageTable$taxon %>% sum() ){
+if(any(!tree$tip.label %in% LanguageTable$taxon)){
   stop("There are tips in the tree that cannot be matched to an entry in LanguageTable.")
   }
 
 if(tree$tip.label %>% unique() %>% length() != ape::Ntip(tree)){
-  stop("Tip-labels are not unique. Tips can be matched to duplicate Glottocodes, but the tip-labels need to be unique.")
+  stop("Tip-labels are not unique. Tips can be matched to duplicate Glottocodes, but the tip-labels need to be unique within the tree.")
   }
 
   if(!"Glottocode" %in% colnames(LanguageTable)){
@@ -43,9 +43,15 @@ if(all(!"Language_level_ID" %in% colnames(LanguageTable),
 if((!"Language_level_ID" %in% colnames(LanguageTable2)) ){
     stop("LanguageTable2 lacks the column 'Language_level_ID', which is necessary for merging dialects.\n")
   }
-  
-  if(!"Language_level_ID" %in% colnames(LanguageTable)){
-    LanguageTable2 <- LanguageTable2 %>%
+
+  #if it is necessary to use LanguageTable 2  
+  if(!is.null(LanguageTable2)){
+    if(any(!LanguageTable$Glottocode %in% LanguageTable2$Glottocode)){
+      stop("There are Glottocodes in LanguageTable that don't occur in LanguageTable2.")
+      
+    }
+    
+      LanguageTable2 <- LanguageTable2 %>%
       dplyr::distinct(Glottocode, Language_level_ID)
     
     LanguageTable <- LanguageTable %>% 
