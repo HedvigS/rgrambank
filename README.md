@@ -15,26 +15,29 @@ This is not a package, and can therefore not be installed as such. If you want t
 
 ## Suggestion for how to fetch individual files
 
-In `R` you can, if you'd like, fetch scripts from the internet to your local machine individually in the manner exemplified below. This method will only download the script if you don't already have it, and it'll keep track of the date you made the download in case there are any changes to the function in future.
+You can use the function `fetch_lines` from the package `SH.misc` to fetch scripts individually. If you want to ensure version history by clearly noting where in the git history you copied from, you can use url's specific to the state of the repos at a certain commit (see second function call) or tag (see third function call). The function also has defaults to adding a commented out line at the top stating when the copying happened.
 
 ```
+library(remotes)
+remotes::install_github("HedvigS/SH.misc")
+
+library(SH.misc)
+
 # set up a folder where the scripts are stored
 dir <- "R_grambank_cookbook"
 if(!dir.exists(dir)){dir.create(dir)}
 
-# specify the specific script you are interested in
-script_url <- "https://raw.githubusercontent.com/HedvigS/R_grambank_cookbook/main/functions/add_family_name_column.R"
+#fetching from head at main origin
+SH.misc::fetch_lines(url = "https://github.com/HedvigS/R_grambank_cookbook/raw/main/functions/make_binary_ValueTable.R", 
+                     out_dir = dir)
 
-# check if the script has already been fetched, if not then download it.
-if(!file.exists(
-  paste0(dir, "/", basename(script_url)))){
-script <- readLines(script_url, warn = F)
+#fetching from main at a certain commit
+SH.misc::fetch_lines(url = "https://github.com/HedvigS/R_grambank_cookbook/raw/5de97c2fe347bca904b67897b584eb52a9ff6a9c/functions/make_binary_ParameterTable.R", 
+                     out_dir = dir)
 
-date_line <- paste0("# fetched: ", date(), "\n") #adding a line with the date of the download so that you know what version you've used in case there are changes.
-script <- c(date_line, script)
-
-writeLines(text = script, paste0(dir, "/", basename(script_url)))
-}
+#fetching based on a certain tag
+SH.misc::fetch_lines(url = "https://github.com/HedvigS/R_grambank_cookbook/raw/v0.3/functions/varcov.spatial.3D.R", 
+                     out_dir = dir)
 
 ```
 # Who did what
