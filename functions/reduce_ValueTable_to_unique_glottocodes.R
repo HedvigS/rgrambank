@@ -1,4 +1,4 @@
-#' Reduce duplicates which have the same glottcode in a CLDF-datset ValueTable to one. Simplifies combination of datasets.
+#' Reduce duplicates which have the same glottcode in a CLDF-datset ValueTable to one. Simplifies combination of datasets. Can also be applied to word-lists FormTable, with some adjustments (Value = Cognacy).
 #'
 #' @param ValueTable data-frame, long format. ValueTable from cldf.
 #' @param LanguageTable data-frame of a cldf LanguageTable from the same cldf-dataset as ValueTable. Needs to minimally have the columns "ID" (for matching to ValueTable) and "Glottocode" (for identification of duplicates).
