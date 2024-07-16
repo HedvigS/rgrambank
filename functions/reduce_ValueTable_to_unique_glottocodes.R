@@ -159,8 +159,7 @@ if(merge_dialects == FALSE){
 
         levelled_ValueTable <- ValueTable_grouped %>% 
             dplyr::filter(n == 1) %>%
-            dplyr::full_join(ValueTable_long_n_greater_than_1, by = join_by(ID, Language_ID, Parameter_ID, Value, Code_ID, Comment, Source, Source_comment, Coders, Glottocode,
-                                                                            n))  %>%
+          suppressMessages( dplyr::full_join(ValueTable_long_n_greater_than_1)) %>%
             dplyr::select(-n) 
 
     # MERGE BY PICKING DIALECTS WHOLLY AT RANDOM
