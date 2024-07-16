@@ -65,10 +65,6 @@ The functions in this repos are in the process of going through internal peer-re
 | :x: |add_isolate_info.R|||Hedvig Skirgård|
 | :x: |add_language_level_id_to_languages.R|||Hedvig Skirgård|
 | :x: |crop_missing_data.R|||Hedvig Skirgård|
-| :x: |as_grambank_wide.R|||Simon Greenhill|
-| :x: |get_shared_features.R|||Simon Greenhill|
-| :x: |get_values_for_clade.R|||Simon Greenhill|
-
 
 # Differences between grambank/grambank-analysed and HedvigS/R_grambank_cookbok
 
