@@ -8,6 +8,8 @@ source("../functions/make_binary_ValueTable.R")
 source("../functions/reduce_ValueTable_to_unique_glottocodes.R")
 source("../functions/crop_missing_data.R")
 source("../functions/match_to_rgb.R")
+source("../functions/basemap_pacific_center.R")
+
 
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
