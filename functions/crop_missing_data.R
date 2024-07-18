@@ -1,7 +1,7 @@
 #' Crops ValueTables for features and languages with a large amount of missing data.
 #'
 #' @param ValueTable Data-frame of the CLDF-type VaueTable, i.e. a long data-table with at least columns "Parameter_ID", "Value" and "Language_ID". This ValueTable can be the product of make_binary_ValueTable() and/or reduce_ValueTable_to_unique_glottocodes.
-#' @param cut_off_features Integer between 0 and 1 representing the cut-off for missing data for features. 0.75 means that features that are filled out for less than 75% of the possible languages are dropped from the result.
+#' @param cut_off_parameters Integer between 0 and 1 representing the cut-off for missing data for features. 0.75 means that features that are filled out for less than 75% of the possible languages are dropped from the result.
 #' @param cut_off_languages Integer between 0 and 1 representing the cut-off for missing data for languages. 0.75 means that features that are filled out for less than 75% of the possible features are dropped from the result.
 #' @param turn_question_mark_into_NA Logical. If TRUE Value cells consisting of "?" are treated the same as missing data.
 #' @param verbose  Logical. If TRUE, the function reports on the number of languages, features and percentage of missing data before and after cropping.
@@ -10,7 +10,7 @@
 #' @export
 
 crop_missing_data <- function(ValueTable,
-                              cut_off_features = 0.75,
+                              cut_off_parameters = 0.75,
                               cut_off_languages = 0.75,
                               turn_question_mark_into_NA = TRUE,
                               verbose = TRUE){
@@ -39,11 +39,11 @@ if(verbose == TRUE){
 ValueTable_cropped <- ValueTable %>%
     filter(!is.na(Value)) %>%
     group_by(Language_ID) %>%
-    mutate(Features_filled_for_language = n()) %>%
+    mutate(Parameters_filled_for_language = n()) %>%
     group_by(Parameter_ID) %>%
-    mutate(Languages_filled_for_feature = n()) %>%
-    filter(Languages_filled_for_feature > n_lgs*cut_off_languages) %>%
-    filter(Features_filled_for_language > n_feats*cut_off_features)
+    mutate(Languages_filled_for_parameter = n()) %>%
+    filter(Languages_filled_for_parameter > n_lgs*cut_off_languages) %>%
+    filter(Parameters_filled_for_language > n_feats*cut_off_parameters)
 
 if(verbose == TRUE){
 
