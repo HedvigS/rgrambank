@@ -3,6 +3,7 @@
 #' @param LongLatTable data-frame with columns ID, Longitude and Latitude
 #' @param DataTable data-frame with columns ID and possibly additional data to be plotted.
 #' @note DataTable is good to include because it will ensure that the records are matched and that the shifted Longitudes are used (necessary for making the plot pacific-centered).
+#' @author Hedvig Skirgård
 #' @import ggplot2 
 #' @export
 
