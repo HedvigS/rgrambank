@@ -31,7 +31,7 @@ ValueTable_dialect_reduced <- reduce_ValueTable_to_unique_glottocodes(ValueTable
 #prep for imputation
 #crop such that features with lots of missing data and languages are removed
 ValueTable_cropped <- crop_missing_data(ValueTable = ValueTable_dialect_reduced, 
-                                        cut_off_features = 0.75, 
+                                        cut_off_parameters  = 0.75, 
                                         cut_off_languages = 0.75,
                                         turn_question_mark_into_NA = T)
 
