@@ -3,7 +3,7 @@
 #' @param Glottolog_LanguageTable data.frame
 #' @param Glottolog_ValueTable data.frame
 #' @return Data-frame with information from Glottolog's LanguageTable and ValueTabled joined
-#' @note The information in "Comment" and "Source" from the ValueTable is not retained.
+#' @note The information in "Comment" and "Source" from the ValueTable is not retained. The column called "Language_ID" in LanguageTable is renamed to "Language_level_ID" to reduce confusion with foreign keys in other tables.
 #' @author Hedvig Skirgård
 #' @export
 
