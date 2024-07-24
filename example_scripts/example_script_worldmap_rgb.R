@@ -1,15 +1,25 @@
-#install_version("tidyverse", version = "2.0.0", repos = "http://cran.us.r-project.org")
+#install.packages("remotes", version = "2.4.2.1", repos = "http://cran.us.r-project.org")
+library(remotes)
+
+#remotes::install_version("tidyverse", version = "2.0.0", repos = "http://cran.us.r-project.org")
 library(tidyverse)
+
+#remotes::install_version("missForest", version = "1.5", repos = "http://cran.us.r-project.org")
 library(missForest)
+
+#remotes::install_version("reshape2", version = "1.4.4", repos = "http://cran.us.r-project.org")
 library(reshape2)
-library(grDevices)
+
+library(grDevices) #version = "4.3.1"
+
+#remotes::install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
+library(rcldf)
 
 source("../functions/make_binary_ValueTable.R")
 source("../functions/reduce_ValueTable_to_unique_glottocodes.R")
 source("../functions/crop_missing_data.R")
 source("../functions/match_to_rgb.R")
 source("../functions/basemap_pacific_center.R")
-
 
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
@@ -73,7 +83,7 @@ LongLatTable <- glottolog_rcldf_obj$tables$LanguageTable %>%
 DataTable <-   data.frame(ID = rownames(GB_PCA$x), 
                           RGB = RGB_vec) 
 
-# the function basemap_pacific_center outputs a list of two objects, the basemap itself and a combination of the LongLatTable and DataTable with Longitude adjusted
+# the function basemap_pacific_center outputs a list of two objects, the basemap itself and a combination of the LongLatTable and DataTable with Longitude appropraitely adjusted to match.
 basemap_list  <- basemap_pacific_center(LongLatTable = LongLatTable, DataTable = DataTable) 
 
 #specifically to plot RGB we can't use mapping = aes() because we want to refer to the values themselves, not have ggplot then map them to colors on its own. Therefore we need to pass it the RGB vector outside of aes().
