@@ -1,3 +1,6 @@
+# This script makes a worldmap with dots for languages coloured by the data-sets first three principal components. To accomplish this, the data-set needs to be made binary, dialects merged, missing data cropped, missing data imputed, PCA, match to RGB and finally plotting.
+
+
 #install.packages("remotes", version = "2.4.2.1", repos = "http://cran.us.r-project.org")
 library(remotes)
 
