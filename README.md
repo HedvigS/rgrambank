@@ -67,7 +67,6 @@ The functions in this repos are in the process of going through internal peer-re
 | :x: |combine_Glottolog_ValueTable_LanguageTable.R|||Hedvig Skirgård| 
 | :x: |add_family_name_column.R|||Hedvig Skirgård| 
 | :x: |add_isolate_info.R|||Hedvig Skirgård|
-| :x: |add_language_level_id_to_languages.R|||Hedvig Skirgård|
 
 # Differences between grambank/grambank-analysed and HedvigS/R_grambank_cookbok
 
