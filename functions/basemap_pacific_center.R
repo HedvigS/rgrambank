@@ -1,8 +1,9 @@
-#' makes a pacific-centered map with van der Grinten projection
+#' Makes a pacific-centered map with van der Grinten projection and adjusts the longitude of the datatable accordingly.
 #'
 #' @param LongLatTable data-frame with columns ID, Longitude and Latitude
 #' @param DataTable data-frame with columns ID and possibly additional data to be plotted.
 #' @note DataTable is good to include because it will ensure that the records are matched and that the shifted Longitudes are used (necessary for making the plot pacific-centered).
+#' @return A list, first object is a ggplot2 layer of a Pacific-centered worldmap and the second object is a combination of LongLatTable and DataTable, with Longitude adjusted to match the map.
 #' @author Hedvig Skirgård
 #' @import ggplot2 
 #' @export
