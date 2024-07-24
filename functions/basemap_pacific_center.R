@@ -40,10 +40,10 @@ lakes <- ggplot2::map_data("lakes", wrap=c(-25,335), col="white", border="gray",
 basemap <- ggplot(Table) +
   geom_polygon(data=world, aes(x=long, y=lat, group=group),
                colour="gray87",
-               fill="gray87", size = 0.5) +
+               fill="gray87", linewidth = 0.5) +
   geom_polygon(data=lakes, aes(x=long, y=lat, group=group),
                colour="gray87",
-               fill="white", size = 0.3) +
+               fill="white", linewidth = 0.3) +
   theme(
     legend.position = "none",
     # all of these lines are just removing default things like grid lines, axes etc
