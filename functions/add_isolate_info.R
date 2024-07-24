@@ -1,9 +1,9 @@
 #' Adds info about isolates to tables of languages with glottocodes.
 #'
-#' @param LanguageTable data-frame. Required columns: level, Family_ID, Glottocode and Language_ID or Language_level_ID.
-#' @param Glottolog_ValueTable_LanguageTable data-frame
-#' @param mark_isolate_dialects_as_isolates description
-#' @param set_isolates_Family_ID_as_themselves
+#' @param LanguageTable data-frame. If any of "Is_Isolate", "Level", "Family_ID", Glottolog_ValueTable_LanguageTable needs to be supplied.
+#' @param Glottolog_ValueTable_LanguageTable data-frame with extra information in case LanguageTable lacks any of the following columns:"Is_Isolate", "Level", "Family_ID".
+#' @param mark_isolate_dialects_as_isolates logical. If TRUE, dialects of Isolates are also tagged as TRUE in the column Is_Isolate
+#' @param set_isolates_Family_ID_as_themselves logical. If TRUE, the Family_ID of isolates are populated by their Glottocode.
 #' @return Data-frame with desired modifications.
 #' @note If Glottolog_ValueTable_LanguageTable is used, then the following columns are overwritten (if they exists) in LanguageTable: level (changed to "Level"), Family_ID and "Is_Isolate". If the LanguageTable is generated using information from a different version of Glottolog than Glottolog_ValueTable_LanguageTable, mismatches can happen in at least the following columns: lineage, subclassification and classification. For example, in Grambank v1 fuyu1242 appears as a member of the family goli1242, but in Glottolog v5 this language is instead treated as an isolate.
 #' @author Hedvig Skirgård
