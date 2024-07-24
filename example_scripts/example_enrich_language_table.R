@@ -1,3 +1,6 @@
+# This script contains example of manipulating CLDF LanguageTables in regards to information about Isolate and add a Family_name column, as well as combine Glottolog's ValueTable and LanguageTable. 
+
+
 #install.packages("remotes", version = "2.4.2.1", repos = "http://cran.us.r-project.org")
 library(remotes)
 
@@ -19,8 +22,10 @@ LanguageTable <- GB_rcldf_obj_v1$tables$LanguageTable %>%
 Glottolog_LanguageTable <- glottolog_rcldf_obj$tables$LanguageTable
 Glottolog_ValueTable <- glottolog_rcldf_obj$tables$ValueTable
 
-source("../functions/combine_Glottolog_ValueTable_LanguageTable.R")
-Glottolog_ValueTable_LanguageTable <- combine_Glottolog_ValueTable_LanguageTable(Glottolog_LanguageTable = Glottolog_LanguageTable, Glottolog_ValueTable = Glottolog_ValueTable)
+source("../functions/combine_ValueTable_LanguageTable.R")
+Glottolog_ValueTable_LanguageTable <- combine_ValueTable_LanguageTable(LanguageTable = Glottolog_LanguageTable, 
+                                                                       ValueTable = Glottolog_ValueTable, 
+                                                                       Is_Glottolog = TRUE)
 
 source("../functions/add_isolate_info.R")
 
