@@ -6,6 +6,8 @@
 #' @param turn_question_mark_into_NA Logical. If TRUE Value cells consisting of "?" are treated the same as missing data.
 #' @param verbose  Logical. If TRUE, the function reports on the number of languages, features and percentage of missing data before and after cropping.
 #' @return A data-frame of the long ValueTable type where features and languages that don't meet the cut-off for missing data are removed.
+#' @note
+#' The cut-offs are defined by the missing data in the full dataset and can be set to any value between 0 and 1. The pruning is not stepwise, i.e. it is not the case that parameters are pruned first and then languages based on the missingness after the first pruning. This can be a practical step before imputation as it reduces missing data to be imputed, but should be used thoughtfully. For more advanced approaches, please see [annagraff/densify](https://github.com/annagraff/densify).
 #' @author Hedvig Skirgård
 #' @export
 
