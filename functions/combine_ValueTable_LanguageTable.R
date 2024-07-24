@@ -11,7 +11,8 @@
 
 combine_ValueTable_LanguageTable <- function(
     LanguageTable = NULL,      
-    ValueTable = NULL){
+    ValueTable = NULL,
+    Is_Glottolog = FALSE){
   
 if( Is_Glottolog == TRUE){
   LanguageTable <- LanguageTable %>% 
