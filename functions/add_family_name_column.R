@@ -1,4 +1,4 @@
-#' Adds a column with the name of the language family.
+#' Adds a column with the name of the language family given it's Family_ID value.
 #'
 #' @param LanguageTable data-frame of CLDF table with minimally the columns  "Family_ID", "Name" and "Glottocode".
 #' @param Glottolog_ValueTable_LanguageTable data-frame of CLDF-table with additional information on Families in case LanguageTable is lacking information on the names of some/all families.
