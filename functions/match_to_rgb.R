@@ -3,6 +3,7 @@
 #' @param x data-frame or matrix. Identifiers should be rownames and the three relevant columns for mapping to RGB should be numeric
 #' @param first_three logical. If TRUE then the first three columns are used to map to RGB
 #' @param cols = character vector. If first_three is FALSE, provide the names of the three relevant columns here
+#' @return A vector of the same length and order as x, with HEX-codes for RGB values.
 #' @author Hedvig Skirgård and Damián Blasi
 #' @export
 
