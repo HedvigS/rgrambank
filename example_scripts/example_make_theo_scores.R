@@ -11,7 +11,7 @@ library(tidyverse)
 library(rcldf)
 
 if(Grambank_version == 2){
-
+# This part of the script is written solely for people with access to Grambank v2, which is not public at the time of writing (2024-07-25).
 # Word_Order was missing from Grambank 2.0, this is being fixed:
 #https://github.com/glottobank/Grambank/issues/2782
 #in the meantime, grambank v2 will need to be complemented with the ParameterTable from v1.
