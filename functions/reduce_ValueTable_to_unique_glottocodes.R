@@ -3,7 +3,7 @@
 #' @param ValueTable data-frame, long format. ValueTable from cldf.
 #' @param LanguageTable data-frame of a cldf LanguageTable from the same cldf-dataset as ValueTable. Needs to minimally have the columns "ID" (for matching to ValueTable) and "Glottocode" (for identification of duplicates).
 #' @param merge_dialects logical. In the case of multiple dialects of the same language, if TRUE they are replaced by the glottocode of their language-parent and all but one is dropped according to the merge method specified, as with other duplicate glottocodes.
-#' @param LanguageTable2 data-frame. If merge_dialects is TRUE and LanguageTable does not have the column  "Language_level_ID", then the function will need an additional LanguageTable with the necessary columns and it should be supplied here. Needs to minimally have the columns "Glottocode" and "Language_level_ID". Glottolog-cldf LanguageTable recommended (requires renaming Language_ID -> Language_level_ID). The output of the function "combine_Glottolog_ValueTable_LanguageTable" is ideal.
+#' @param GlottologLanguageTable data-frame. If merge_dialects is TRUE and LanguageTable does not have the column  "Language_level_ID", then the function will need an additional LanguageTable with the necessary columns and it should be supplied here. Needs to minimally have the columns "Glottocode" and "Language_level_ID". Glottolog-cldf LanguageTable recommended (requires renaming Language_ID -> Language_level_ID). The output of the function "combine_Glottolog_ValueTable_LanguageTable" is ideal.
 #' @param method character vector, choice between "singular_least_missing_data", "combine_random", "singular_random". combine_random = combine all datapoints for all the dialects/duplicates and if there is more than one datapoint for a given feature/word/variable choose uniformly between the values across all entries, singular_random = choose one entry randomly between the dialects/duplicates, singular_least_missing_data = choose the dialect/duplicate which has the least missing values.
 #' @param treat_question_mark_as_missing logical. If TRUE, values which are ? are treated as missing.
 #' @param replace_missing_language_level_ID logical. If TRUE and there is a missing value in the column Language_level ID, the Glottocode value is filled in. If FALSE, it remains missing (highly discouraged). Only relevant if merge_dialects is TRUE.
@@ -19,7 +19,7 @@
 # ValueTable <- readr::read_csv("https://github.com/cldf-datasets/apics/raw/master/cldf/values.csv")
 # ValueTable <- readr::read_csv("https://github.com/cldf-datasets/wals/raw/master/cldf/values.csv")
 # LanguageTable <- readr::read_csv("https://github.com/cldf-datasets/apics/raw/master/cldf/languages.csv")
-# LanguageTable2 <-readr::read_csv("https://raw.githubusercontent.com/glottolog/glottolog-cldf/master/cldf/languages.csv")
+# GlottologLanguageTable <-readr::read_csv("https://raw.githubusercontent.com/glottolog/glottolog-cldf/master/cldf/languages.csv")
 
 # cldf <- rcldf::cldf("tests/testthat/fixtures/testdata/StructureDataset-metadata.json")
 # ValueTable = cldf$tables$ValueTable
@@ -28,10 +28,11 @@
 # method = "singular_least_missing_data"
 # merge_dialects = FALSE
 
-reduce_ValueTable_to_unique_glottocodes <- function(ValueTable,
-                              LanguageTable,
+reduce_ValueTable_to_unique_glottocodes <- function(
+                              ValueTable = NULL,
+                              LanguageTable = NULL,
                               merge_dialects = TRUE,
-                              LanguageTable2 = NULL,
+                              GlottologLanguageTable = NULL,
                               method = c("singular_least_missing_data", "combine_random", "singular_random"),
                               replace_missing_language_level_ID = TRUE,
                               treat_question_mark_as_missing = TRUE
@@ -41,6 +42,20 @@ reduce_ValueTable_to_unique_glottocodes <- function(ValueTable,
         stop("Method of merging is not defined Has to be singular_least_missing_data, combine_random or singular_random.")
     }
 
+  
+  ## Check necessary arguments
+  
+  if(is.null(LanguageTable)){
+    stop("LanguageTable not supplied.")
+    
+      }
+  
+  if(is.null(ValueTable)){
+    stop("ValueTable not supplied.")
+    
+  }
+  
+  
 ## Check necessary columns in ValueTable
 
     if (!all(c('Language_ID', 'Parameter_ID', 'Value') %in% colnames(ValueTable))) {
@@ -87,11 +102,11 @@ if(treat_question_mark_as_missing == TRUE){
 if(merge_dialects == TRUE){
 
   if(!"Language_level_ID" %in% colnames(LanguageTable)){
-    LanguageTable2 <- LanguageTable2 %>%
+    GlottologLanguageTable <- GlottologLanguageTable %>%
       dplyr::distinct(Glottocode, Language_level_ID)
       
     LanguageTable <- LanguageTable %>% 
-      full_join(LanguageTable2, by = "Glottocode")
+      full_join(GlottologLanguageTable, by = "Glottocode")
   }
 
 if(replace_missing_language_level_ID == TRUE){
