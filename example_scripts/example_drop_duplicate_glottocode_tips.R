@@ -16,9 +16,8 @@ library(devtools)
 #remotes::install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
-
-
-source("../functions/drop_duplicate_glottocode_tips.R")
+#devtools::install_github("HedvigS/rgrambank", ref = "v1.0")
+library(rgrambank)
 
 #fecthing the global world tree from:
 #Bouckaert, R., Redding, D., Sheehan, O., Kyritsis, T., Gray, R., Jones, K. E., & Atkinson, Q. (2022, July 20). Global language diversification is linked to socio-ecology and threat status. https://doi.org/10.31235/osf.io/f8tr6
@@ -46,7 +45,7 @@ GlottologLanguageTable <- glottolog_rcldf_obj$tables$LanguageTable %>%
 #pruning
 #for the global tree from Bouckaert has no duplicate tip labels
 
-pruned_tree <- drop_duplicate_glottocode_tips(tree = tree, 
+pruned_tree <- rgrambank::drop_duplicate_glottocode_tips(tree = tree, 
                                               merge_dialects = FALSE, 
                                                  TaxonTable = TaxonTable, 
                                                  GlottologLanguageTable = GlottologLanguageTable, 
@@ -54,7 +53,7 @@ pruned_tree <- drop_duplicate_glottocode_tips(tree = tree,
 
 cat(paste("The pruned tree has ", Ntip(pruned_tree), " tips.\n"))
 
-pruned_tree <- drop_duplicate_glottocode_tips(tree = tree, merge_dialects = TRUE, 
+pruned_tree <- rgrambank::drop_duplicate_glottocode_tips(tree = tree, merge_dialects = TRUE, 
                                                  TaxonTable = TaxonTable, 
                                                  GlottologLanguageTable = GlottologLanguageTable, 
                                                  rename_tips_to_glottocodes = FALSE)
