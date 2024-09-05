@@ -2,54 +2,32 @@
 
 # What this is
 
-This repository contains a set of R functions that are useful for analysis of Grambank data, and other CLDF-datasets. Most of the functions are adapted from the code behind [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175). The code of the paper was also published as grambank-analysed on [Zenodo](https://zenodo.org/doi/10.5281/zenodo.7740821) and [GitHub](https://github.com/grambank/grambank-analysed/tree/v1.0/R_grambank). Part of that code has been been re-written here to produce more general functions that can easily be applied to future Grambank releases.
+This repository contains a set of R functions that are useful for analysis of Grambank data, and other CLDF-datasets. Most of the functions are adapted from the code behind [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175). The code of the paper was also published as grambank-analysed on [Zenodo](https://zenodo.org/doi/10.5281/zenodo.7740821) and [GitHub](https://github.com/grambank/grambank-analysed/tree/v1.0/R_grambank). Part of that code has been been re-written here to produce more general functions that can easily be applied to future Grambank releases and other CLDF-datasets.
 
-## Structure of content
-Within this repository, functions are found in the directory called `functions` and examples in `example_scripts`. Each function-script comes with information on how arguments work etc, like functions in `R`-packages. The directory `example_scripts` contain `R`-scripts which illustrate sepcific functions. For example, the script `example_scripts/binarise.R` showcases the functions `functions/make_binary_ParameterTable`and `functions/make_binary_ValueTable`. In order to run the example scripts you need to set your working directory to `example_scripts`, as this is how the file-paths to `functions`and `fixed` are set up.
-
-Detailed descriptions of the functions parameters and behaviour can be found in their respective scripts in the dir `functions`.
-
-# What this is not
-
-This is not a package, and can therefore not be installed as such. If you want to use the functions here, you can manually copy them over, clone the repos or fetch individual files as described below.
-
-## Suggestion for how to fetch individual files
-
-You can use the function `fetch_lines` from the package `SH.misc` to fetch scripts individually. If you want to ensure version history by clearly noting where in the git history you copied from, you can use url's specific to the state of the repos at a certain commit (see second function call) or tag (see third function call). The function also has defaults to adding a commented out line at the top stating when the copying happened.
+# Installing package
+The R-functions of this repository can be accessed as an R-package. The packages is not available via CRAN, instead you can install it directly here at GitHub.
 
 ```
 library(remotes)
-remotes::install_github("HedvigS/SH.misc")
-
-library(SH.misc)
-
-# set up a folder where the scripts are stored
-dir <- "R_grambank_cookbook"
-if(!dir.exists(dir)){dir.create(dir)}
-
-#fetching from head at main origin
-SH.misc::fetch_lines(url = "https://github.com/HedvigS/R_grambank_cookbook/raw/main/functions/make_binary_ValueTable.R", 
-                     out_dir = dir)
-
-#fetching from main at a certain commit
-SH.misc::fetch_lines(url = "https://github.com/HedvigS/R_grambank_cookbook/raw/5de97c2fe347bca904b67897b584eb52a9ff6a9c/functions/make_binary_ParameterTable.R", 
-                     out_dir = dir)
-
-#fetching based on a certain tag
-SH.misc::fetch_lines(url = "https://github.com/HedvigS/R_grambank_cookbook/raw/v0.3/functions/varcov.spatial.3D.R", 
-                     out_dir = dir)
-
+remotes::install_github("HedvigS/rgrambank")
+library(rgrambank)
 ```
+
+## Structure of content
+Within this repository, functions are found in the directory `R` and examples in `example_scripts`. The directory `example_scripts` contain `R`-scripts which illustrate sepcific functions. For example, the script `example_scripts/binarise.R` showcases the functions `rgrambank::make_binary_ParameterTable`and `rgrambank::make_binary_ValueTable`. This README contains a list of all the functions, linked to example scripts and with details on who wrote the function and who reviewed it. In order to run the example scripts you need to set your working directory to `example_scripts`, as this is how the file-paths to `R` and `fixed` are set up. The example scripts also rely on the package [rcldf by Simon Greenhill](https://github.com/SimonGreenhill/rcldf) for fetching Grambank and Glottobank-datasets.
+
+Detailed descriptions of the functions parameters and behaviour can be found in their respective scripts in the dir `R` or accessed via the help-pages once the package is installed.
+
 # Who did what
 
-The entire set of code of the Grambank release-paper and grambank-analysed was primarily written by Simon Greenhill, Sam Passmore, Hedvig Skirgård, Damián Blasi, Russell Dinnage, Hannah Haynie, Angela Chira and Luke Maurits. The functions here, in R_grambank_cookbook, are primarily written by Simon Greenhill and Hedvig Skirgård. Author(s) is/are specified for each function.
+The entire set of code of the Grambank release-paper and grambank-analysed was primarily written by Simon Greenhill, Sam Passmore, Hedvig Skirgård, Damián Blasi, Russell Dinnage, Hannah Haynie, Angela Chira and Luke Maurits. The functions here, in rgrambank, are primarily written by Simon Greenhill and Hedvig Skirgård. Author(s) is/are specified for each function.
 
 # Versioning
 
 The content here will be continuously updated and periodically released with version tags. Git allows for accessing the state of the repos at a particular time via commit labels or tags. This can be used when cloning or accessing content via URLs. We _strongly_ encourage you to keep track of when you copied code, this makes it easier to identify issues later.
 
 # Review
-The functions in this repos are in the process of going through internal peer-review within the Department of Cultural and Linguistic Evolution at the Max Planck Insitute for Evolutionary Anthropology. The table below tracks which functions have been reviewed and by whom.
+The functions in this repos go through internal peer-review within the Department of Cultural and Linguistic Evolution at the Max Planck Insitute for Evolutionary Anthropology. The table below tracks which functions have been reviewed and by whom.
 
 # Functions
 
@@ -68,12 +46,12 @@ The functions in this repos are in the process of going through internal peer-re
 |  ✅  |add_family_name_column.R| Adds the column "Family_name" to a LanguageTable, using Family_ID and Name. | [example_enrich_language_table.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/example_enrich_language_table.R) |Hedvig Skirgård| [PR 17](https://github.com/dlce-eva/papers/pull/17)| Enock Appiah Tieku|
 |  ✅ |add_isolate_info.R|Marks dialects of isolates as isolates as well in the column "Is_Isolate" and fills in Family_ID.| [example_enrich_language_table.R](https://github.com/HedvigS/R_grambank_cookbook/blob/main/example_scripts/example_enrich_language_table.R)|Hedvig Skirgård|[PR 17](https://github.com/dlce-eva/papers/pull/17)| Enock Appiah Tieku|
 
-# Differences between grambank/grambank-analysed and HedvigS/R_grambank_cookbok
+# Differences between grambank/grambank-analysed and HedvigS/rgrambank
 
-There are a few minor differences between the code in [grambank/grambank-analysed](https://github.com/grambank/grambank-analysed/) (Grambank release paper of 2023) and the functions here in HedvigS/R_grambank_cookbook. They are all listed here:
+There are a few minor differences between the code in [grambank/grambank-analysed](https://github.com/grambank/grambank-analysed/) (Grambank release paper of 2023) and the functions here in HedvigS/rgrambank. They are all listed here:
 
 ## Theoretical scores
-This difference concerns the treatment of missing data for the calculation of the theoretical scores. In grambank/grambank-analysed we did a subsetting of the entire dataset where we pruned away features and languages with large amounts of missing data considering all features and languages at once. We then used this subset in several parts of the analysis, including PCA and calculation of theoretical scores. The function here in R_grambank_cookbook `make_theo_scores` in `R_scripts/make_theo_scores.R` instead prunes for missing data with respect to the specific features involved in each of the theoretical scores. Furthermore, the function allows the users to set a different cut-off (default = 0.75). The difference is very small in practice. Below are two scatterplots of two central theoretical scores, Fusion and Informativity. In each plot, the x-axis represents the newer way of computing the score (as in `HedvigS/R_grambank_cookbok`) and the y-axis the older (`grambank/grambank-analysed`).
+This difference concerns the treatment of missing data for the calculation of the theoretical scores. In grambank/grambank-analysed we did a subsetting of the entire dataset where we pruned away features and languages with large amounts of missing data considering all features and languages at once. We then used this subset in several parts of the analysis, including PCA and calculation of theoretical scores. The function here in  `make_theo_scores` in `R_scripts/make_theo_scores.R` instead prunes for missing data with respect to the specific features involved in each of the theoretical scores. Furthermore, the function allows the users to set a different cut-off (default = 0.75). The difference is very small in practice. Below are two scatterplots of two central theoretical scores, Fusion and Informativity. In each plot, the x-axis represents the newer way of computing the score (as in `HedvigS/R_grambank_cookbok`) and the y-axis the older (`grambank/grambank-analysed`).
 
 For more details on the theoretical scores, see the supplementary material to [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175).
 
