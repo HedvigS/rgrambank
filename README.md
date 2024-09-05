@@ -24,7 +24,13 @@ The entire set of code of the Grambank release-paper and grambank-analysed was p
 
 # Versioning
 
-The content here will be continuously updated and periodically released with version tags. Git allows for accessing the state of the repos at a particular time via commit labels or tags. This can be used when cloning or accessing content via URLs. We _strongly_ encourage you to keep track of when you copied code, this makes it easier to identify issues later.
+The content here will be continuously updated and periodically released with version tags. Git allows for accessing the state of the repos at a particular time via commit labels or tags. This can be used when cloning or accessing content via URLs and when installing the package withing R. We _strongly_ encourage you to keep track of versioning, this makes it easier to identify issues later.
+
+```
+library(remotes)
+remotes::install_github("HedvigS/rgrambank", ref = "v1.0")
+library(rgrambank)
+```
 
 # Review
 The functions in this repos go through internal peer-review within the Department of Cultural and Linguistic Evolution at the Max Planck Insitute for Evolutionary Anthropology. The table below tracks which functions have been reviewed and by whom.
