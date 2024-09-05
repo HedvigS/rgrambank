@@ -10,6 +10,9 @@ library(tidyverse)
 #install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
+#devtools::install_github("HedvigS/rgrambank", ref = "v1.0")
+library(rgrambank)
+
 if(Grambank_version == 2){
 # This part of the script is written solely for people with access to Grambank v2, which is not public at the time of writing (2024-07-25).
 # Word_Order was missing from Grambank 2.0, this is being fixed:
@@ -33,19 +36,13 @@ if(Grambank_version == 1){
   ParameterTable <- GB_rcldf_obj_v1$tables$ParameterTable
   }
 
-
-source("../functions/make_binary_ParameterTable.R")
-source("../functions/make_binary_ValueTable.R")
-source("../functions/reduce_ValueTable_to_unique_glottocodes.R")
-source("../functions/make_theo_scores.R")
-
-ValueTable_binary <- make_binary_ValueTable(ValueTable = ValueTable, keep_multistate = FALSE, keep_raw_binary = TRUE)
-ParameterTable_binary <- make_binary_ParameterTable(ParameterTable = ParameterTable,
+ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = ValueTable, keep_multistate = FALSE, keep_raw_binary = TRUE)
+ParameterTable_binary <- rgrambank::make_binary_ParameterTable(ParameterTable = ParameterTable,
                                                     keep_multi_state_features = FALSE,
                                                     keep_raw_binary = TRUE)
 
-ValueTable_binary_reduced <- reduce_ValueTable_to_unique_glottocodes(ValueTable = ValueTable_binary, LanguageTable = LanguageTable, merge_dialects = TRUE, method = "combine_random") %>% 
+ValueTable_binary_reduced <- rgrambank::reduce_ValueTable_to_unique_glottocodes(ValueTable = ValueTable_binary, LanguageTable = LanguageTable, merge_dialects = TRUE, method = "combine_random") %>% 
   dplyr::select(-Language_ID) %>% 
   dplyr::rename(Language_ID = Glottocode)
                                                                       
-theo_scores_table <- make_theo_scores(ValueTable = ValueTable_binary_reduced, ParameterTable = ParameterTable_binary)
+theo_scores_table <- rgrambank::make_theo_scores(ValueTable = ValueTable_binary_reduced, ParameterTable = ParameterTable_binary)
