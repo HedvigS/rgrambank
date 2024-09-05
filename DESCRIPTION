@@ -1,6 +1,6 @@
 Package: rgrambank
 Title: Assorted functions for handling language data, in particular Grambank and other CLDF-datasets
-Version: 0.0.0.9000
+Version: 1.0
 Encoding: UTF-8
 Authors@R: c(
     person("Hedvig", "Skirgård", , "hedvig.public@gmail.com", role = c("aut", "cre"),
