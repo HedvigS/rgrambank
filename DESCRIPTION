@@ -10,11 +10,11 @@ License: Apache License (>= 2)
 Suggests:
     rcldf
 Imports:
-    tidyr
-    dplyr
-    ggplot2
-    grDevices
-    stringr	
+    tidyr,
+    dplyr,
+    ggplot2,
+    grDevices,
+    stringr,	
     ggplot2	
 Depends: 
     R (>= 4.3.1)
