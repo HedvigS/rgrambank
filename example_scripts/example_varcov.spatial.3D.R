@@ -16,7 +16,8 @@ library(fields, attach.required = F)
 #devtools::install_version("reshape2", version = "1.4.4", repos = "http://cran.us.r-project.org")
 library(reshape2)
 
-source("../functions/varcov.spatial.3D.R")
+#devtools::install_github("HedvigS/rgrambank", ref = "v1.0")
+library(rgrambank)
 
 glottolog_cldf_object <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
 
@@ -48,13 +49,13 @@ kappa = 2 # smoothness parameter as recommended by Dinnage et al. (2020)
 sigma = c(1, 1.15) # Sigma parameter. First value is not used. 
 
 #computing the co-variance with the new varcov.spatial function but giving the dists directly as from stats::dist, i.e. the 2D approach
-vcv_2D <- varcov.spatial.3D(dists.lowertri = as.vector(dist(coords)), 
+vcv_2D <- rgrambank::varcov.spatial.3D(dists.lowertri = as.vector(dist(coords)), 
                             cov.pars  = sigma, kappa = kappa)$varcov
 
 colnames(vcv_2D) <- rownames(vcv_2D) <- rownames(coords)
 
 #computing the co-variance with the new function giving it the coordinates directly, which it will pass to fields::rdist.earth.
-vcv_3D <- varcov.spatial.3D(coords = coords, 
+vcv_3D <- rgrambank::varcov.spatial.3D(coords = coords, 
                             cov.pars  = sigma, kappa = kappa)$varcov
 
 colnames(vcv_3D) <- rownames(vcv_3D) <- rownames(coords)
