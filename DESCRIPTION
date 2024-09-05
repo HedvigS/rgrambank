@@ -5,7 +5,7 @@ Encoding: UTF-8
 Authors@R: c(
     person("Hedvig", "Skirgård", , "hedvig.public@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-7748-2381")))
-Description: 
+Description: Selection of functions, primarily for data-wrangling, for managing cross-linguistic datasets. See README.md for more details and see the folder "example_scripts" for examples for all functions.
 License: Apache License (>= 2)
 Suggests:
     rcldf
