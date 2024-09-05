@@ -1,0 +1,20 @@
+Package: rgrambank
+Title: Assorted functions for handling language data, in particular Grambank and other CLDF-datasets
+Version: 0.0.0.9000
+Encoding: UTF-8
+Authors@R: c(
+    person("Hedvig", "Skirgård", , "hedvig.public@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-7748-2381")))
+Description: 
+License: Apache License (>= 2)
+Suggests:
+    rcldf
+Imports:
+    tidyr
+    dplyr
+    ggplot2
+    grDevices
+    stringr	
+    ggplot2	
+Depends: 
+    R (>= 4.3.1)
