@@ -10,6 +10,9 @@ library(tidyverse)
 #remotes::install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
+#devtools::install_github("HedvigS/rgrambank", ref = "v1.0")
+library(rgrambank)
+
 GB_rcldf_obj_v1 <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
@@ -22,23 +25,17 @@ LanguageTable <- GB_rcldf_obj_v1$tables$LanguageTable %>%
 Glottolog_LanguageTable <- glottolog_rcldf_obj$tables$LanguageTable
 Glottolog_ValueTable <- glottolog_rcldf_obj$tables$ValueTable
 
-source("../functions/combine_ValueTable_LanguageTable.R")
-Glottolog_ValueTable_LanguageTable <- combine_ValueTable_LanguageTable(LanguageTable = Glottolog_LanguageTable, 
+Glottolog_ValueTable_LanguageTable <- rgrambank::combine_ValueTable_LanguageTable(LanguageTable = Glottolog_LanguageTable, 
                                                                        ValueTable = Glottolog_ValueTable, 
                                                                        Is_Glottolog = TRUE)
 
-source("../functions/add_isolate_info.R")
-
-LanguageTable_Isolates_enriched <- add_isolate_info(LanguageTable = LanguageTable, 
+LanguageTable_Isolates_enriched <- rgrambank::add_isolate_info(LanguageTable = LanguageTable, 
                          Glottolog_ValueTable_LanguageTable = Glottolog_ValueTable_LanguageTable,
                          mark_isolate_dialects_as_isolates = TRUE, 
                          set_isolates_Family_ID_as_themselves = TRUE)
 
 
-#showcasing adding Family_name
-source("../functions/add_family_name_column.R")
-
-LanguageTable_with_Family_name <- add_family_name_column(LanguageTable = LanguageTable_Isolates_enriched, 
+LanguageTable_with_Family_name <- rgrambank::add_family_name_column(LanguageTable = LanguageTable_Isolates_enriched, 
                                                          Glottolog_ValueTable_LanguageTable = Glottolog_ValueTable_LanguageTable, 
                                verbose = FALSE)
 
