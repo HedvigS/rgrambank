@@ -93,4 +93,4 @@ basemap_list  <- rgrambank::basemap_pacific_center(LongLatTable = LongLatTable, 
 map <- basemap_list$basemap +
   geom_jitter(mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
 
-ggsave(plot = map, filename = "output/plots/PCA_RGB_map.png", width = 20, height = 15)
+ggsave(plot = map, filename = "output/plots/PCA_RGB_map.png", width = 10, height = 10)
