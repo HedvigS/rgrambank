@@ -7,7 +7,7 @@
 #' @author Hedvig Skirgård and Damián Blasi
 #' @export
 
-match_to_RGB <- function(x = NULL, 
+match_to_rgb <- function(x = NULL, 
                          first_three = TRUE, 
                          cols = NULL){
 
