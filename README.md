@@ -5,7 +5,7 @@
 This repository contains a set of R functions that are useful for analysis of Grambank data, and other CLDF-datasets. Most of the functions are adapted from the code behind [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175). The code of the paper was also published as grambank-analysed on [Zenodo](https://zenodo.org/doi/10.5281/zenodo.7740821) and [GitHub](https://github.com/grambank/grambank-analysed/tree/v1.0/R_grambank). Part of that code has been been re-written here to produce more general functions that can easily be applied to future Grambank releases and other CLDF-datasets.
 
 # Installing package
-The R-functions of this repository can be accessed as an R-package. The packages is not available via CRAN, instead you can install it directly here at GitHub.
+The R-functions of this repository can be accessed as an R-package. The packages is not available via CRAN, instead you can install it directly from GitHub. The packages `remotes` and `devtools` contain functions for installing packages from GitHub.
 
 ```
 library(remotes)
@@ -71,3 +71,7 @@ In order to model spatial auto-correlation in regression models it is necessary 
 
 > [!TIP]
 > Good to know: you can give `geoR:varcov.spatial` or `varcov.spatial.3D` distances directly, instead of coordinates. You can for example calculate distances over cost-surfaces and create a spatial vcv of that. The difference discussed above only concerns when you give the function spatial coordinates and it computes haversine distances for you.
+
+
+## Cropping missing data
+The function `rgrambank::crop_missing_data` differs from the script `impute_missing_values.R` ([link](https://github.com/grambank/grambank-analysed/blob/main/R_grambank/impute_missing_values.R )) in that you specify how much _non_-missing data you want there to be for what remains (e.g. 0.75 = features/languages with 75% data or more remains) whereas the release paper script is based on specifing an upper limit for missing data (0.25 = only languages with 25% missing data or less remain).
