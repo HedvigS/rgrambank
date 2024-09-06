@@ -13,15 +13,6 @@ remotes::install_github("HedvigS/rgrambank")
 library(rgrambank)
 ```
 
-## Structure of content
-Within this repository, functions are found in the directory `R` and examples in `example_scripts`. The directory `example_scripts` contain `R`-scripts which illustrate sepcific functions. For example, the script `example_scripts/binarise.R` showcases the functions `rgrambank::make_binary_ParameterTable`and `rgrambank::make_binary_ValueTable`. This README contains a list of all the functions, linked to example scripts and with details on who wrote the function and who reviewed it. In order to run the example scripts you need to set your working directory to `example_scripts`, as this is how the file-paths to `R` and `fixed` are set up. The example scripts also rely on the package [rcldf by Simon Greenhill](https://github.com/SimonGreenhill/rcldf) for fetching Grambank and Glottobank-datasets.
-
-Detailed descriptions of the functions parameters and behaviour can be found in their respective scripts in the dir `R` or accessed via the help-pages once the package is installed.
-
-# Who did what
-
-The entire set of code of the Grambank release-paper and grambank-analysed was primarily written by Simon Greenhill, Sam Passmore, Hedvig Skirgård, Damián Blasi, Russell Dinnage, Hannah Haynie, Angela Chira and Luke Maurits. The functions here, in rgrambank, are primarily written by Simon Greenhill and Hedvig Skirgård. Author(s) is/are specified for each function.
-
 # Versioning
 
 The content here will be continuously updated and periodically released with version tags. Git allows for accessing the state of the repos at a particular time via commit labels or tags. This can be used when cloning or accessing content via URLs and when installing the package withing R. We _strongly_ encourage you to keep track of versioning, this makes it easier to identify issues later.
@@ -31,6 +22,16 @@ library(remotes)
 remotes::install_github("HedvigS/rgrambank", ref = "v1.0")
 library(rgrambank)
 ```
+
+## Structure of content
+Within this repository, functions are found in the directory `R` and examples in `example_scripts`. The directory `example_scripts` contain `R`-scripts which illustrate sepcific functions. For example, the script `example_scripts/binarise.R` showcases the functions `rgrambank::make_binary_ParameterTable`and `rgrambank::make_binary_ValueTable`. This README contains a list of all the functions, linked to example scripts and with details on who wrote the function and who reviewed it. In order to run the example scripts you need to set your working directory to `example_scripts`, as this is how the file-paths to `R` and `fixed` are set up. The example scripts also rely on the package [rcldf by Simon Greenhill](https://github.com/SimonGreenhill/rcldf) for fetching Grambank and Glottobank-datasets.
+
+Detailed descriptions of the functions parameters and behaviour can be found in their respective scripts in the dir `R` or accessed via the help-pages once the package is installed.
+
+# Who did what
+
+The entire set of code of the Grambank release-paper and grambank-analysed was primarily written by Simon Greenhill, Sam Passmore, Hedvig Skirgård, Damián Blasi, Russell Dinnage, Hannah Haynie, Angela Chira and Luke Maurits. The functions here, in rgrambank, are primarily written by Simon Greenhill and Hedvig Skirgård. Specific author(s) is/are specified for each function.
+
 
 # Review
 The functions in this repos go through internal peer-review within the Department of Cultural and Linguistic Evolution at the Max Planck Insitute for Evolutionary Anthropology. The table below tracks which functions have been reviewed and by whom.
