@@ -1,5 +1,4 @@
-# This script makes a worldmap with dots for languages coloured by the data-sets first three principal components. To accomplish this, the data-set needs to be made binary, dialects merged, missing data cropped, missing data imputed, PCA, match to RGB and finally plotting.
-
+# This script makes a worldmap with dots for languages coloured by the data-sets first three principal components. To accomplish this, the data-set needs dialects merged, to be made binary, missing data cropped, remaining missing data imputed, PCA, match to RGB and finally plotting.
 
 #install.packages("remotes", version = "2.4.2.1", repos = "http://cran.us.r-project.org")
 library(remotes)
@@ -18,10 +17,10 @@ library(grDevices) #version = "4.3.1"
 #remotes::install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
-#devtools::install_github("HedvigS/rgrambank", ref = "v1.0")
+#devtools::install_github("HedvigS/rgrambank", ref = "aee3b9bb3f610b75174a2687a55d5acf7ee5f880")
 library(rgrambank)
 
-if(!dir.exists("ouptut")){dir.create("output")}
+if(!dir.exists("output")){dir.create("output")}
 if(!dir.exists("output/plots")){dir.create("output/plots")}
 
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
@@ -46,11 +45,10 @@ ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = ValueTable_d
 
 #prep for imputation
 
-source("../R/crop_missing_data.R")
 #crop such that features with lots of missing data and languages are removed
-ValueTable_cropped <- crop_missing_data(ValueTable = ValueTable_binary, 
-                                        cut_off_parameters  = 0.75, 
-                                        cut_off_languages = 0.75,
+ValueTable_cropped <- rgrambank::crop_missing_data(ValueTable = ValueTable_binary, 
+                                        cut_off_parameters  = 0.7538462, 
+                                        cut_off_languages = 0.7538462,
                                         turn_question_mark_into_NA = T) %>% 
   mutate(Value = str_replace_all(Value, "0", "0 - absent")) %>%
   mutate(Value = str_replace_all(Value, "1", "1 - present")) %>% 
@@ -114,6 +112,7 @@ map <- basemap_list$basemap +
 
 ggsave(plot = map, filename = "output/plots/PCA_RGB_map.png", width = 10, height = 10)
 
+#install_github("HedvigS/SH.misc", ref = "3ad2758d63792e1e9216119b4b5bad269a3bf944")
 library(SH.misc)
 
 SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
