@@ -10,7 +10,7 @@ library(rcldf)
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
 
-source("../functions/reduce_ValueTable_to_unique_glottocodes.R")
+source("../R/reduce_ValueTable_to_unique_glottocodes.R")
 
 overview_duplicates <- GB_rcldf_obj$tables$ValueTable %>% 
   distinct(Language_ID) %>%
