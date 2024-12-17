@@ -3,33 +3,55 @@
 #' @param ValueTable data-frame, long format, of Grambank values. If not already binarised, make_binary_ValueTable() will be applied.
 #' @param ParameterTable data-frame of Grambank ParameterTable. . If not already binarised, make_binary_ParameterTable will be applied.
 #' @param missing_cut_off numeric value between 0 and 1 representing cut-off for how much coverage each language should have, for each feature set. For each set of features for the theoretical scores, if a language falls under the threshold, it is not considered for the theoretical score (but may be considered for other sets). 0.75 means that languages with 75% of feature values non-missing for that set of features are included, less than 75% coverage are dropped.
+#' @param Fusion_option Character vector: "count_zero_half_and_one", "count_one_only" or "count_one_and_half". The features in the ParameterTable are assigned Fusion weights of 0 (pertains to free-marking), 1 (pertains to bound marking) and half (could be bound, affixal or other). Users can choose approach in how these contribute to the fusion score. If you choose "count_zero_half_and_one" then features assigned as 0 will be reversed, i.e. free-marking with contribute negatively to the fusion-score. Default is "count_one_and_half".
 #' @author Hedvig Skirgård and Hannah Haynie and Olena Shcherbakova
 #' @return A data-frame with theoretical scores per language.
 #' @export
 
 make_theo_scores <- function(ValueTable,
                              ParameterTable,
-                             missing_cut_off = 0.75){
+                             missing_cut_off = 0.75, 
+                             Fusion_option = "count_one_and_half"){
 
+  #we need the parameter and value table to be binarised, so we check if it is by looking for the existence of a known binarised feature
 if(!"GB203b" %in% ValueTable$Parameter_ID){
         ValueTable <- ValueTable %>% make_binary_ValueTable
 }
 
 if(!"GB203b" %in% ParameterTable$ID){
     ParameterTable <- ParameterTable  %>% make_binary_ParameterTable()
-}
+} 
+  
+  if(  !(Fusion_option %in% c("count_zero_half_and_one", "count_one_only", "count_one_and_half"))){
+    stop("Fusion_option has to be one of count_zero_half_and_one, count_one_only or count_one_and_half.")
+    
+  }
+    
 
     #read in sheet with scores for whether a feature denotes fusion
     ParameterTable <- ParameterTable %>%
         dplyr::select(Parameter_ID = ID, Fusion = Boundness, Informativity, Locus_of_Marking, Word_Order, Gender_or_Noun_Class, Flexivity) %>%
         dplyr::mutate(Fusion = as.numeric(Fusion)) %>%
-        dplyr::mutate(Fusion = ifelse(Fusion == 0, NA, Fusion)) %>%
         dplyr::mutate(Gender_or_Noun_Class = as.numeric(Gender_or_Noun_Class)) %>%
         dplyr::mutate(Flexivity = as.numeric(Flexivity)) %>%
         dplyr::mutate(Locus_of_Marking = as.numeric(Locus_of_Marking)) %>%
         dplyr::mutate(Word_Order = as.numeric(Word_Order))
 
-    n_fusion_feats <- length(ParameterTable$Fusion %>% na.omit())
+    if(Fusion_option == "count_one_and_half") {
+      n_fusion_feats <- sum(ParameterTable$Fusion == 1, na.rm = T) +  
+        sum(ParameterTable$Fusion == 0.5, na.rm = T) 
+          }
+
+    if(Fusion_option == "count_one_only" ) {
+      n_fusion_feats <- sum(ParameterTable$Fusion == 1, na.rm = T) 
+    }
+
+    if(Fusion_option == "count_zero_half_and_one" ) {
+      n_fusion_feats <- sum(ParameterTable$Fusion == 1, na.rm = T) +
+        sum(ParameterTable$Fusion == 0, na.rm = T) +
+        sum(ParameterTable$Fusion == 0.5, na.rm = T) 
+    }
+    
     n_informativity_feats <- length(ParameterTable$Informativity %>% na.omit())
     n_gender_NC_feats <- length(ParameterTable$Gender_or_Noun_Class %>% na.omit())
     n_flexivity_feats <- length(ParameterTable$Flexivity %>% na.omit())
@@ -50,17 +72,42 @@ if(!"GB203b" %in% ParameterTable$ID){
         dplyr::inner_join(ParameterTable , by = "Parameter_ID", relationship = "many-to-many") %>%
         dplyr::filter(!is.na(Value)) %>%
         dplyr::filter(Value != "?") %>%
-        dplyr::mutate(Value = as.numeric(Value))  # drop out ? marking and makes it possible to sum, mean etc
+        dplyr::mutate(Value = as.numeric(Value))  #makes it possible to sum, mean etc
 
     #fusion counts
-    lg_df_for_fusion_count <- ValueTable %>%
+    
+    if(Fusion_option == "count_one_and_half") {
+    Fusion_df <- ValueTable %>%
         dplyr::filter(!is.na(Fusion)) %>%
         dplyr::filter(Fusion != 0) %>%
         group_by(Language_ID) %>%
         mutate(n = n()) %>%
         filter(n >= n_fusion_feats * missing_cut_off) %>%
         dplyr::mutate(Value_weighted = ifelse(Fusion == 0.5 & Value == 1, 0.5, Value )) %>%
-        # replacing all instances of 1 for a feature that is weighted to 0.5 bound morph points to 0.5
+        # replacing all instances of 1 for a feature that is weighted to 0.5 bound morph points to 0.5 }
+      
+      if(Fusion_option == "count_one_only") {
+        Fusion_df <- ValueTable %>%
+          dplyr::filter(!is.na(Fusion)) %>%
+          dplyr::filter(Fusion == 1) %>%
+          group_by(Language_ID) %>%
+          mutate(n = n()) %>%
+          filter(n >= n_fusion_feats * missing_cut_off)}
+          
+    if(Fusion_option == "count_zero_half_and_one") {
+      Fusion_df <- ValueTable %>%
+        dplyr::filter(!is.na(Fusion)) %>%
+        group_by(Language_ID) %>%
+        mutate(n = n()) %>%
+        filter(n >= n_fusion_feats * missing_cut_off) %>% 
+        dplyr::mutate(Value_weighted = ifelse(Fusion == 0.5 & Value == 1, 0.5, Value )) %>%  # replacing all instances of 1 for a feature that is weighted to 0.5 bound morph points to 0.5 
+        mutate(value_weighted = if_else(Fusion == 0, abs(value-1), value_weighted)) # reversing the values of the features that refer to free-standing markers 
+    }
+    
+          
+      
+      
+      lg_df_for_fusion_count <- Fusion_df %>% 
         dplyr::group_by(Language_ID) %>%
         dplyr::summarise(Fusion = mean(Value_weighted))
 
