@@ -184,6 +184,3 @@ if(!"GB203b" %in% ParameterTable$ID){
         dplyr::full_join(lg_df_for_fusion_count, by = "Language_ID") %>%
         dplyr::full_join(lg_df_informativity_score, by = "Language_ID")
 }
-
-
-
