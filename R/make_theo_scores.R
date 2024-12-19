@@ -92,7 +92,9 @@ if(!"GB203b" %in% ParameterTable$ID){
           dplyr::filter(Fusion == 1) %>%
           group_by(Language_ID) %>%
           mutate(n = n()) %>%
-          filter(n >= n_fusion_feats * missing_cut_off)}
+          filter(n >= n_fusion_feats * missing_cut_off) %>% 
+          dplyr::rename(Value_weighted = Value)
+        }
           
     if(Fusion_option == "count_zero_half_and_one") {
       Fusion_df <- ValueTable %>%
