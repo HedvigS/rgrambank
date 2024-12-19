@@ -83,8 +83,7 @@ if(!"GB203b" %in% ParameterTable$ID){
         group_by(Language_ID) %>%
         mutate(n = n()) %>%
         filter(n >= n_fusion_feats * missing_cut_off) %>%
-        dplyr::mutate(Value_weighted = ifelse(Fusion == 0.5 & Value == 1, 0.5, Value )) %>%
-        # replacing all instances of 1 for a feature that is weighted to 0.5 bound morph points to 0.5 
+        dplyr::mutate(Value_weighted = ifelse(Fusion == 0.5 & Value == 1, 0.5, Value )) # replacing all instances of 1 for a feature that is weighted to 0.5 bound morph points to 0.5 
       }
       
       if(Fusion_option == "count_one_only") {
