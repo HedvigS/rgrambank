@@ -5,13 +5,10 @@
 #'@references Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data 
 #' @import tidyverse
 #' @import testthat
-#' @import densify
 #' @import reshape2
-#' @import lsr
 #' @import data.table
 #' @author Anna Graff
 #' @export
-
 
 # this function serves to condition a feature on another -- note that the currently implemented function works for up to 5 desired states in the %in% case
 .implement_conditioning <- function(feature_to_be_conditioned, condition, equator){
@@ -23,7 +20,9 @@
   if (equator == " == "){ 
     # if the condition in question is positive (" == "), we want to keep languages that have the desired state of conditioned_upon_feature OR which are "?" to both conditioned_upon_feature and feature_to_be_conditioned to not become NA
     # select languages with desired state or "?" in conditioned_upon_feature
-    condition_applies_strict <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==condition[2])$Language_ID
+    condition_applies_strict <- dplyr::filter(conditioned_upon_feature,
+                                              conditioned_upon_feature[,2]==condition[2])$Language_ID
+    
     condition_applies_q <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]=="?")$Language_ID
     
     # select languages in feature_to_be_conditioned to which condition applies (strict and q)
@@ -177,33 +176,26 @@
   return(new_data)
 }
 
-######################################################################################################
-######################################################################################################
-######################################################################################################
-######################################################################################################
+################## MAIN FUNCTION ##############################################
 
-make_GBI <- function(ValueTable = NULL
+make_GBI <- function(ValueTable = NULL,
+                     verbose = TRUE
 #                     recode_patterns = NULL, 
 #                     all_decisions = null
                             # LanguageTable = NULL
     ){
   
-  
-#  recode_patterns_full <- recode_patterns
 #  ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
 #  LanguageTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/languages.csv", sep = ",") 
 
   
   ########## load and prepare data ########## 
   # read in original grambank data
-
-#  ValueTable <- left_join(ValueTable, LanguageTable, by = c("Language_ID" = "ID" ))
-
   original_feature_matrix <- reshape2::dcast(data = ValueTable, Language_ID ~ Parameter_ID, value.var = "Value")
-  
+
   # replace missing data by ? (--> because these data points are unknown, not "not applicable")
   original_feature_matrix[is.na(original_feature_matrix)] <- "?"
-  
+    
   # Grambank v2 contains binarised features of the old multistate features from GB v1 (read more here: https://github.com/grambank/grambank/wiki/Binarised-features). The crossling-curated workflow currently calls for the mulistate features only, which is why the binarised will be turned "back" into the multistate.
   
   if("GB024a" %in% colnames(original_feature_matrix)){
@@ -212,32 +204,35 @@ make_GBI <- function(ValueTable = NULL
   #GB024	What is the order of numeral and noun in the NP?
   #GB024a	Is the order of the numeral and noun Num-N?
   #GB024b	Is the order of the numeral and noun N-Num?
+ 
     original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024 == "?" &   
-                                            original_feature_matrix$GB024a == "1" &
-                                            original_feature_matrix$GB024b == "0" , "1",
+                                            original_feature_matrix$GB024a == "1" & 
+                                            original_feature_matrix$GB024b == "0|?", 
+                                              "1",
                                           original_feature_matrix$GB024)
 
     original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024 == "?" &   
-                                            original_feature_matrix$GB024a == "0" &
-                                            original_feature_matrix$GB024b == "1" , "2",
+                                            original_feature_matrix$GB024a == "0|?"  &
+                                            original_feature_matrix$GB024b == "1" , 
+                                            "2",
                                           original_feature_matrix$GB024)
     
     original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024 == "?" &   
                                               original_feature_matrix$GB024a == "1" &
                                               original_feature_matrix$GB024b == "1" , "3",
                                             original_feature_matrix$GB024)
-        
+    
     #GB025	What is the order of adnominal demonstrative and noun?
     #GB025a	Is the order of the adnominal demonstrative and noun Dem-N?
     #GB025b	Is the order of the adnominal demonstrative and noun N-Dem?
     
     original_feature_matrix$GB025 <- ifelse(original_feature_matrix$GB025 == "?" &   
                                               original_feature_matrix$GB025a == "1" &
-                                              original_feature_matrix$GB025b == "0" , "1",
+                                              original_feature_matrix$GB025b == "0|?", "1",
                                             original_feature_matrix$GB025)
     
     original_feature_matrix$GB025 <- ifelse(original_feature_matrix$GB025 == "?" &   
-                                              original_feature_matrix$GB025a == "0" &
+                                              original_feature_matrix$GB025a == "0|?" &
                                               original_feature_matrix$GB025b == "1" , "2",
                                             original_feature_matrix$GB025)
     
@@ -246,10 +241,6 @@ make_GBI <- function(ValueTable = NULL
                                               original_feature_matrix$GB025b == "1" , "3",
                                             original_feature_matrix$GB025)
     
-    
-    
-    
-    
     #GB065	What is the pragmatically unmarked order of adnominal possessor noun and possessed noun?
     #GB065a	Is the pragmatically unmarked order of adnominal possessor noun and possessed noun PSR-PSD?
     #GB065b	Is the pragmatically unmarked order of adnominal possessor noun and possessed noun PSD-PSR?
@@ -257,11 +248,11 @@ make_GBI <- function(ValueTable = NULL
     
     original_feature_matrix$GB065 <- ifelse(original_feature_matrix$GB065 == "?" &   
                                               original_feature_matrix$GB065a == "1" &
-                                              original_feature_matrix$GB065b == "0" , "1",
+                                              original_feature_matrix$GB065b == "0|?" , "1",
                                             original_feature_matrix$GB065)
     
     original_feature_matrix$GB065 <- ifelse(original_feature_matrix$GB065 == "?" &   
-                                              original_feature_matrix$GB065a == "0" &
+                                              original_feature_matrix$GB065a == "0|?" &
                                               original_feature_matrix$GB065b == "1" , "2",
                                             original_feature_matrix$GB065)
     
@@ -277,11 +268,11 @@ make_GBI <- function(ValueTable = NULL
 
     original_feature_matrix$GB130 <- ifelse(original_feature_matrix$GB130 == "?" &   
                                               original_feature_matrix$GB130a == "1" &
-                                              original_feature_matrix$GB130b == "0" , "1",
+                                              original_feature_matrix$GB130b == "0|?", "1",
                                             original_feature_matrix$GB130)
     
     original_feature_matrix$GB130 <- ifelse(original_feature_matrix$GB130 == "?" &   
-                                              original_feature_matrix$GB130a == "0" &
+                                              original_feature_matrix$GB130a == "0|?" &
                                               original_feature_matrix$GB130b == "1" , "2",
                                             original_feature_matrix$GB130)
     
@@ -302,11 +293,11 @@ make_GBI <- function(ValueTable = NULL
     
     original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
                                               original_feature_matrix$GB193a == "1" &
-                                              original_feature_matrix$GB193b == "0" , "1",
+                                              original_feature_matrix$GB193b == "0|?" , "1",
                                             original_feature_matrix$GB193)
     
     original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
-                                              original_feature_matrix$GB193a == "0" &
+                                              original_feature_matrix$GB193a == "0|?" &
                                               original_feature_matrix$GB193b == "1" , "2",
                                             original_feature_matrix$GB193)
     
@@ -329,11 +320,11 @@ make_GBI <- function(ValueTable = NULL
     
     original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
                                               original_feature_matrix$GB203a == "1" &
-                                              original_feature_matrix$GB203b == "0" , "1",
+                                              original_feature_matrix$GB203b == "0|?" , "1",
                                             original_feature_matrix$GB203)
     
     original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
-                                              original_feature_matrix$GB203a == "0" &
+                                              original_feature_matrix$GB203a == "0|?" &
                                               original_feature_matrix$GB203b == "1" , "2",
                                             original_feature_matrix$GB203)
     
@@ -356,16 +347,22 @@ make_GBI <- function(ValueTable = NULL
     names(retained_data)[i]<-dplyr::filter(retained,`original.names`==names(retained_data)[i])$new.name
   }
   
-  recode_patterns <- dplyr::filter(recode_patterns_full, recode.operation.type!="include without modification")
+  recode_patterns <- dplyr::filter(recode_patterns_full, 
+                                   recode.operation.type != "include without modification")
 
   ## recode group 1 (simple recode) ##
   # subset to features requiring simple recoding only
-  first_set <- dplyr::filter(  recode_patterns, recode.operation.type=="recode group 1 (simple recode)")
-  recode_patterns <- dplyr::filter(recode_patterns, recode.operation.type!="recode group 1 (simple recode)")
+  first_set <- dplyr::filter(  recode_patterns, 
+                               recode.operation.type == "recode group 1 (simple recode)")
+  
+  recode_patterns <- dplyr::filter(recode_patterns, 
+                                   recode.operation.type != "recode group 1 (simple recode)")
   
   # recode all features that require simple recoding
   first_set_rec <- rowwise(first_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+  
+         if(verbose == TRUE){ cat("First set, processing ", .$new.name, "\n", sep="")
+         }
     
     # check that the original feature is present in the original feature matrix
     expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -401,7 +398,7 @@ make_GBI <- function(ValueTable = NULL
   
   # merge and recode features via logical arguments
   second_set_rec <- rowwise(second_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+    if(verbose == TRUE){cat("Second set, processing ", .$new.name, "\n", sep="")}
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -441,7 +438,8 @@ make_GBI <- function(ValueTable = NULL
   
   # merge and recode via logical arguments if a condition applies
   third_set_rec <- rowwise(third_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+    #. <- third_set[1,]
+    if(verbose == TRUE){cat("Third set, processing ", .$new.name, "\n", sep="")}
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -494,7 +492,7 @@ make_GBI <- function(ValueTable = NULL
   
   # merge and recode via logical arguments if a condition applies
   fourth_set_rec <- rowwise(fourth_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+    if(verbose == TRUE){ cat("Fourth, processing ", .$new.name, "\n", sep="")}
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -573,7 +571,7 @@ make_GBI <- function(ValueTable = NULL
   
   # condition feature on another feature
   fifth_set_rec <- rowwise(fifth_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+    if(verbose == TRUE){ cat("Fifth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
     expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -609,7 +607,7 @@ make_GBI <- function(ValueTable = NULL
   
   # condition on several features
   sixth_set_rec <- rowwise(sixth_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+    if(verbose == TRUE){  cat("Sixth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
     expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -672,7 +670,8 @@ make_GBI <- function(ValueTable = NULL
   
   # condition on conditioned feature
   seventh_set_rec <- rowwise(seventh_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+
+    if(verbose == TRUE){  cat("Seventh, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
     expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -707,7 +706,7 @@ make_GBI <- function(ValueTable = NULL
   
   # condition on several features
   eighth_set_rec <- rowwise(eighth_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+    if(verbose == TRUE){  cat("Eight, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
     expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -770,7 +769,7 @@ make_GBI <- function(ValueTable = NULL
   
   # merge and recode via logical arguments if a condition applies
   ninth_set_rec <- rowwise(ninth_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+    if(verbose == TRUE){    cat("Ninth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -824,7 +823,7 @@ make_GBI <- function(ValueTable = NULL
   
   # merge and recode via logical arguments if a condition applies
   tenth_set_rec <- rowwise(tenth_set) %>% do({
-    cat("Processing ", .$new.name, "\n", sep="")
+    if(verbose == TRUE){    cat("Tenth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -1103,4 +1102,3 @@ output <- list(data_for_statsGBI = recoded_data,
   "modificationsGBI" = modifications)
   output
 }
-  
