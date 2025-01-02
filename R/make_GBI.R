@@ -1,6 +1,9 @@
 #' make_GBI makes the  GBI-logical dataset as per Graff et al (accepted)
 #'
 #'@note This function is based on Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data . Original code can be found here: https://github.com/annagraff/crossling-curated/tree/main/scripts. The function rgrambank::make_GBI has been modified by Hedvig Skirgård to adapt to the rgrambank package and take into account changes between Grambank v1 and v2. The modifications are: turn binarised features (in Grambank v2 and further versions) corresponding multistate, rename variables to avoid loading recode-patterns several times and remove language meta-data.
+#' @param ValueTable data-frame. Grambank ValueTable.
+#' @param recode_patterns data-frame.  
+#' @param all_decisions data-frame. 
 #'@references Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data 
 #' @import tidyverse
 #' @import testthat
@@ -181,10 +184,14 @@
 ######################################################################################################
 ######################################################################################################
 
-make_GBI <- function(ValueTable = NULL#, 
+make_GBI <- function(ValueTable = NULL,
+                     recode_patterns = NULL, 
+                     all_decisions = null
                             # LanguageTable = NULL
     ){
   
+  
+  recode_patterns_full <- recode_patterns
 #  ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
 #  LanguageTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/languages.csv", sep = ",") 
 
@@ -347,6 +354,9 @@ make_GBI <- function(ValueTable = NULL#,
 #  all_decisions <- read.csv("fixed/decisions-log.csv")
 #  save(recode_patterns_full, all_decisions , file = "../R/R/sysdata.rda")
 #  load("../R/R/sysdata.rda")
+  
+#  library(usethis)
+#  usethis::use(recode_patterns_full, all_decisions, internal = TRUE)
   
   ########## parse all recodings in the appropriate order ########## 
   ## include without modification ##
