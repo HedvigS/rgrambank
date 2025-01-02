@@ -183,7 +183,7 @@ make_GBI <- function(ValueTable = NULL#,
                             # LanguageTable = NULL
     ){
   
-  ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
+#  ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
 #  LanguageTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/languages.csv", sep = ",") 
 
   
@@ -344,7 +344,7 @@ make_GBI <- function(ValueTable = NULL#,
 #  recode_patterns_full <- read.csv("fixed/feature-recode-patterns.csv")
 #  all_decisions <- read.csv("fixed/decisions-log.csv")
 #  save(recode_patterns_full, all_decisions , file = "../R/R/sysdata.rda")
-  load("../R/R/sysdata.rda")
+#  load("../R/R/sysdata.rda")
   
   ########## parse all recodings in the appropriate order ########## 
   ## include without modification ##
