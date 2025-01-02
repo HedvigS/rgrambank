@@ -1,8 +1,8 @@
-#' makes the  GBI-logical dataset as per Graff et al (accepted)
+#' make_GBI makes the  GBI-logical dataset as per Graff et al (accepted)
 #'
 #'
-#'@note This function is based on Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data 
-#'@references reference Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data 
+#'@note This function is based on Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data . Original code can be found here: https://github.com/annagraff/crossling-curated/tree/main/scripts. The function rgrambank::make_GBI has been modified by Hedvig Skirgård to adapt to the rgrambank package and take into account changes between Grambank v1 and v2. The modifications are: turn binarised features (in Grambank v2 and further versions) corresponding multistate, rename variables to avoid loading recode-patterns several times and remove language meta-data.
+#'@references Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data 
 #' @import tidyverse
 #' @import testthat
 #' @import densify
@@ -15,68 +15,68 @@
 .implement_conditioning <- function(feature_to_be_conditioned, condition, equator){
   
   # select conditioned upon feature
-  conditioned_upon_feature <- recoded_data[,c(1,which(names(recoded_data)%in%condition[1]))]
+  conditioned_upon_feature <- recoded_data[,c(1,which(names(recoded_data) %in% condition[1]))]
   
-  # select Glottocodes for which condition applies and turn data into "?" where applicable
+  # select Language_IDs for which condition applies and turn data into "?" where applicable
   if (equator == " == "){ 
     # if the condition in question is positive (" == "), we want to keep languages that have the desired state of conditioned_upon_feature OR which are "?" to both conditioned_upon_feature and feature_to_be_conditioned to not become NA
     # select languages with desired state or "?" in conditioned_upon_feature
-    condition_applies_strict <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]==condition[2])$Glottocode
-    condition_applies_q <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]=="?")$Glottocode
+    condition_applies_strict <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]==condition[2])$Language_ID
+    condition_applies_q <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]=="?")$Language_ID
     
     # select languages in feature_to_be_conditioned to which condition applies (strict and q)
-    conditioned_data <- filter(feature_to_be_conditioned, Glottocode %in% as.character(c(condition_applies_strict,condition_applies_q)))
+    conditioned_data <- filter(feature_to_be_conditioned, Language_ID %in% as.character(c(condition_applies_strict,condition_applies_q)))
     names(conditioned_data)[2] <- "conditioned_upon_feature"
     
     # the languages, which are "?" to conditioned_upon_feature but specified for feature_to_be_conditioned are recoded into "?"
-    conditioned_data$conditioned_upon_feature[conditioned_data$Glottocode%in%condition_applies_q] <- rep("?")
+    conditioned_data$conditioned_upon_feature[conditioned_data$Language_ID %in% condition_applies_q] <- rep("?")
     
   } else if (equator == " != "){ ## this applies if the condition in question is negative (" != ")
     # if the condition in question is negative (" != "), we want to keep all languages that do not have the specified state of conditioned_upon_feature
     # select languages which do not have the specified state in conditioned_upon_feature
-    condition_applies <- setdiff(conditioned_upon_feature$Glottocode,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==condition[2])$Glottocode)
+    condition_applies <- setdiff(conditioned_upon_feature$Language_ID,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==condition[2])$Language_ID)
     
     # select languages in feature_to_be_conditioned to which condition applies
-    conditioned_data <- filter(feature_to_be_conditioned, Glottocode %in% as.character(condition_applies))
+    conditioned_data <- filter(feature_to_be_conditioned, Language_ID %in% as.character(condition_applies))
     
-  } else if (equator == " %in% "){ ## this applies if the condition in the question is multiple --> conservative ("%in%")
+  } else if (equator == " %in% "){ ## this applies if the condition in the question is multiple --> conservative (" %in% ")
     
     # if the condition in question is multiple (" %in% "), we want to keep languages that have any of the desired state of conditioned_upon_feature OR which are "?" to both conditioned_upon_feature and feature_to_be_conditioned to not become NA
     desired_states <- unlist(strsplit(condition[2],", "))
     nr_desired_states <- length(desired_states)
     
     # select languages with desired states or "?" in conditioned_upon_feature
-    condition_applies_q <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]=="?")$Glottocode
-    condition_applies_desired_states <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[1]|conditioned_upon_feature[,2]==desired_states[2])$Glottocode
+    condition_applies_q <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]=="?")$Language_ID
+    condition_applies_desired_states <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[1]|conditioned_upon_feature[,2]==desired_states[2])$Language_ID
     # if there are more than 2 desired states, add the third
-    if(nr_desired_states>2){condition_applies_desired_states <- c(condition_applies_desired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[3])$Glottocode)}
+    if(nr_desired_states>2){condition_applies_desired_states <- c(condition_applies_desired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[3])$Language_ID)}
     # if there are more than 3 desired states, add the fourth
-    if(nr_desired_states>3){condition_applies_desired_states <- c(condition_applies_desired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[4])$Glottocode)}
+    if(nr_desired_states>3){condition_applies_desired_states <- c(condition_applies_desired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[4])$Language_ID)}
     # if there are more than 4 desired states, add the fifth
-    if(nr_desired_states>4){condition_applies_desired_states <- c(condition_applies_desired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[5])$Glottocode)}
+    if(nr_desired_states>4){condition_applies_desired_states <- c(condition_applies_desired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[5])$Language_ID)}
     
     # select languages in feature_to_be_conditioned to which condition applies (strict and q)
-    conditioned_data <- filter(feature_to_be_conditioned, Glottocode %in% as.character(c(condition_applies_q, condition_applies_desired_states)))
+    conditioned_data <- filter(feature_to_be_conditioned, Language_ID %in% as.character(c(condition_applies_q, condition_applies_desired_states)))
     names(conditioned_data)[2] <- "conditioned_upon_feature"
     
     # the languages, which are "?" to conditioned_upon_feature but specified for feature_to_be_conditioned are recoded into "?"
-    conditioned_data$conditioned_upon_feature[conditioned_data$Glottocode%in%condition_applies_q] <- rep("?")
+    conditioned_data$conditioned_upon_feature[conditioned_data$Language_ID %in% condition_applies_q] <- rep("?")
     
-  } else if (equator == " !%in% "){ ## this applies if the condition in the question is multiple (but negative) --> liberal ("!%in%")
-    # if the condition in question is negative multiple (" !%in% "), we want to keep all languages that do not have the specified states of conditioned_upon_feature
+  } else if (equator == " ! %in%  "){ ## this applies if the condition in the question is multiple (but negative) --> liberal ("! %in% ")
+    # if the condition in question is negative multiple (" ! %in%  "), we want to keep all languages that do not have the specified states of conditioned_upon_feature
     # select languages which do not have the specified state in conditioned_upon_feature
     undesired_states <- unlist(strsplit(condition[2],", "))
     nr_undesired_states <- length(undesired_states)
-    condition_applies_undesired_states <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[1]|conditioned_upon_feature[,2]==undesired_states[2])$Glottocode
+    condition_applies_undesired_states <- filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[1]|conditioned_upon_feature[,2]==undesired_states[2])$Language_ID
     # if there are more than 2 undesired states, add the third
-    if(nr_undesired_states>2){condition_applies_undesired_states <- c(condition_applies_undesired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[3])$Glottocode)}
+    if(nr_undesired_states>2){condition_applies_undesired_states <- c(condition_applies_undesired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[3])$Language_ID)}
     # if there are more than 3 undesired states, add the fourth
-    if(nr_undesired_states>3){condition_applies_undesired_states <- c(condition_applies_undesired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[4])$Glottocode)}
+    if(nr_undesired_states>3){condition_applies_undesired_states <- c(condition_applies_undesired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[4])$Language_ID)}
     # if there are more than 4 undesired states, add the fifth
-    if(nr_undesired_states>4){condition_applies_undesired_states <- c(condition_applies_undesired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[5])$Glottocode)}
-    condition_applies <- setdiff(conditioned_upon_feature$Glottocode,condition_applies_undesired_states)
+    if(nr_undesired_states>4){condition_applies_undesired_states <- c(condition_applies_undesired_states,filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[5])$Language_ID)}
+    condition_applies <- setdiff(conditioned_upon_feature$Language_ID,condition_applies_undesired_states)
     # select languages in feature_to_be_conditioned to which condition applies
-    conditioned_data <- filter(feature_to_be_conditioned, Glottocode %in% as.character(condition_applies))
+    conditioned_data <- filter(feature_to_be_conditioned, Language_ID %in% as.character(condition_applies))
   }
   
   return(conditioned_data)
@@ -100,8 +100,8 @@
   }
   # if condition has not been split, it is not positive or negative or positive mulitple, so it is negative multiple
   if (length(condition)==1){
-    condition <- unlist(strsplit(condition_statement," !%in% "))
-    equator <- " !%in% "
+    condition <- unlist(strsplit(condition_statement," ! %in%  "))
+    equator <- " ! %in%  "
   } 
   
   return(list(condition,equator))
@@ -166,7 +166,7 @@
   if (recode_mode == "logical_arguments"){
     # recode the data according to prioritised feature
     for (i in 1:nrow(level_table)){
-      original_data[original_data$Glottocode%in%filter(original_data,eval(parse(text=level_table$level[i])))$Glottocode,"merged"]<-level_table$new_level[i]
+      original_data[original_data$Language_ID %in% filter(original_data,eval(parse(text=level_table$level[i])))$Language_ID,"merged"]<-level_table$new_level[i]
     }
     # make "other" state become "?" if applicable
     original_data[is.na(original_data)]<-"?"
@@ -176,50 +176,193 @@
 }
 
 ######################################################################################################
-#make_GBI_logical <- function(ValueTable = NULL, 
-#                             LanguageTable = NULL
-#    ){
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
+make_GBI <- function(ValueTable = NULL#, 
+                            # LanguageTable = NULL
+    ){
   
-  ValueTable <- read.delim("../../../grambank/grambank/cldf/values.csv", sep = ",") 
-  LanguageTable <- read.delim("../../../grambank/grambank/cldf/languages.csv", sep = ",") 
+  ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
+#  LanguageTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/languages.csv", sep = ",") 
+
   
   ########## load and prepare data ########## 
   # read in original grambank data
 
-  ValueTable <- left_join(ValueTable, LanguageTable, by = c("Language_ID" = "ID" ))
+#  ValueTable <- left_join(ValueTable, LanguageTable, by = c("Language_ID" = "ID" ))
 
-  original_feature_matrix <- reshape2::dcast(data = ValueTable, Glottocode ~ Parameter_ID, value.var = "Value")
+  original_feature_matrix <- reshape2::dcast(data = ValueTable, Language_ID ~ Parameter_ID, value.var = "Value")
   
   # replace missing data by ? (--> because these data points are unknown, not "not applicable")
   original_feature_matrix[is.na(original_feature_matrix)] <- "?"
   
+  # Grambank v2 contains binarised features of the old multistate features from GB v1 (read more here: https://github.com/grambank/grambank/wiki/Binarised-features). The crossling-curated workflow currently calls for the mulistate features only, which is why the binarised will be turned "back" into the multistate.
+  
+  if("GB024a" %in% colnames(original_feature_matrix)){
+
+  
+  #GB024	What is the order of numeral and noun in the NP?
+  #GB024a	Is the order of the numeral and noun Num-N?
+  #GB024b	Is the order of the numeral and noun N-Num?
+    original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024 == "?" &   
+                                            original_feature_matrix$GB024a == "1" &
+                                            original_feature_matrix$GB024b == "0" , "1",
+                                          original_feature_matrix$GB024)
+
+    original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024 == "?" &   
+                                            original_feature_matrix$GB024a == "0" &
+                                            original_feature_matrix$GB024b == "1" , "2",
+                                          original_feature_matrix$GB024)
+    
+    original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024 == "?" &   
+                                              original_feature_matrix$GB024a == "1" &
+                                              original_feature_matrix$GB024b == "1" , "3",
+                                            original_feature_matrix$GB024)
+        
+    #GB025	What is the order of adnominal demonstrative and noun?
+    #GB025a	Is the order of the adnominal demonstrative and noun Dem-N?
+    #GB025b	Is the order of the adnominal demonstrative and noun N-Dem?
+    
+    original_feature_matrix$GB025 <- ifelse(original_feature_matrix$GB025 == "?" &   
+                                              original_feature_matrix$GB025a == "1" &
+                                              original_feature_matrix$GB025b == "0" , "1",
+                                            original_feature_matrix$GB025)
+    
+    original_feature_matrix$GB025 <- ifelse(original_feature_matrix$GB025 == "?" &   
+                                              original_feature_matrix$GB025a == "0" &
+                                              original_feature_matrix$GB025b == "1" , "2",
+                                            original_feature_matrix$GB025)
+    
+    original_feature_matrix$GB025 <- ifelse(original_feature_matrix$GB025 == "?" &   
+                                              original_feature_matrix$GB025a == "1" &
+                                              original_feature_matrix$GB025b == "1" , "3",
+                                            original_feature_matrix$GB025)
+    
+    
+    
+    
+    
+    #GB065	What is the pragmatically unmarked order of adnominal possessor noun and possessed noun?
+    #GB065a	Is the pragmatically unmarked order of adnominal possessor noun and possessed noun PSR-PSD?
+    #GB065b	Is the pragmatically unmarked order of adnominal possessor noun and possessed noun PSD-PSR?
+    
+    
+    original_feature_matrix$GB065 <- ifelse(original_feature_matrix$GB065 == "?" &   
+                                              original_feature_matrix$GB065a == "1" &
+                                              original_feature_matrix$GB065b == "0" , "1",
+                                            original_feature_matrix$GB065)
+    
+    original_feature_matrix$GB065 <- ifelse(original_feature_matrix$GB065 == "?" &   
+                                              original_feature_matrix$GB065a == "0" &
+                                              original_feature_matrix$GB065b == "1" , "2",
+                                            original_feature_matrix$GB065)
+    
+    original_feature_matrix$GB065 <- ifelse(original_feature_matrix$GB065 == "?" &   
+                                              original_feature_matrix$GB065a == "1" &
+                                              original_feature_matrix$GB065b == "1" , "3",
+                                            original_feature_matrix$GB065)
+    
+    #GB130	What is the pragmatically unmarked order of S and V in intransitive clauses?
+    #GB130a	Is the pragmatically unmarked order of S and V in intransitive clauses S-V?
+    #GB130b	Is the pragmatically unmarked order of S and V in intransitive clauses V-S?
+    
+
+    original_feature_matrix$GB130 <- ifelse(original_feature_matrix$GB130 == "?" &   
+                                              original_feature_matrix$GB130a == "1" &
+                                              original_feature_matrix$GB130b == "0" , "1",
+                                            original_feature_matrix$GB130)
+    
+    original_feature_matrix$GB130 <- ifelse(original_feature_matrix$GB130 == "?" &   
+                                              original_feature_matrix$GB130a == "0" &
+                                              original_feature_matrix$GB130b == "1" , "2",
+                                            original_feature_matrix$GB130)
+    
+    original_feature_matrix$GB130 <- ifelse(original_feature_matrix$GB130 == "?" &   
+                                              original_feature_matrix$GB130a == "1" &
+                                              original_feature_matrix$GB130b == "1" , "3",
+                                            original_feature_matrix$GB130)
+
+    #GB193	What is the order of adnominal property word and noun?
+    #GB193a	Is the order of the adnominal property word (ANM) and noun ANM-N?
+    #GB193b	Is the order of the adnominal property word (ANM) and noun N-ANM?
+    
+    
+    original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
+                                              original_feature_matrix$GB193a == "0" &
+                                              original_feature_matrix$GB193b == "0" , "0",
+                                            original_feature_matrix$GB193)
+    
+    original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
+                                              original_feature_matrix$GB193a == "1" &
+                                              original_feature_matrix$GB193b == "0" , "1",
+                                            original_feature_matrix$GB193)
+    
+    original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
+                                              original_feature_matrix$GB193a == "0" &
+                                              original_feature_matrix$GB193b == "1" , "2",
+                                            original_feature_matrix$GB193)
+    
+    original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
+                                              original_feature_matrix$GB193a == "1" &
+                                              original_feature_matrix$GB193b == "1" , "3",
+                                            original_feature_matrix$GB193)
+    
+    
+    #GB203	What is the order of the adnominal collective universal quantifier ('all') and the noun?
+    #GB203a	Is the order of the adnominal collective universal quantifier (UQ) and noun UQ-N?
+    #GB203b	Is the order of the adnominal collective universal quantifier (UQ) and noun N-QU?
+    
+    
+    
+    original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
+                                              original_feature_matrix$GB203a == "0" &
+                                              original_feature_matrix$GB203b == "0" , "0",
+                                            original_feature_matrix$GB203)
+    
+    original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
+                                              original_feature_matrix$GB203a == "1" &
+                                              original_feature_matrix$GB203b == "0" , "1",
+                                            original_feature_matrix$GB203)
+    
+    original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
+                                              original_feature_matrix$GB203a == "0" &
+                                              original_feature_matrix$GB203b == "1" , "2",
+                                            original_feature_matrix$GB203)
+    
+    original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
+                                              original_feature_matrix$GB203a == "1" &
+                                              original_feature_matrix$GB203b == "1" , "3",
+                                            original_feature_matrix$GB203)
+  }
+  
   # read in manual language meta-data, check all languages are documented
-  lang_metadata <- LanguageTable
-  testthat::expect_true(all(original_feature_matrix$Glottocode %in% lang_metadata$Glottocode))
+#  lang_metadata <- LanguageTable
+#  testthat::expect_true(all(original_feature_matrix$Language_ID %in% lang_metadata$Language_ID))
   
   # read in the file specifying the maintained features, the and the recoded features with their recoding patterns
-#  recode_patterns <-  read.csv("../../../annagraff/crossling-curated/scripts/GBI/feature-recode-patterns.csv")
-#  save(recode_patterns, file = "../R/R/sysdata.rda")
-  
-  # read in the file specifying the maintained features, the and the recoded features with their recoding patterns
-  recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
+#  recode_patterns_full <- read.csv("fixed/feature-recode-patterns.csv")
+#  all_decisions <- read.csv("fixed/decisions-log.csv")
+#  save(recode_patterns_full, all_decisions , file = "../R/R/sysdata.rda")
+  load("../R/R/sysdata.rda")
   
   ########## parse all recodings in the appropriate order ########## 
   ## include without modification ##
   # extract the features that we don't need to recode because we recode.operation.type them as they are
-  retained <- dplyr::filter(recode_patterns, recode.operation.type=="include without modification")
-  retained_data <- dplyr::select(original_feature_matrix,c(Glottocode, filter(recode_patterns, recode.operation.type=="include without modification")$`original.names`))
+  retained <- dplyr::filter(recode_patterns_full, recode.operation.type=="include without modification")
+  retained_data <- dplyr::select(original_feature_matrix,c(Language_ID, filter(recode_patterns_full, recode.operation.type=="include without modification")$`original.names`))
   
   # change names to new.names
   for(i in 2:ncol(retained_data)){
     names(retained_data)[i]<-filter(retained,`original.names`==names(retained_data)[i])$new.name
   }
   
-  recode_patterns <- filter(recode_patterns, recode.operation.type!="include without modification")
+  recode_patterns <- filter(recode_patterns_full, recode.operation.type!="include without modification")
 
   ## recode group 1 (simple recode) ##
   # subset to features requiring simple recoding only
-  first_set <- filter(recode_patterns, recode.operation.type=="recode group 1 (simple recode)")
+  first_set <- filter(  recode_patterns, recode.operation.type=="recode group 1 (simple recode)")
   recode_patterns <- filter(recode_patterns, recode.operation.type!="recode group 1 (simple recode)")
   
   # recode all features that require simple recoding
@@ -242,16 +385,16 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = na.omit(original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%.$`original.names`))])$Glottocode, 
+      Language_ID = na.omit(original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))])$Language_ID, 
       value = new_data,  
       stringsAsFactors=FALSE)  
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
 
   
   
   # save the recoded data from retained features and the simple recodings as recoded_data for further use
-  recoded_data <- full_join(first_set_rec, retained_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(first_set_rec, retained_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 2 (merge features - recode via logical arguments) ##
   # subset to features that have to be merged via logical arguments
@@ -263,10 +406,10 @@
     cat("Processing ", .$new.name, "\n", sep="")
     
     # check that the original features are present in the original feature matrix
-    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%unlist(strsplit(.$`original.names`,"&"))))]
+    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
     
     if (ncol(original_data) != length(unlist(strsplit(.$`original.names`,"&")))+1){
-      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data)%in%unlist(strsplit(.$`original.names`,"&")))])
+      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data) %in% unlist(strsplit(.$`original.names`,"&")))])
     }
     
     # extract relevant attributes for recoding
@@ -281,17 +424,17 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = original_data$Glottocode, 
+      Language_ID = original_data$Language_ID, 
       value = new_data,  
       stringsAsFactors=FALSE)  
     
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
   
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(second_set_rec, recoded_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(second_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 3 (merge features - recode via logical arguments - simple conditioning) ##
   # subset to features that have to be recoded via logical arguments if a condition applies
@@ -303,10 +446,10 @@
     cat("Processing ", .$new.name, "\n", sep="")
     
     # check that the original features are present in the original feature matrix
-    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%unlist(strsplit(.$`original.names`,"&"))))]
+    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
     
     if (ncol(original_data) != length(unlist(strsplit(.$`original.names`,"&")))+1){
-      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data)%in%unlist(strsplit(.$`original.names`,"&")))])
+      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data) %in% unlist(strsplit(.$`original.names`,"&")))])
     }
     
     # extract relevant attributes for recoding
@@ -319,7 +462,7 @@
     
     # create table (unconditioned)
     unconditioned <- data.frame(
-      Glottocode = original_data$Glottocode,
+      Language_ID = original_data$Language_ID,
       value = new_data,
       stringsAsFactors=FALSE)
     
@@ -336,15 +479,15 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = conditioned_data$Glottocode, 
+      Language_ID = conditioned_data$Language_ID, 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(third_set_rec, recoded_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(third_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 4 (merge features - recode via logical arguments - multiple conditioning) ##
   # subset to features that have to be recoded via logical arguments if several conditions apply
@@ -356,10 +499,10 @@
     cat("Processing ", .$new.name, "\n", sep="")
     
     # check that the original features are present in the original feature matrix
-    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%unlist(strsplit(.$`original.names`,"&"))))]
+    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
     
     if (ncol(original_data) != length(unlist(strsplit(.$`original.names`,"&")))+1){
-      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data)%in%unlist(strsplit(.$`original.names`,"&")))])
+      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data) %in% unlist(strsplit(.$`original.names`,"&")))])
     }
     
     # extract relevant attributes for recoding
@@ -373,7 +516,7 @@
     
     # create table (unconditioned)
     unconditioned <- data.frame(
-      Glottocode = original_data$Glottocode,
+      Language_ID = original_data$Language_ID,
       value = new_data,
       stringsAsFactors=FALSE)
     
@@ -416,14 +559,14 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = conditioned_data$Glottocode, 
+      Language_ID = conditioned_data$Language_ID, 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(fourth_set_rec, recoded_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(fourth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 5 (simple conditioning) ##
   # subset to features that have to be conditioned on another feature
@@ -436,7 +579,7 @@
     
     # check that the original feature is present in the original data
     expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
-    feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%.$`original.names`))]
+    feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))]
     
     # select condition statement
     condition_statement <-  .$condition.if.feature.conditioned
@@ -450,15 +593,15 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = conditioned_data$Glottocode, 
+      Language_ID = conditioned_data$Language_ID, 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(fifth_set_rec, recoded_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(fifth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   
   ## recode group 6 (multiple conditioning) ## 
@@ -472,7 +615,7 @@
     
     # check that the original feature is present in the original data
     expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
-    feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%.$`original.names`))]
+    feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))]
     
     # select conditions
     conditions <- unlist(strsplit(.$condition.if.feature.conditioned," & "))
@@ -513,15 +656,15 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = conditioned_data$Glottocode, 
+      Language_ID = conditioned_data$Language_ID, 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(sixth_set_rec, recoded_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(sixth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   
   ## recode group 7 (simple conditioning [conditioned feature]) ##
@@ -535,7 +678,7 @@
     
     # check that the original feature is present in the original data
     expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
-    feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%.$`original.names`))]
+    feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))]
     
     # select condition statement
     condition_statement <-  .$condition.if.feature.conditioned
@@ -549,15 +692,15 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = conditioned_data$Glottocode, 
+      Language_ID = conditioned_data$Language_ID, 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(seventh_set_rec, recoded_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(seventh_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 8 (multiple conditioning [conditioned feature]) ## 
   # subset to features that have to be conditioned on several features
@@ -570,7 +713,7 @@
     
     # check that the original feature is present in the original data
     expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
-    feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%.$`original.names`))]
+    feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))]
     
     # select conditions
     conditions <- unlist(strsplit(.$condition.if.feature.conditioned," & "))
@@ -611,15 +754,15 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = conditioned_data$Glottocode, 
+      Language_ID = conditioned_data$Language_ID, 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(eighth_set_rec, recoded_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(eighth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   
   ## recode group 9 (merge features - recode via logical arguments - simple conditioning [conditioned feature]) ##
@@ -632,10 +775,10 @@
     cat("Processing ", .$new.name, "\n", sep="")
     
     # check that the original features are present in the original feature matrix
-    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%unlist(strsplit(.$`original.names`,"&"))))]
+    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
     
     if (ncol(original_data) != length(unlist(strsplit(.$`original.names`,"&")))+1){
-      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data)%in%unlist(strsplit(.$`original.names`,"&")))])
+      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data) %in% unlist(strsplit(.$`original.names`,"&")))])
     }
     
     # extract relevant attributes for recoding
@@ -648,7 +791,7 @@
     
     # create table (unconditioned)
     unconditioned <- data.frame(
-      Glottocode = original_data$Glottocode,
+      Language_ID = original_data$Language_ID,
       value = new_data,
       stringsAsFactors=FALSE)
     
@@ -665,15 +808,15 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = conditioned_data$Glottocode, 
+      Language_ID = conditioned_data$Language_ID, 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(ninth_set_rec, recoded_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(ninth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   
   ## recode group 10 (merge features - recode via logical arguments - multiple conditioning [conditioned feature]) ##
@@ -686,10 +829,10 @@
     cat("Processing ", .$new.name, "\n", sep="")
     
     # check that the original features are present in the original feature matrix
-    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix)%in%unlist(strsplit(.$`original.names`,"&"))))]
+    original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
     
     if (ncol(original_data) != length(unlist(strsplit(.$`original.names`,"&")))+1){
-      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data)%in%unlist(strsplit(.$`original.names`,"&")))])
+      original_data<-cbind(original_data,recoded_data[,which(names(recoded_data) %in% unlist(strsplit(.$`original.names`,"&")))])
     }
     
     # extract relevant attributes for recoding
@@ -703,7 +846,7 @@
     
     # create table (unconditioned)
     unconditioned <- data.frame(
-      Glottocode = original_data$Glottocode,
+      Language_ID = original_data$Language_ID,
       value = new_data,
       stringsAsFactors=FALSE)
     
@@ -746,48 +889,48 @@
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Glottocode = conditioned_data$Glottocode, 
+      Language_ID = conditioned_data$Language_ID, 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
-  }) %>%
+  })  %>% 
     tidyr::spread(feature, value)
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(tenth_set_rec, recoded_data, by=c(Glottocode="Glottocode"))
+  recoded_data <- full_join(tenth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   # replace all NA as explicit "NA"
   recoded_data[is.na(recoded_data)]<-"NA"
   
   
   # subset full data into original layer; logical layer and statistical layer
-  recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
-  all_decisions <- read.csv("fixed/decisions-log.csv")
+#  recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
+#  all_decisions <- read.csv("fixed/decisions-log.csv")
   logical_decisions <- all_decisions %>% filter(modification.type %in% c("logical","design"))
   statistical_decisions <- all_decisions %>% filter(modification.type == "statistical")
   
-  original_layer <- recode_patterns%>%filter(original.features=="TRUE")
-  logical_layer <- recode_patterns%>%filter(design.logical=="TRUE")
-  statistical_layer <- recode_patterns%>%filter(design.logical.statistical=="TRUE")
+  original_layer <- recode_patterns_full %>% filter(original.features=="TRUE")
+  logical_layer <- recode_patterns_full %>% filter(design.logical=="TRUE")
+  statistical_layer <- recode_patterns_full %>% filter(design.logical.statistical=="TRUE")
   
-  original_data <- recoded_data %>% select(c("Glottocode",original_layer$new.name))
-  logical_data <- recoded_data %>% select(c("Glottocode",logical_layer$new.name))
-  statistical_data <- recoded_data %>% select(c("Glottocode",statistical_layer$new.name))
+  original_data <- recoded_data %>% select(c("Language_ID",original_layer$new.name))
+  logical_data <- recoded_data %>% select(c("Language_ID",logical_layer$new.name))
+  statistical_data <- recoded_data %>% select(c("Language_ID",statistical_layer$new.name))
   
   
   ########## sanity checks ########## 
   ### check all original features that should be in the original_feature filter are in there and vice versa
   original_names_is <- original_layer$new.name
   original_names_should <- names(retained_data)[-1]
-  expect_true(all(original_names_is%in%original_names_should))
-  expect_true(all(original_names_should%in%original_names_is))
+  expect_true(all(original_names_is %in% original_names_should))
+  expect_true(all(original_names_should %in% original_names_is))
   
   ### logical dataset: check all original features that should be in the logical filter are in there and vice versa
   design_add <- c(unique(unlist(str_split(filter(logical_decisions,is.added.feature.kept == "yes")$resulting.added.features,", "))),NA)
   design_remove <- unique(unlist(str_split(logical_decisions$resulting.removed.features,", ")))
   # logical dataset is: a) original features, plus b) all design/logical additions, minus c) all design/logical removals
-  logical_names_should <- unique(c(original_names_is,design_add))[unique(c(original_names_is,design_add))%in%design_remove==F]
-  logical_names_is <- names(logical_data)[names(logical_data)!="Glottocode"]
+  logical_names_should <- unique(c(original_names_is,design_add))[unique(c(original_names_is,design_add)) %in% design_remove==F]
+  logical_names_is <- names(logical_data)[names(logical_data)!="Language_ID"]
   # sanity checks
   expect_true(all(logical_names_is %in% logical_names_should))
   expect_true(all(logical_names_should %in% logical_names_is))
@@ -796,14 +939,14 @@
   statistical_add <- unique(statistical_decisions$resulting.added.features) 
   statistical_remove <- unique(unlist(str_split(statistical_decisions$resulting.removed.features,", ")))
   # statistical dataset is: a) the features from the final logical dataset, plus b) all statistical additions, minus c) all statistical removals
-  statistical_names_should <- unique(c(logical_names_is,statistical_add))[unique(c(logical_names_is,statistical_add))%in%statistical_remove==F]
-  statistical_names_is <- names(statistical_data)[names(statistical_data)!="Glottocode"]
+  statistical_names_should <- unique(c(logical_names_is,statistical_add))[unique(c(logical_names_is,statistical_add)) %in% statistical_remove==F]
+  statistical_names_is <- names(statistical_data)[names(statistical_data)!="Language_ID"]
   # sanity checks
   expect_true(all(statistical_names_is %in% statistical_names_should))
   expect_true(all(statistical_names_should %in% statistical_names_is))
   
   ### modification ID match --> ensure all modification IDs in the features sheet are in the modification sheet and vice versa
-  mod_IDs_is <- na.omit(unique(c(unlist(str_split(recode_patterns$modification.IDs,";")),(unlist(str_split(recode_patterns$associated.modification.IDs.without.resulting.action,";"))))))
+  mod_IDs_is <- na.omit(unique(c(unlist(str_split(recode_patterns_full$modification.IDs,";")),(unlist(str_split(recode_patterns_full$associated.modification.IDs.without.resulting.action,";"))))))
   mod_IDs_is <- mod_IDs_is[mod_IDs_is!=""]
   mod_IDs_should <- na.omit(all_decisions$modification.ID)
   expect_true(all(mod_IDs_is %in% mod_IDs_should))
@@ -817,51 +960,51 @@
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_all <- all_decisions %>% filter(modification.ID == id) %>% select(c("feature.1.for.test","feature.2.for.test","resulting.added.features","resulting.removed.features")) %>% as.character() %>% unique()
       should_all <- na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
-      is_all <- recode_patterns %>% slice(c(which(grepl(id,recode_patterns$modification.IDs)),which(grepl(id,recode_patterns$associated.modification.IDs.without.resulting.action))))
+      is_all <- recode_patterns_full %>% slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
       is_all <- is_all$new.name
-      expect_true(all(is_all%in%should_all))
-      expect_true(all(should_all%in%is_all))
+      expect_true(all(is_all %in% should_all))
+      expect_true(all(should_all %in% is_all))
       
       # check that each instance of a modification ID WITH EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_actedupon <- all_decisions %>% filter(modification.ID == id) %>% select(c("resulting.added.features","resulting.removed.features")) %>% as.character() %>% unique()
       should_actedupon <- na.omit(unique(unlist(strsplit(should_actedupon[should_actedupon!="NA"],", "))))
-      is_actedupon <- recode_patterns %>% slice(which(grepl(id,recode_patterns$modification.IDs)))
+      is_actedupon <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$modification.IDs)))
       is_actedupon <- is_actedupon$new.name
-      expect_true(all(is_actedupon%in%should_actedupon))
-      expect_true(all(should_actedupon%in%is_actedupon))
+      expect_true(all(is_actedupon %in% should_actedupon))
+      expect_true(all(should_actedupon %in% is_actedupon))
       
       # check that each instance of a modification ID WITHOUT EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_associated <- all_decisions %>% filter(modification.ID == id) %>% select(c("feature.1.for.test","feature.2.for.test")) %>% as.character() %>% unique()
       should_associated <- setdiff(na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
-      is_associated <- recode_patterns %>% slice(which(grepl(id,recode_patterns$associated.modification.IDs.without.resulting.action)))
+      is_associated <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
       is_associated <- is_associated$new.name
-      expect_true(all(is_associated%in%should_associated))
-      expect_true(all(should_associated%in%is_associated))
+      expect_true(all(is_associated %in% should_associated))
+      expect_true(all(should_associated %in% is_associated))
     }
     else if (type %in% c("logical","design-automated","design-manual")){ 
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_all <- all_decisions %>% filter(modification.ID == id) %>% select(c("relevant.features","resulting.added.features","resulting.removed.features")) %>% as.character() %>% unique()
       should_all <- na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
-      is_all <- recode_patterns %>% slice(c(which(grepl(id,recode_patterns$modification.IDs)),which(grepl(id,recode_patterns$associated.modification.IDs.without.resulting.action))))
+      is_all <- recode_patterns_full %>% slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
       is_all <- is_all$new.name
-      expect_true(all(is_all%in%should_all))
-      expect_true(all(should_all%in%is_all))
+      expect_true(all(is_all %in% should_all))
+      expect_true(all(should_all %in% is_all))
       
       # check that each instance of a modification ID WITH EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_actedupon <- all_decisions %>% filter(modification.ID == id) %>% select(c("resulting.added.features","resulting.removed.features")) %>% as.character() %>% unique()
       should_actedupon <- na.omit(unique(unlist(strsplit(should_actedupon[should_actedupon!="NA"],", "))))
-      is_actedupon <- recode_patterns %>% slice(which(grepl(id,recode_patterns$modification.IDs)))
+      is_actedupon <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$modification.IDs)))
       is_actedupon <- is_actedupon$new.name
-      expect_true(all(is_actedupon%in%should_actedupon))
-      expect_true(all(should_actedupon%in%is_actedupon))
+      expect_true(all(is_actedupon %in% should_actedupon))
+      expect_true(all(should_actedupon %in% is_actedupon))
       
       # check that each instance of a modification ID WITHOUT EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_associated <- all_decisions %>% filter(modification.ID == id) %>% select("relevant.features") %>% as.character() %>% unique()
       should_associated <- setdiff(na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
-      is_associated <- recode_patterns %>% slice(which(grepl(id,recode_patterns$associated.modification.IDs.without.resulting.action)))
+      is_associated <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
       is_associated <- is_associated$new.name
-      expect_true(all(is_associated%in%should_associated))
-      expect_true(all(should_associated%in%is_associated))
+      expect_true(all(is_associated %in% should_associated))
+      expect_true(all(should_associated %in% is_associated))
     }
   }
   
@@ -870,46 +1013,46 @@
   for (rd in 1:nrow(rds)){
     id <- rds %>% slice(rd) %>% select(modification.ID)
     should_associated <- rds %>% slice(rd) %>% select(c(feature.1.for.test,feature.2.for.test)) %>% as.character
-    is_associated <- recode_patterns %>% slice(which(grepl(id,recode_patterns$known.remaining.dependencies.after.statistical.treatment))) %>% select(new.name) %>% unlist %>% as.character
-    expect_true(all(is_associated%in%should_associated))
-    expect_true(all(should_associated%in%is_associated))
+    is_associated <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$known.remaining.dependencies.after.statistical.treatment))) %>% select(new.name) %>% unlist %>% as.character
+    expect_true(all(is_associated %in% should_associated))
+    expect_true(all(should_associated %in% is_associated))
   }
-  expect_true(all(rds$modification.ID%in%unlist(strsplit(recode_patterns$known.remaining.dependencies.after.statistical.treatment,";"))))
-  expect_true(all(na.omit(unique(unlist(strsplit(recode_patterns$known.remaining.dependencies.after.statistical.treatment,";"))))%in%rds$modification.ID))
+  expect_true(all(rds$modification.ID %in% unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";"))))
+  expect_true(all(na.omit(unique(unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";")))) %in% rds$modification.ID))
   
   
   ########## make, check and save cldf  ########## 
   # languages.csv
-  lang_metadata <- LanguageTable
+#  lang_metadata <- LanguageTable
   
-  taxonomy_logical <- data.frame(Glottocode = logical_data$Glottocode)
-  taxonomy_logical <- left_join(taxonomy_logical,lang_metadata)
+  taxonomy_logical <- data.frame(Language_ID = logical_data$Language_ID)
+ # taxonomy_logical <- left_join(taxonomy_logical,lang_metadata, by = "Language_ID")
   taxonomy_logical[taxonomy_logical==""] <- NA
   
-  taxonomy_statistical <- data.frame(Glottocode = statistical_data$Glottocode)
-  taxonomy_statistical <- left_join(taxonomy_statistical,lang_metadata)
+  taxonomy_statistical <- data.frame(Language_ID = statistical_data$Language_ID)
+#  taxonomy_statistical <- left_join(taxonomy_statistical,lang_metadata, by = "Language_ID")
   taxonomy_statistical[taxonomy_statistical==""] <- NA
   
   # parameters.csv
-  parameters <- read.csv("fixed/feature-recode-patterns.csv")
+  parameters <- recode_patterns_full
   
   parameters_logical <- parameters %>% filter(design.logical==T)
   parameters_statistical <- parameters %>% filter(design.logical.statistical==T)
   
   # values.csv
-  logical_long <- reshape2::melt(setDT(logical_data), id.vars = "Glottocode", variable.name = "new.name")
+  logical_long <- reshape2::melt(setDT(logical_data), id.vars = "Language_ID", variable.name = "new.name")
   logical_long$value_ID <- apply(logical_long,1,function(x) paste(x[2],x[1],sep="-"))
   logical_long$code_ID <- apply(logical_long,1,function(x) paste(x[2],x[3],sep="-"))
-  logical_long <- logical_long %>% select(c("value_ID","Glottocode","new.name","value","code_ID"))
-  logical_long$Glottocode <- as.character(logical_long$Glottocode)
+  logical_long <- logical_long %>% select(c("value_ID","Language_ID","new.name","value","code_ID"))
+  logical_long$Language_ID <- as.character(logical_long$Language_ID)
   logical_long$new.name <- as.character(logical_long$new.name)
   
-  statistical_long <- reshape2::melt(setDT(statistical_data), id.vars = "Glottocode", variable.name = "new.name")
+  statistical_long <- reshape2::melt(setDT(statistical_data), id.vars = "Language_ID", variable.name = "new.name")
   statistical_long$value_ID <- apply(statistical_long,1,function(x) paste(x[2],x[1],sep="-"))
   statistical_long$code_ID <- apply(statistical_long,1,function(x) paste(x[2],x[3],sep="-"))
-  statistical_long$Glottocode <- as.character(statistical_long$Glottocode)
+  statistical_long$Language_ID <- as.character(statistical_long$Language_ID)
   statistical_long$new.name <- as.character(statistical_long$new.name)
-  statistical_long <- statistical_long %>% select(c("value_ID","Glottocode","new.name","value","code_ID"))
+  statistical_long <- statistical_long %>% select(c("value_ID","Language_ID","new.name","value","code_ID"))
   
   # codes.csv
   logical_codes <- logical_long %>% select(c("code_ID","new.name","value")) %>% unique()
@@ -917,13 +1060,13 @@
   statistical_codes <- statistical_long %>% select(c("code_ID","new.name","value")) %>% unique()
   
   # modifications.csv
-  modifications <- read.csv("fixed/decisions-log.csv")
+  modifications <- all_decisions
   
   # cldf quality checks:
-  expect_true(all(unique(logical_long$Glottocode) %in% taxonomy_logical$Glottocode))
-  expect_true(all(unique(statistical_long$Glottocode) %in% taxonomy_statistical$Glottocode))
-  expect_true(all(taxonomy_logical$Glottocode %in% unique(logical_long$Glottocode)))
-  expect_true(all(taxonomy_statistical$Glottocode %in% unique(statistical_long$Glottocode)))
+  expect_true(all(unique(logical_long$Language_ID) %in% taxonomy_logical$Language_ID))
+  expect_true(all(unique(statistical_long$Language_ID) %in% taxonomy_statistical$Language_ID))
+  expect_true(all(taxonomy_logical$Language_ID %in% unique(logical_long$Language_ID)))
+  expect_true(all(taxonomy_statistical$Language_ID %in% unique(statistical_long$Language_ID)))
   
   expect_true(all(unique(logical_long$new.name) %in% parameters$new.name))
   expect_true(all(unique(statistical_long$new.name) %in% parameters$new.name))
@@ -945,26 +1088,21 @@
   ########################OUTPUT###################
   
   # this full set of all input and recoded features needs to be stored to perform statistical tests
-  write.csv(recoded_data, "curated_data/GBI/statisticalGBI/data_for_stats.csv")
-  
+output <- list(data_for_statsGBI = recoded_data,
+      
   ########## save data as language-feature matrices ########## 
   # save logical and statistical datasets as language-feature matrices (.csv)
-  write.csv(logical_data,"curated_data/GBI/logicalGBI/logicalGBI.csv")
-  write.csv(statistical_data,"curated_data/GBI/statisticalGBI/statisticalGBI.csv")
-  
-  
-  
+  "logicalGBI" = logical_data, 
+  "statisticalGBI" = statistical_data,
+
   # write all cldf components:
-  write.csv(taxonomy_logical,"curated_data/GBI/logicalGBI/cldf/languages.csv",fileEncoding="UTF-8",row.names = F)
-  write.csv(taxonomy_statistical,"curated_data/GBI/statisticalGBI/cldf/languages.csv",fileEncoding="UTF-8",row.names = F)
-  write.csv(parameters_logical,"curated_data/GBI/logicalGBI/cldf/parameters.csv",fileEncoding="UTF-8",row.names = F)
-  write.csv(parameters_statistical,"curated_data/GBI/statisticalGBI/cldf/parameters.csv",fileEncoding="UTF-8",row.names = F)
-  write.csv(logical_long,"curated_data/GBI/logicalGBI/cldf/values.csv",fileEncoding="UTF-8",row.names = F)
-  write.csv(statistical_long,"curated_data/GBI/statisticalGBI/cldf/values.csv",fileEncoding="UTF-8",row.names = F)
-  write.csv(logical_codes,"curated_data/GBI/logicalGBI/cldf/codes.csv",fileEncoding="UTF-8",row.names = F)
-  write.csv(statistical_codes,"curated_data/GBI/statisticalGBI/cldf/codes.csv",fileEncoding="UTF-8",row.names = F)
-  write.csv(modifications,"curated_data/GBI/logicalGBI/cldf/modifications.csv",fileEncoding="UTF-8",row.names = F)
-  write.csv(modifications,"curated_data/GBI/statisticalGBI/cldf/modifications.csv",fileEncoding="UTF-8",row.names = F)
-  
-  
+  "parameters_logicalGBI" = parameters_logical,
+  "parameters_statisticalGBI" = parameters_statistical,
+  "values_logicalGBI" = logical_long,
+  "values_statisticalGBI" = statistical_long,
+  "codes_logicalGBI" = logical_codes,
+  "codes_statisticalGBI" = statistical_codes,
+  "modificationsGBI" = modifications)
+  output
+}
   
