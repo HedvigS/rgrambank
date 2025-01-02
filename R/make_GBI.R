@@ -189,7 +189,7 @@ make_GBI <- function(ValueTable = NULL
     ){
   
   
-  recode_patterns_full <- recode_patterns
+#  recode_patterns_full <- recode_patterns
 #  ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
 #  LanguageTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/languages.csv", sep = ",") 
 
