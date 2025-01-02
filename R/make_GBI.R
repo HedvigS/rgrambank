@@ -2,8 +2,6 @@
 #'
 #'@note This function is based on Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data . Original code can be found here: https://github.com/annagraff/crossling-curated/tree/main/scripts. The function rgrambank::make_GBI has been modified by Hedvig Skirgård to adapt to the rgrambank package and take into account changes between Grambank v1 and v2. The modifications are: turn binarised features (in Grambank v2 and further versions) corresponding multistate, rename variables to avoid loading recode-patterns several times and remove language meta-data.
 #' @param ValueTable data-frame. Grambank ValueTable.
-#' @param recode_patterns data-frame.  
-#' @param all_decisions data-frame. 
 #'@references Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data 
 #' @import tidyverse
 #' @import testthat
@@ -184,9 +182,9 @@
 ######################################################################################################
 ######################################################################################################
 
-make_GBI <- function(ValueTable = NULL,
-                     recode_patterns = NULL, 
-                     all_decisions = null
+make_GBI <- function(ValueTable = NULL
+#                     recode_patterns = NULL, 
+#                     all_decisions = null
                             # LanguageTable = NULL
     ){
   
@@ -345,24 +343,13 @@ make_GBI <- function(ValueTable = NULL,
                                             original_feature_matrix$GB203)
   }
   
-  # read in manual language meta-data, check all languages are documented
-#  lang_metadata <- LanguageTable
-#  testthat::expect_true(all(original_feature_matrix$Language_ID %in% lang_metadata$Language_ID))
-  
-  # read in the file specifying the maintained features, the and the recoded features with their recoding patterns
-#  recode_patterns_full <- read.csv("fixed/feature-recode-patterns.csv")
-#  all_decisions <- read.csv("fixed/decisions-log.csv")
-#  save(recode_patterns_full, all_decisions , file = "../R/R/sysdata.rda")
-#  load("../R/R/sysdata.rda")
-  
-#  library(usethis)
-#  usethis::use(recode_patterns_full, all_decisions, internal = TRUE)
   
   ########## parse all recodings in the appropriate order ########## 
   ## include without modification ##
   # extract the features that we don't need to recode because we recode.operation.type them as they are
   retained <- dplyr::filter(recode_patterns_full, recode.operation.type=="include without modification")
-  retained_data <- dplyr::select(original_feature_matrix,c(Language_ID, filter(recode_patterns_full, recode.operation.type=="include without modification")$`original.names`))
+  retained_data <- dplyr::select(original_feature_matrix,c(Language_ID, 
+                                                           dplyr::filter(recode_patterns_full, recode.operation.type=="include without modification")$`original.names`))
   
   # change names to new.names
   for(i in 2:ncol(retained_data)){
