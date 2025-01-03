@@ -11,7 +11,7 @@
 #' @export
 
 # this function serves to condition a feature on another -- note that the currently implemented function works for up to 5 desired states in the %in% case
-.implement_conditioning <- function(feature_to_be_conditioned, condition, equator){
+.implement_conditioning <- function(feature_to_be_conditioned, condition, equator, recoded_data){
   
   # select conditioned upon feature
   conditioned_upon_feature <- recoded_data[,c(1,which(names(recoded_data) %in% condition[1]))]
@@ -471,7 +471,8 @@ make_GBI <- function(ValueTable = NULL,
     # apply condition
     conditioned_data <- .implement_conditioning(unconditioned, 
                                                condition=condition_and_equator[[1]], 
-                                               equator=condition_and_equator[[2]])
+                                               equator=condition_and_equator[[2]], 
+                                               recoded_data = recoded_data)
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
@@ -525,14 +526,16 @@ make_GBI <- function(ValueTable = NULL,
     condition_and_equator_1 <- .extract_condition_and_equator(condition_statement_1)
     conditioned_data <- .implement_conditioning(unconditioned, 
                                                condition=condition_and_equator_1[[1]], 
-                                               equator=condition_and_equator_1[[2]])
+                                               equator=condition_and_equator_1[[2]], 
+                                               recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 2, apply condition 2
     condition_statement_2 <- conditions[2]
     condition_and_equator_2 <- .extract_condition_and_equator(condition_statement_2)
     conditioned_data <- .implement_conditioning(conditioned_data, 
                                                condition=condition_and_equator_2[[1]], 
-                                               equator=condition_and_equator_2[[2]])
+                                               equator=condition_and_equator_2[[2]], 
+                                               recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 3, apply condition 3, if there are more than 2 conditions
     if (nr_conditions>2){
@@ -540,7 +543,8 @@ make_GBI <- function(ValueTable = NULL,
       condition_and_equator_3 <- .extract_condition_and_equator(condition_statement_3)
       conditioned_data <- .implement_conditioning(conditioned_data, 
                                                  condition=condition_and_equator_3[[1]], 
-                                                 equator=condition_and_equator_3[[2]])
+                                                 equator=condition_and_equator_3[[2]],
+                                                 recoded_data = recoded_data)
     }
     
     # determine and extract conditions and equators for condition 4, apply condition 4, if there are more than 3 conditions
@@ -549,7 +553,8 @@ make_GBI <- function(ValueTable = NULL,
       condition_and_equator_4 <- .extract_condition_and_equator(condition_statement_4)
       conditioned_data <- .implement_conditioning(conditioned_data, 
                                                  condition=condition_and_equator_4[[1]], 
-                                                 equator=condition_and_equator_4[[2]])
+                                                 equator=condition_and_equator_4[[2]],
+                                                 recoded_data = recoded_data)
     }
     
     # prepare output as data frame
@@ -584,7 +589,10 @@ make_GBI <- function(ValueTable = NULL,
     condition_and_equator <- .extract_condition_and_equator(condition_statement)
     
     # apply condition
-    conditioned_data <- .implement_conditioning(feature_to_be_conditioned, condition=condition_and_equator[[1]], equator=condition_and_equator[[2]])
+    conditioned_data <- .implement_conditioning(feature_to_be_conditioned, 
+                                                condition=condition_and_equator[[1]], 
+                                                equator=condition_and_equator[[2]],
+                                                recoded_data = recoded_data)
     
     # prepare output as data frame
     data.frame(
@@ -622,14 +630,16 @@ make_GBI <- function(ValueTable = NULL,
     condition_and_equator_1 <- .extract_condition_and_equator(condition_statement_1)
     conditioned_data <- .implement_conditioning(feature_to_be_conditioned, 
                                                condition=condition_and_equator_1[[1]], 
-                                               equator=condition_and_equator_1[[2]])
+                                               equator=condition_and_equator_1[[2]],
+                                               recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 2, apply condition 2
     condition_statement_2 <- conditions[2]
     condition_and_equator_2 <- .extract_condition_and_equator(condition_statement_2)
     conditioned_data <- .implement_conditioning(conditioned_data, 
                                                condition=condition_and_equator_2[[1]], 
-                                               equator=condition_and_equator_2[[2]])
+                                               equator=condition_and_equator_2[[2]],
+                                               recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 3, apply condition 3, if there are more than 2 conditions
     if (nr_conditions>2){
@@ -637,7 +647,8 @@ make_GBI <- function(ValueTable = NULL,
       condition_and_equator_3 <- .extract_condition_and_equator(condition_statement_3)
       conditioned_data <- .implement_conditioning(conditioned_data, 
                                                  condition=condition_and_equator_3[[1]], 
-                                                 equator=condition_and_equator_3[[2]])
+                                                 equator=condition_and_equator_3[[2]],
+                                                 recoded_data = recoded_data)
     }
     
     # determine and extract conditions and equators for condition 4, apply condition 4, if there are more than 3 conditions
@@ -646,7 +657,8 @@ make_GBI <- function(ValueTable = NULL,
       condition_and_equator_4 <- .extract_condition_and_equator(condition_statement_4)
       conditioned_data <- .implement_conditioning(conditioned_data, 
                                                  condition=condition_and_equator_4[[1]], 
-                                                 equator=condition_and_equator_4[[2]])
+                                                 equator=condition_and_equator_4[[2]],
+                                                 recoded_data = recoded_data)
     }
     
     # prepare output as data frame
@@ -684,7 +696,10 @@ make_GBI <- function(ValueTable = NULL,
     condition_and_equator <- .extract_condition_and_equator(condition_statement)
     
     # apply condition
-    conditioned_data <- .implement_conditioning(feature_to_be_conditioned, condition=condition_and_equator[[1]], equator=condition_and_equator[[2]])
+    conditioned_data <- .implement_conditioning(feature_to_be_conditioned, 
+                                                condition=condition_and_equator[[1]], 
+                                                equator=condition_and_equator[[2]],
+                                                recoded_data = recoded_data)
     
     # prepare output as data frame
     data.frame(
@@ -721,14 +736,16 @@ make_GBI <- function(ValueTable = NULL,
     condition_and_equator_1 <- .extract_condition_and_equator(condition_statement_1)
     conditioned_data <- .implement_conditioning(feature_to_be_conditioned, 
                                                condition=condition_and_equator_1[[1]], 
-                                               equator=condition_and_equator_1[[2]])
+                                               equator=condition_and_equator_1[[2]],
+                                               recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 2, apply condition 2
     condition_statement_2 <- conditions[2]
     condition_and_equator_2 <- .extract_condition_and_equator(condition_statement_2)
     conditioned_data <- .implement_conditioning(conditioned_data, 
                                                condition=condition_and_equator_2[[1]], 
-                                               equator=condition_and_equator_2[[2]])
+                                               equator=condition_and_equator_2[[2]],
+                                               recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 3, apply condition 3, if there are more than 2 conditions
     if (nr_conditions>2){
@@ -736,7 +753,8 @@ make_GBI <- function(ValueTable = NULL,
       condition_and_equator_3 <- .extract_condition_and_equator(condition_statement_3)
       conditioned_data <- .implement_conditioning(conditioned_data, 
                                                  condition=condition_and_equator_3[[1]], 
-                                                 equator=condition_and_equator_3[[2]])
+                                                 equator=condition_and_equator_3[[2]],
+                                                 recoded_data = recoded_data)
     }
     
     # determine and extract conditions and equators for condition 4, apply condition 4, if there are more than 3 conditions
@@ -745,7 +763,8 @@ make_GBI <- function(ValueTable = NULL,
       condition_and_equator_4 <- .extract_condition_and_equator(condition_statement_4)
       conditioned_data <- .implement_conditioning(conditioned_data, 
                                                  condition=condition_and_equator_4[[1]], 
-                                                 equator=condition_and_equator_4[[2]])
+                                                 equator=condition_and_equator_4[[2]],
+                                                 recoded_data = recoded_data)
     }
     
     # prepare output as data frame
@@ -801,7 +820,8 @@ make_GBI <- function(ValueTable = NULL,
     # apply condition
     conditioned_data <- .implement_conditioning(unconditioned, 
                                                condition=condition_and_equator[[1]], 
-                                               equator=condition_and_equator[[2]])
+                                               equator=condition_and_equator[[2]],
+                                               recoded_data = recoded_data)
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
@@ -856,14 +876,16 @@ make_GBI <- function(ValueTable = NULL,
     condition_and_equator_1 <- .extract_condition_and_equator(condition_statement_1)
     conditioned_data <- .implement_conditioning(unconditioned, 
                                                condition=condition_and_equator_1[[1]], 
-                                               equator=condition_and_equator_1[[2]])
+                                               equator=condition_and_equator_1[[2]],
+                                               recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 2, apply condition 2
     condition_statement_2 <- conditions[2]
     condition_and_equator_2 <- .extract_condition_and_equator(condition_statement_2)
     conditioned_data <- .implement_conditioning(conditioned_data, 
                                                condition=condition_and_equator_2[[1]], 
-                                               equator=condition_and_equator_2[[2]])
+                                               equator=condition_and_equator_2[[2]],
+                                               recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 3, apply condition 3, if there are more than 2 conditions
     if (nr_conditions>2){
@@ -871,7 +893,8 @@ make_GBI <- function(ValueTable = NULL,
       condition_and_equator_3 <- .extract_condition_and_equator(condition_statement_3)
       conditioned_data <- .implement_conditioning(conditioned_data, 
                                                  condition=condition_and_equator_3[[1]], 
-                                                 equator=condition_and_equator_3[[2]])
+                                                 equator=condition_and_equator_3[[2]],
+                                                 recoded_data = recoded_data)
     }
     
     # determine and extract conditions and equators for condition 4, apply condition 4, if there are more than 3 conditions
@@ -880,7 +903,8 @@ make_GBI <- function(ValueTable = NULL,
       condition_and_equator_4 <- .extract_condition_and_equator(condition_statement_4)
       conditioned_data <- .implement_conditioning(conditioned_data, 
                                                  condition=condition_and_equator_4[[1]], 
-                                                 equator=condition_and_equator_4[[2]])
+                                                 equator=condition_and_equator_4[[2]],
+                                                 recoded_data = recoded_data)
     }
     
     # prepare output as data frame
