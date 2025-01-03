@@ -123,10 +123,14 @@ statistical_log <-
           taxon_id = "Language_ID",
           density_mean_weights = list(coding = 0.999, taxonomy = 1))
 
-logical_log_old <- read_tsv("../../../annagraff/crossling-curated/logical_log.tsv")
+#logical_log_old <- read_tsv("../../../annagraff/crossling-curated/logical_log.tsv")
 
-logical_for_pruning_old <- read_tsv("../../../annagraff/crossling-curated/logical_for_pruning.tsv")
+#logical_log %>% str()
+#logical_log_old %>% str()
 
+#logical_log$coding_density == logical_log_old$coding_density
+
+#logical_log$data[[1]] %>% as.data.frame() 
 
 # prune to optima
 # we include minimum row coding density, since NAs on language end should largely be random
@@ -142,13 +146,13 @@ logical_densified <- logical[which(logical$glottocode%in%logical_densified$glott
 statistical_densified <- statistical[which(statistical$glottocode%in%statistical_densified$glottocode), which(names(statistical)%in%names(statistical_densified))]
 
 # save densified matrices
-write.csv(logical_densified,"curated_data/GBI/logicalGBI/logicalGBI_densified.csv")
-write.csv(statistical_densified,"curated_data/GBI/statisticalGBI/statisticalGBI_densified.csv")
+#write.csv(logical_densified,"curated_data/GBI/logicalGBI/logicalGBI_densified.csv")
+#write.csv(statistical_densified,"curated_data/GBI/statisticalGBI/statisticalGBI_densified.csv")
 
 # describe densified matrices and their relation to the full ones
-logical_densified <- na_convert(logical_densified)
-summarize_matrix(logical_densified)
-summarize_matrix(logical_densified)/summarize_matrix(logical_for_pruning)
+#logical_densified <- na_convert(logical_densified)
+#summarize_matrix(logical_densified)
+#summarize_matrix(logical_densified)/summarize_matrix(logical_for_pruning)
 
 statistical_densified <- na_convert(statistical_densified)
 summarize_matrix(statistical_densified)
