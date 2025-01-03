@@ -23,7 +23,7 @@
     condition_applies_strict <- dplyr::filter(conditioned_upon_feature,
                                               conditioned_upon_feature[2]==condition[2])$Language_ID
     
-    condition_applies_q <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]=="?")$Language_ID
+    condition_applies_q <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]=="?")$Language_ID
     
     # select languages in feature_to_be_conditioned to which condition applies (strict and q)
     conditioned_data <- dplyr::filter(feature_to_be_conditioned, Language_ID %in% as.character(c(condition_applies_strict,condition_applies_q)))
@@ -35,7 +35,7 @@
   } else if (equator == " != "){ ## this applies if the condition in question is negative (" != ")
     # if the condition in question is negative (" != "), we want to keep all languages that do not have the specified state of conditioned_upon_feature
     # select languages which do not have the specified state in conditioned_upon_feature
-    condition_applies <- setdiff(conditioned_upon_feature$Language_ID,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==condition[2])$Language_ID)
+    condition_applies <- setdiff(conditioned_upon_feature$Language_ID,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==condition[2])$Language_ID)
     
     # select languages in feature_to_be_conditioned to which condition applies
     conditioned_data <- dplyr::filter(feature_to_be_conditioned, Language_ID %in% as.character(condition_applies))
@@ -47,14 +47,14 @@
     nr_desired_states <- length(desired_states)
     
     # select languages with desired states or "?" in conditioned_upon_feature
-    condition_applies_q <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]=="?")$Language_ID
-    condition_applies_desired_states <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[1]|conditioned_upon_feature[,2]==desired_states[2])$Language_ID
+    condition_applies_q <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]=="?")$Language_ID
+    condition_applies_desired_states <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==desired_states[1]|conditioned_upon_feature[2]==desired_states[2])$Language_ID
     # if there are more than 2 desired states, add the third
-    if(nr_desired_states>2){condition_applies_desired_states <- c(condition_applies_desired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[3])$Language_ID)}
+    if(nr_desired_states>2){condition_applies_desired_states <- c(condition_applies_desired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==desired_states[3])$Language_ID)}
     # if there are more than 3 desired states, add the fourth
-    if(nr_desired_states>3){condition_applies_desired_states <- c(condition_applies_desired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[4])$Language_ID)}
+    if(nr_desired_states>3){condition_applies_desired_states <- c(condition_applies_desired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==desired_states[4])$Language_ID)}
     # if there are more than 4 desired states, add the fifth
-    if(nr_desired_states>4){condition_applies_desired_states <- c(condition_applies_desired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==desired_states[5])$Language_ID)}
+    if(nr_desired_states>4){condition_applies_desired_states <- c(condition_applies_desired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==desired_states[5])$Language_ID)}
     
     # select languages in feature_to_be_conditioned to which condition applies (strict and q)
     conditioned_data <- dplyr::filter(feature_to_be_conditioned, Language_ID %in% as.character(c(condition_applies_q, condition_applies_desired_states)))
@@ -68,13 +68,13 @@
     # select languages which do not have the specified state in conditioned_upon_feature
     undesired_states <- unlist(strsplit(condition[2],", "))
     nr_undesired_states <- length(undesired_states)
-    condition_applies_undesired_states <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[1]|conditioned_upon_feature[,2]==undesired_states[2])$Language_ID
+    condition_applies_undesired_states <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==undesired_states[1]|conditioned_upon_feature[2]==undesired_states[2])$Language_ID
     # if there are more than 2 undesired states, add the third
-    if(nr_undesired_states>2){condition_applies_undesired_states <- c(condition_applies_undesired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[3])$Language_ID)}
+    if(nr_undesired_states>2){condition_applies_undesired_states <- c(condition_applies_undesired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==undesired_states[3])$Language_ID)}
     # if there are more than 3 undesired states, add the fourth
-    if(nr_undesired_states>3){condition_applies_undesired_states <- c(condition_applies_undesired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[4])$Language_ID)}
+    if(nr_undesired_states>3){condition_applies_undesired_states <- c(condition_applies_undesired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==undesired_states[4])$Language_ID)}
     # if there are more than 4 undesired states, add the fifth
-    if(nr_undesired_states>4){condition_applies_undesired_states <- c(condition_applies_undesired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[,2]==undesired_states[5])$Language_ID)}
+    if(nr_undesired_states>4){condition_applies_undesired_states <- c(condition_applies_undesired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==undesired_states[5])$Language_ID)}
     condition_applies <- setdiff(conditioned_upon_feature$Language_ID,condition_applies_undesired_states)
     # select languages in feature_to_be_conditioned to which condition applies
     conditioned_data <- dplyr::filter(feature_to_be_conditioned, Language_ID %in% as.character(condition_applies))
