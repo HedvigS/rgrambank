@@ -1,23 +1,20 @@
-
-
-#remotes::install_github("Hedvigs/rgrambank")
-#library(rgrambank)
+#remotes::install_github("Hedvigs/rgrambank", ref = "ac427e98fc5ae27a756f42d07e1ee870fd2cb366")
+library(rgrambank)
 library(tidyverse)
 library(testthat)
 library(data.table)
 library(reshape2)
 library(densify)
 
-#ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
-ValueTable <- read.delim("../../../grambank/grambank/cldf/values.csv", sep = ",") 
+# fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
+GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
 
-load("../R/sysdata.rda")
-source("../R/make_GBI.R")
+ValueTable <- GB_rcldf_obj$tables$ValueTable
 
-output <- make_GBI(ValueTable = ValueTable)
+output <- rgrambank::make_GBI(ValueTable = ValueTable)
 
-
-old <- read_csv("../../../annagraff/crossling-curated/curated_data/GBI/logicalGBI/logicalGBI.csv", show_col_types = F) %>% 
+#compare output from rgrambank::make_GBI to the output of script at annagraff/crossling-curated
+old <- read_csv("https://github.com/annagraff/crossling-curated/raw/refs/heads/main/curated_data/GBI/logicalGBI/logicalGBI.csv", show_col_types = F) %>% 
   dplyr::select(-"...1") %>% 
   reshape2::melt(id.vars = "glottocode") %>% 
   dplyr::select(glottocode, Value.old = value, variable)
@@ -26,9 +23,12 @@ new <- output$logicalGBI  %>%
   reshape2::melt(id.vars = "Language_ID") %>% 
   dplyr::select(glottocode = Language_ID, Value.new = value, variable)
 
-joined <- full_join(old, new) %>% 
+joined <- full_join(old, new, by = c("glottocode", "variable")) %>% 
   mutate(diff = ifelse(Value.new == Value.old, "same", "diff")) 
 
+diffs <- joined %>% 
+  filter(diff == "diff"|
+           is.na(diff)) 
 
 ###denisfy
 
@@ -48,13 +48,10 @@ logical <- output$logicalGBI
 # read in statistical GBI data
 statistical <- output$statisticalGBI  
 
-languages_in_datasets <- c(logical$Language_ID, statistical$Language_ID) %>% unique()
-
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
 
-glottolog_ValueTable <- glottolog_rcldf_obj$tables$ValueTable %>% 
-  dplyr::filter(Language_ID %in% languages_in_datasets)
+glottolog_ValueTable <- glottolog_rcldf_obj$tables$ValueTable 
 
 glottolog_tree_adj_table_without_isolates <- glottolog_ValueTable %>% 
   dplyr::select(Language_ID, Parameter_ID, Value) %>% 
@@ -126,15 +123,18 @@ statistical_log <-
           taxon_id = "Language_ID",
           density_mean_weights = list(coding = 0.999, taxonomy = 1))
 
+logical_log_old <- read_tsv("../../../annagraff/crossling-curated/logical_log.tsv")
+
+logical_for_pruning_old <- read_tsv("../../../annagraff/crossling-curated/logical_for_pruning.tsv")
 
 
 # prune to optima
 # we include minimum row coding density, since NAs on language end should largely be random
 # we include taxonomic index since densification here explicitly seeks to increase taxonomic diversity
-logical_densified <- prune(logical_log, 
+logical_densified <- densify::prune(logical_log, 
                            scoring_function = n_data_points*coding_density*row_coding_density_min*taxonomic_index^3)
 
-statistical_densified <- prune(statistical_log, 
+statistical_densified <- densify::prune(statistical_log, 
                                scoring_function = n_data_points*coding_density*row_coding_density_min*taxonomic_index^3)
 
 # retrieve corresponding data from input (to re-establish differences between ? and NA)
