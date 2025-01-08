@@ -7,7 +7,7 @@
 #' @import testthat
 #' @import reshape2
 #' @import data.table
-#' @author Anna Graff
+#' @author Anna Graff and Hedvig Skirgård
 #' @export
 
 # this function serves to condition a feature on another -- note that the currently implemented function works for up to 5 desired states in the %in% case
