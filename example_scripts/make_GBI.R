@@ -1,9 +1,10 @@
-#remotes::install_github("Hedvigs/rgrambank", ref = "ac427e98fc5ae27a756f42d07e1ee870fd2cb366")
+#remotes::install_github("Hedvigs/rgrambank", ref = "4203614472682683a7670c60d994d9ec7de2c1b1")
 library(rgrambank)
 library(tidyverse)
 library(testthat)
 library(data.table)
 library(reshape2)
+#remotes::install_github("annagraff/densify")
 library(densify)
 
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
@@ -11,30 +12,15 @@ GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/gr
 
 ValueTable <- GB_rcldf_obj$tables$ValueTable
 
+# the function rgrambank::make_GBI makes GBI logical and GBI statistical according to the script written by Anna Graff. 
 output <- rgrambank::make_GBI(ValueTable = ValueTable)
-
-#compare output from rgrambank::make_GBI to the output of script at annagraff/crossling-curated
-old <- read_csv("https://github.com/annagraff/crossling-curated/raw/refs/heads/main/curated_data/GBI/logicalGBI/logicalGBI.csv", show_col_types = F) %>% 
-  dplyr::select(-"...1") %>% 
-  reshape2::melt(id.vars = "glottocode") %>% 
-  dplyr::select(glottocode, Value.old = value, variable)
-
-new <- output$logicalGBI  %>% 
-  reshape2::melt(id.vars = "Language_ID") %>% 
-  dplyr::select(glottocode = Language_ID, Value.new = value, variable)
-
-joined <- full_join(old, new, by = c("glottocode", "variable")) %>% 
-  mutate(diff = ifelse(Value.new == Value.old, "same", "diff")) 
-
-diffs <- joined %>% 
-  filter(diff == "diff"|
-           is.na(diff)) 
 
 ###denisfy
 
 # NA conversions (? to NA, "NA" to NA, blank to NA)
-na_convert <- function(data){
-  data[data=="?"]<-NA
+na_convert <- function(data, question_mark_to_na = TRUE){
+  if(question_mark_to_na == TRUE){
+  data[data=="?"]<-NA}
   data[data=="NA"]<-NA
   data[data==""]<-NA
   data[is.na(data)]<-NA
@@ -42,10 +28,10 @@ na_convert <- function(data){
 }
 
 # read in logical GBI data
-logical <- output$logicalGBI 
+logical <- output$logicalGBI   %>% as.data.frame()
 
 # read in statistical GBI data
-statistical <- output$statisticalGBI  
+statistical <- output$statisticalGBI    %>% as.data.frame()
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
@@ -69,30 +55,35 @@ glottolog_tree_adj_table <- glottolog_ValueTable %>%
 taxonomy_matrix  <- densify::as_flat_taxonomy_matrix(x = glottolog_tree_adj_table)
 
 # for densification, ensure all blanks, ? and "NA" are coded as NA
-logical_for_pruning <- na_convert(logical) %>% as.data.frame()
-statistical_for_pruning <- na_convert(statistical) %>% as.data.frame()
+logical_for_pruning <- na_convert(logical)
+statistical_for_pruning <- na_convert(statistical) 
 
 # function to summarize matrices
-summarize_matrix <- function(matrix, flat_taxonomy_matrix){
-  nfam <- flat_taxonomy_matrix %>% 
-  dplyr::filter(id %in% matrix$Language_ID) %>% 
-    distinct(level1) %>% nrow()
 
-  bare_matrix <- matrix %>% 
-    dplyr::select(-Language_ID)
+# function to summarize matrices
+summarize_matrix <- function(matrix){
   
+#  matrix = logical_densified
+  matrix <- na_convert(matrix)
+  nfam <- taxonomy_matrix  %>% 
+    dplyr::filter(id %in% matrix$Language_ID) %>% 
+    distinct(level1) %>% nrow()
+  
+  bare_matrix <- matrix %>% select(-Language_ID)
   nlg <- nrow(bare_matrix)
   nvar <- ncol(bare_matrix)
   prop <- sum(!is.na(bare_matrix))/(nlg*nvar)
-  prop <- round(prop, digits = 3)
   return(c(nlg=nlg, nvar=nvar, nfam=nfam, prop=prop))
 }
 
-
 # describe full matrices
-summarize_matrix(logical_for_pruning, flat_taxonomy_matrix = taxonomy_matrix)
-summarize_matrix(statistical_for_pruning, flat_taxonomy_matrix = taxonomy_matrix)
+summarize_matrix(logical_for_pruning)
+summarize_matrix(statistical_for_pruning)
 
+#checked up to here
+##########################
+##########################
+##########################
 
 # specify parameters for densification 
 min_variability <- 3 # each variable must have at least 3 languages in its second-largest state
@@ -108,7 +99,7 @@ logical_log <-
   densify::densify(data = logical_for_pruning,
           min_variability = min_variability,
           density_mean = density_mean,
-          cols = colnames(logical_for_pruning)[!colnames(logical_for_pruning) %in% "Language_ID"],
+#          cols = colnames(logical_for_pruning)[!colnames(logical_for_pruning) %in% "Language_ID"],
           taxonomy = glottolog_tree_adj_table,
           taxon_id = "Language_ID",
           density_mean_weights = list(coding = 0.999, taxonomy = 1))
@@ -122,27 +113,28 @@ statistical_log <-
           taxon_id = "Language_ID",
           density_mean_weights = list(coding = 0.999, taxonomy = 1))
 
-#logical_log_old <- read_tsv("../../../annagraff/crossling-curated/logical_log.tsv")
-
-#logical_log %>% str()
-#logical_log_old %>% str()
-
-#logical_log$coding_density == logical_log_old$coding_density
-
-#logical_log$data[[1]] %>% as.data.frame() 
-
 # prune to optima
 # we include minimum row coding density, since NAs on language end should largely be random
 # we include taxonomic index since densification here explicitly seeks to increase taxonomic diversity
-logical_densified <- densify::prune(logical_log, 
+logical_densified <- prune(logical_log, 
                            scoring_function = n_data_points*coding_density*row_coding_density_min*taxonomic_index^3)
 
-statistical_densified <- densify::prune(statistical_log, 
+statistical_densified <- prune(statistical_log, 
                                scoring_function = n_data_points*coding_density*row_coding_density_min*taxonomic_index^3)
 
 # retrieve corresponding data from input (to re-establish differences between ? and NA)
-logical_densified <- logical[which(logical$glottocode%in%logical_densified$glottocode), which(names(logical)%in%names(logical_densified))]
-statistical_densified <- statistical[which(statistical$glottocode%in%statistical_densified$glottocode), which(names(statistical)%in%names(statistical_densified))]
+logical_densified_with_question_mark <- logical %>% 
+  dplyr::filter(Language_ID %in% logical_densified$Language_ID) %>% 
+  dplyr::select(Language_ID, all_of(colnames(logical_densified)))
+
+statistical_densified_with_question_mark <- statistical %>% 
+  dplyr::filter(Language_ID %in% statistical_densified$Language_ID) %>% 
+  dplyr::select(Language_ID, all_of(colnames(statistical_densified)))
+
+
+#Amelia::missmap(na_convert(logical, question_mark_to_na = TRUE))
+#Amelia::missmap(na_convert(logical_densified,  question_mark_to_na = TRUE))
+
 
 # save densified matrices
 #write.csv(logical_densified,"curated_data/GBI/logicalGBI/logicalGBI_densified.csv")
@@ -152,8 +144,3 @@ statistical_densified <- statistical[which(statistical$glottocode%in%statistical
 #logical_densified <- na_convert(logical_densified)
 #summarize_matrix(logical_densified)
 #summarize_matrix(logical_densified)/summarize_matrix(logical_for_pruning)
-
-statistical_densified <- na_convert(statistical_densified)
-summarize_matrix(statistical_densified)
-summarize_matrix(statistical_densified)/summarize_matrix(statistical_for_pruning)
-
