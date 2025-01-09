@@ -1073,12 +1073,15 @@ make_GBI <- function(ValueTable = NULL,
   statistical_long$code_ID <- apply(statistical_long,1,function(x) paste(x[2],x[3],sep="-"))
   statistical_long$Language_ID <- as.character(statistical_long$Language_ID)
   statistical_long$new.name <- as.character(statistical_long$new.name)
-  statistical_long <- statistical_long %>% select(c("value_ID","Language_ID","new.name","value","code_ID"))
+  statistical_long <- statistical_long %>% 
+    dplyr::select(c("value_ID","Language_ID","new.name","value","code_ID"))
   
   # codes.csv
-  logical_codes <- logical_long %>% select(c("code_ID","new.name","value")) %>% unique()
+  logical_codes <- logical_long %>% 
+    dplyr::select(c("code_ID","new.name","value")) %>% unique()
   
-  statistical_codes <- statistical_long %>% select(c("code_ID","new.name","value")) %>% unique()
+  statistical_codes <- statistical_long %>% 
+    dplyr::select(c("code_ID","new.name","value")) %>% unique()
   
   # modifications.csv
   modifications <- all_decisions
@@ -1109,20 +1112,20 @@ make_GBI <- function(ValueTable = NULL,
   ########################OUTPUT###################
   
   # this full set of all input and recoded features needs to be stored to perform statistical tests
-output <- list(data_for_statsGBI = recoded_data,
+output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
       
   ########## save data as language-feature matrices ########## 
   # save logical and statistical datasets as language-feature matrices (.csv)
-  "logicalGBI" = logical_data, 
-  "statisticalGBI" = statistical_data,
+  "logicalGBI" = logical_data %>% as.data.frame(), 
+  "statisticalGBI" = statistical_data  %>% as.data.frame(),
 
   # write all cldf components:
-  "parameters_logicalGBI" = parameters_logical,
-  "parameters_statisticalGBI" = parameters_statistical,
-  "values_logicalGBI" = logical_long,
-  "values_statisticalGBI" = statistical_long,
-  "codes_logicalGBI" = logical_codes,
-  "codes_statisticalGBI" = statistical_codes,
-  "modificationsGBI" = modifications)
+  "parameters_logicalGBI" = parameters_logical  %>% as.data.frame(),
+  "parameters_statisticalGBI" = parameters_statistical  %>% as.data.frame(),
+  "values_logicalGBI" = logical_long  %>% as.data.frame(),
+  "values_statisticalGBI" = statistical_long  %>% as.data.frame(),
+  "codes_logicalGBI" = logical_codes  %>% as.data.frame(),
+  "codes_statisticalGBI" = statistical_codes  %>% as.data.frame(),
+  "modificationsGBI" = modifications  %>% as.data.frame())
   output
 }
