@@ -70,8 +70,8 @@ glottolog_tree_adj_table <- glottolog_ValueTable %>%
 taxonomy_matrix  <- densify::as_flat_taxonomy_matrix(x = glottolog_tree_adj_table)
 
 # for densification, ensure all blanks, ? and "NA" are coded as NA
-logical_for_pruning <- na_convert(logical)
-statistical_for_pruning <- na_convert(statistical)
+logical_for_pruning <- na_convert(logical) %>% as.data.frame()
+statistical_for_pruning <- na_convert(statistical) %>% as.data.frame()
 
 # function to summarize matrices
 summarize_matrix <- function(matrix, flat_taxonomy_matrix){
