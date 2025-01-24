@@ -1,6 +1,14 @@
 #' Wrapper function for densify::densify and densify::prune tailored to Grambank data specifically, based on annagraff/crossling-curated/blob/main/scripts/GBI/densify-datasets.R
 #'
-#' @param 
+#' @param Grambank_ValueTable data-frame of ValueTable from Grambank as CLDF-dataset
+#' @param GBI output object from rgrambank::make_GBI()
+#' @param Glottolog_ValueTable data-frame of ValueTable from Glottolog as CLDF-dataset
+#' @param verbose logical. If TRUE, function will be more talkative
+#' @param min_variability parameter for densify::densify(). Defaults to 3.
+#' @param density_mean  parameter for densify::densify(). Defaults to log_odds
+#' @param density_mean_weights parameter for densify::densify() (defaults to list(coding = 0.999, taxonomy = 1))
+#' @param scoring_function character vector, either "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3" or "n_data_points * coding_density". Other scoring_functions are currently not supported by wrapper function due to evaluation issues.
+#' @param random_seed  Integer
 #' @importFrom Amelia missmap
 #' @import densify
 #' @import dplyr
@@ -12,16 +20,19 @@ densify_GB <- function(Grambank_ValueTable = NA,
                        verbose = T,
                        min_variability = 3,  # each variable must have at least 3 languages in its second-largest state
                        density_mean = "log_odds",
-                       density_mean_weights = list(coding = 0.999),
+                       density_mean_weights = list(coding = 0.999, taxonomy = 1),
                        random_seed = 1111,
                        scoring_function = "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3"
 ){
   
+  #reality checks
   if(is.na(GBI) & is.na(Grambank_ValueTable)){
     stop("Either Grambank_ValueTable or GBI have to be specified, neither.")}
   
   if(!is.na(GBI) & !is.na(Grambank_ValueTable)){
     stop("Either Grambank_ValueTable or GBI have to be specified, not both")}
+  
+  #setting up aux functions
   
   # NA conversions (? to NA, "NA" to NA, blank to NA)
   .na_convert <- function(data, question_mark_to_na = TRUE){
@@ -32,9 +43,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
     data[is.na(data)]<-NA
     return(data)
   }
-  
-  set.seed(random_seed)
-  
+
   # function to summarize matrices
   .summarize_matrix <- function(matrix){
     
@@ -52,7 +61,29 @@ densify_GB <- function(Grambank_ValueTable = NA,
     return(list(nlg=nlg, nvar=nvar, nfam=nfam, data_prop=data_prop) %>% as.matrix() %>% t())
   }
   
+  set.seed(random_seed)
   
+  #make taxonomy matrix out of Glottolog ValueTable in the way that densify expects.
+  glottolog_tree_adj_table_without_isolates <- Glottolog_ValueTable %>% 
+    dplyr::select(Language_ID, Parameter_ID, Value) %>% 
+    dplyr::filter(Parameter_ID == "classification") %>% 
+    dplyr::mutate(parent_id = str_replace(Value, pattern = "^.*\\/", replacement = "")) %>% 
+    dplyr::select(Language_ID, parent_id)
+  
+  #isolates don't have a classification field at all, so we'll need to inferr which are isolates by finding the ones without an entry in glottolog_tree_adj_table now and add them back in
+  glottolog_tree_adj_table <- Glottolog_ValueTable %>% 
+    dplyr::distinct(`Language_ID`) %>%
+    anti_join(glottolog_tree_adj_table_without_isolates, by = "Language_ID") %>%
+    mutate(parent_id = as.character(NA)) %>% 
+    full_join(glottolog_tree_adj_table_without_isolates, by = c("Language_ID", "parent_id")) %>% 
+    dplyr::select(id = Language_ID, parent_id) 
+  
+  taxonomy_matrix  <- densify::as_flat_taxonomy_matrix(x = glottolog_tree_adj_table)
+  
+  
+  
+  
+  ### GBI
   if(!is.na(GBI)){
     
     #
@@ -63,37 +94,10 @@ densify_GB <- function(Grambank_ValueTable = NA,
     # read in statistical GBI data
     statistical <- GBI$statisticalGBI   
     
-    #make taxonomy matrix out of Glottolog ValueTable in the way that densify expects.
-    glottolog_tree_adj_table_without_isolates <- Glottolog_ValueTable %>% 
-      dplyr::select(Language_ID, Parameter_ID, Value) %>% 
-      dplyr::filter(Parameter_ID == "classification") %>% 
-      dplyr::mutate(parent_id = str_replace(Value, pattern = "^.*\\/", replacement = "")) %>% 
-      dplyr::select(Language_ID, parent_id)
-    
-    #isolates don't have a classification field at all, so we'll need to inferr which are isolates by finding the ones without an entry in glottolog_tree_adj_table now and add them back in
-    glottolog_tree_adj_table <- Glottolog_ValueTable %>% 
-      dplyr::distinct(`Language_ID`) %>%
-      anti_join(glottolog_tree_adj_table_without_isolates, by = "Language_ID") %>%
-      mutate(parent_id = as.character(NA)) %>% 
-      full_join(glottolog_tree_adj_table_without_isolates, by = c("Language_ID", "parent_id")) %>% 
-      dplyr::select(id = Language_ID, parent_id) 
-    
-    taxonomy_matrix  <- densify::as_flat_taxonomy_matrix(x = glottolog_tree_adj_table)
-    
     # for densification, ensure all blanks, ? and "NA" are coded as NA
     logical_for_pruning <- .na_convert(logical)
     statistical_for_pruning <- .na_convert(statistical) 
-    
-    
-    if(verbose == T){
-      
-      cat(paste0("Before pruning, GBI_logical looked like this:\n"))
-      # describe full matrices
-      .summarize_matrix(logical_for_pruning) 
-      cat(paste0("Before pruning, GBI_statistical looked like this:\n"))
-      .summarize_matrix(statistical_for_pruning)
-    }
-    
+  
     # comment on weights: GB is quite dense, and part of the "NA"s on the column/variable side in both curations is explicitly wanted
     # densification should thus be biased towards the taxonomic diversity criterion, expressed in a higher weight
     
@@ -157,7 +161,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
                .summarize_matrix(logical_for_pruning)[[2]] - .summarize_matrix(logical_densified)[[2]], " GBI_logical features were dropped. See plotting window for comparion plots.\n"))
     
     
-    Amelia::missmap(.na_convert(logical_for_pruning, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_logical after densifying")
+    Amelia::missmap(.na_convert(logical_for_pruning, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_logical before densifying")
     Amelia::missmap(.na_convert(logical_densified, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_logical after densifying")
     
     
@@ -167,7 +171,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
                .summarize_matrix(statistical_for_pruning)[[2]] - .summarize_matrix(statistical_densified)[[2]], " GBI_statistical features were dropped. See plotting window for comparion plots.\n"))
     
     
-    Amelia::missmap(.na_convert(statistical_for_pruning, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_statistical after densifying")
+    Amelia::missmap(.na_convert(statistical_for_pruning, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_statistical before densifying")
     Amelia::missmap(.na_convert(statistical_densified, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_statistical after densifying")
     
     output <- list(statistical_densified_with_question_mark = statistical_densified_with_question_mark,
@@ -175,6 +179,66 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     
   }
+  
+  ############IF USING "REGULAR" GB
+  if(!is.na(Grambank_ValueTable)){
+    
+    Grambank_wide <- Grambank_ValueTable %>% 
+      mutate(Value = as.character(Value)) %>% 
+      mutate(Value = ifelse(is.na(Value), "?", Value)) %>% 
+      reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value")
+    
+    Grambank_ValueTable_for_pruning <- .na_convert(Grambank_wide, question_mark_to_na = T)
+    
+    
+    Grambank_ValueTable_log <-
+      densify::densify(data = Grambank_ValueTable_for_pruning,
+                       min_variability = min_variability,
+                       density_mean = density_mean,
+                       cols = colnames(Grambank_ValueTable_for_pruning)[!colnames(Grambank_ValueTable_for_pruning) %in% "Language_ID"],
+                       taxonomy = glottolog_tree_adj_table,
+                       taxon_id = "Language_ID",
+                       density_mean_weights = density_mean_weights)
+    
+    
+  
+    if(scoring_function == "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3"){
+      Grambank_densified <- densify::prune(Grambank_ValueTable_log, 
+                                          scoring_function = n_data_points*coding_density*row_coding_density_min*taxonomic_index^3)
+      
+      
+    }
+    
+    if(scoring_function == "n_data_points * coding_density"){
+      Grambank_densified <- densify::prune(Grambank_ValueTable_log, 
+                                          scoring_function = n_data_points * coding_density)
+      
+    }
+    
+
+    Grambank_densified_with_question_mark <- Grambank_wide %>% 
+      dplyr::filter(Language_ID %in% Grambank_densified$Language_ID) %>% 
+      dplyr::select(Language_ID, all_of(colnames(Grambank_densified)))
+  }
+  
+  if(verbose == T){
+    
+    cat(paste0("Finished.\n
+  Before densifying, Grambank had ",   .summarize_matrix(Grambank_ValueTable_for_pruning)[[4]], " data coverage (counting ? as missing). After densifying, it has ",   .summarize_matrix(Grambank_densified)[[4]], " data coverage. ", 
+               format( .summarize_matrix(Grambank_ValueTable_for_pruning)[[1]] - .summarize_matrix(Grambank_densified)[[1]], big.mark=",") ,
+               " languages and ", 
+               .summarize_matrix(Grambank_ValueTable_for_pruning)[[2]] - .summarize_matrix(Grambank_densified)[[2]], " GBI_logical features were dropped. See plotting window for comparion plots.\n"))
+    
+    
+    Amelia::missmap(.na_convert(Grambank_ValueTable_for_pruning, question_mark_to_na = TRUE), main = "Data coverage of \nGrambank before densifying")
+    Amelia::missmap(.na_convert(Grambank_densified, question_mark_to_na = TRUE), main = "Data coverage of \nGramabnk after densifying")
+    
+    
+
+        output <- list(Grambank_densified_with_question_mark = Grambank_densified_with_question_mark)
+    
+    }
+
   return(output)  
 }
 
