@@ -12,7 +12,12 @@
 #' @importFrom Amelia missmap
 #' @import densify
 #' @import dplyr
+#' @import magrittr
+#' @import reshape2
+#' @note This is a Wrapper function for densify::densify and densify::prune tailored to Grambank data specifically, based on annagrawf/crossling-curated/blob/main/scripts/GBI/densify-datasets.R. The function requires the package densify, which can be installed like this: remotes::install_github("annagraff/densify")
+#' @references Graff, A., Lischka, M., Zakharko, T., Furrer, R., & Bickel, B. (2024). densify: An R package to reduce empty cells in data frames of typological linguistic data. Journal of Open Source Software, 9(101), 7024.
 #' @author Original densify-functions: Anna Graff, Marc Lischka, Taras Zakharko, Reinhard Furrer and Balthasar Bickel. Wrapper function: Anna Graff and Hedvig Skirgård
+#' @export
 
 densify_GB <- function(Grambank_ValueTable = NA,
                        GBI = NA, 
@@ -26,10 +31,10 @@ densify_GB <- function(Grambank_ValueTable = NA,
 ){
   
   #reality checks
-  if(is.na(GBI) & is.na(Grambank_ValueTable)){
+  if(all(is.na(GBI), all(is.na(Grambank_ValueTable)))){
     stop("Either Grambank_ValueTable or GBI have to be specified, neither.")}
   
-  if(!is.na(GBI) & !is.na(Grambank_ValueTable)){
+  if(all(!is.na(GBI), any(!is.na(Grambank_ValueTable)))){
     stop("Either Grambank_ValueTable or GBI have to be specified, not both")}
   
   #setting up aux functions
@@ -70,7 +75,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
     dplyr::mutate(parent_id = str_replace(Value, pattern = "^.*\\/", replacement = "")) %>% 
     dplyr::select(Language_ID, parent_id)
   
-  #isolates don't have a classification field at all, so we'll need to inferr which are isolates by finding the ones without an entry in glottolog_tree_adj_table now and add them back in
+  #isolates don't have a classification field at all, so we'll need to infer which are isolates by finding the ones without an entry in glottolog_tree_adj_table now and add them back in
   glottolog_tree_adj_table <- Glottolog_ValueTable %>% 
     dplyr::distinct(`Language_ID`) %>%
     anti_join(glottolog_tree_adj_table_without_isolates, by = "Language_ID") %>%
@@ -81,10 +86,10 @@ densify_GB <- function(Grambank_ValueTable = NA,
   taxonomy_matrix  <- densify::as_flat_taxonomy_matrix(x = glottolog_tree_adj_table)
   
   
-  
+ 
   
   ### GBI
-  if(!is.na(GBI)){
+  if(!all(is.na(GBI))){
     
     #
     
@@ -150,7 +155,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
     statistical_densified_with_question_mark <- statistical %>% 
       dplyr::filter(Language_ID %in% statistical_densified$Language_ID) %>% 
       dplyr::select(Language_ID, all_of(colnames(statistical_densified)))
-  }
+  
   
   if(verbose == T){
     
@@ -179,9 +184,10 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     
   }
-  
-  ############IF USING "REGULAR" GB
-  if(!is.na(Grambank_ValueTable)){
+}
+
+  ############IF USING "REGULAR" GB, not GBI
+  if(any(!is.na(Grambank_ValueTable))){
     
     Grambank_wide <- Grambank_ValueTable %>% 
       mutate(Value = as.character(Value)) %>% 
@@ -206,7 +212,6 @@ densify_GB <- function(Grambank_ValueTable = NA,
       Grambank_densified <- densify::prune(Grambank_ValueTable_log, 
                                           scoring_function = n_data_points*coding_density*row_coding_density_min*taxonomic_index^3)
       
-      
     }
     
     if(scoring_function == "n_data_points * coding_density"){
@@ -219,7 +224,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
     Grambank_densified_with_question_mark <- Grambank_wide %>% 
       dplyr::filter(Language_ID %in% Grambank_densified$Language_ID) %>% 
       dplyr::select(Language_ID, all_of(colnames(Grambank_densified)))
-  }
+  
   
   if(verbose == T){
     
@@ -231,14 +236,15 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     
     Amelia::missmap(.na_convert(Grambank_ValueTable_for_pruning, question_mark_to_na = TRUE), main = "Data coverage of \nGrambank before densifying")
-    Amelia::missmap(.na_convert(Grambank_densified, question_mark_to_na = TRUE), main = "Data coverage of \nGramabnk after densifying")
+    Amelia::missmap(.na_convert(Grambank_densified, question_mark_to_na = TRUE), main = "Data coverage of \nGrambank after densifying")
     
     
 
-        output <- list(Grambank_densified_with_question_mark = Grambank_densified_with_question_mark)
     
     }
+  output <- list(Grambank_densified_with_question_mark = Grambank_densified_with_question_mark)
+  }
 
-  return(output)  
+    return(output)  
 }
 
