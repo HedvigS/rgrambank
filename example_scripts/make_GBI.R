@@ -1,4 +1,4 @@
-#remotes::install_github("Hedvigs/rgrambank", ref = "4203614472682683a7670c60d994d9ec7de2c1b1")
+#remotes::install_github("Hedvigs/rgrambank")
 library(rgrambank)
 library(tidyverse)
 library(testthat)
