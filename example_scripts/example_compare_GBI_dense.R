@@ -6,6 +6,9 @@ library(data.table)
 library(reshape2)
 library(SH.misc)
 library(missForest)
+library(ggarrange)
+#install.packages("patchwork")
+library(patchwork)
 #remotes::install_github("annagraff/densify")
 library(densify)
 library(beepr)
@@ -43,8 +46,10 @@ Glottolog_ValueTable <- glottolog_rcldf_obj$tables$ValueTable
 #checking that it runs for Grambank_ValueTable
 GB_dense <- rgrambank::densify_GB(Grambank_ValueTable = Grambank_ValueTable_binary, Glottolog_ValueTable = Glottolog_ValueTable, limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85))
 
+beep()
+
 #checking that it runs for GBI
-GBI_dense <- densify_GB(GBI = GBI, Glottolog_ValueTable = Glottolog_ValueTable, limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85))
+GBI_dense <- densify_GB(GBI = GBI, Glottolog_ValueTable = Glottolog_ValueTable)
 
 GB_statistical_multistate_non_numeric_feats <- c("GB995F", "GB332EON", "GB900EO")
 
@@ -138,7 +143,7 @@ round(100 * (
 nlgs <- ValueTable_prepped %>% nrow()
 nfeats <- ncol(ValueTable_prepped) -1
 
-plot_title <- paste0(plot_title, ". nlgs = ", nlgs, ", nfeats = ", nfeats, ",\n imputed missing data = ", percent_missing)
+plot_title <- paste0(plot_title, ".\n nlgs = ", nlgs, ", nfeats = ", nfeats, ",\n imputed missing data = ", percent_missing)
 
   #imputation
   imputed_data <- ValueTable_prepped %>%
@@ -178,7 +183,7 @@ PCA <- df_for_PCA %>%
   
   #specifically to plot RGB we can't use mapping = aes() because we want to refer to the values themselves, not have ggplot then map them to colors on its own. Therefore we need to pass it the RGB vector outside of aes().
   map <- basemap_list$basemap +
-    geom_jitter(mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2) +
+    geom_jitter(mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 1) +
   ggtitle(plot_title)
 map  
 }
@@ -199,7 +204,13 @@ GB_logical_dense_map <- plot_PCA(plot_title = "GBI - logical (dense)" , ValueTab
 
 GB_statistical_map <- plot_PCA(plot_title = "GBI - statistical (cropped)", ValueTable = GBI_statistical, LongLatTable = LongLatTable, crop = T)
 
-GB_statitical_dense_map <- plot_PCA(plot_title = "GBI - statistical (dense + cropped)", ValueTable = GBI_statistical_dense, LongLatTable = LongLatTable, crop = F)
+GB_statitical_dense_map <- plot_PCA(plot_title = "GBI - statistical (dense)", ValueTable = GBI_statistical_dense, LongLatTable = LongLatTable, crop = F)
 
 library(beepr)
 beep()
+
+(GB_map + GB_logical_map + GB_statistical_map) / (GB_dense_map  + GB_logical_dense_map  + GB_statitical_dense_map)
+
+ggsave("test.png", width = 35, height = 30, units = "cm")
+
+
