@@ -27,6 +27,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
                        density_mean = "log_odds",
                        density_mean_weights = list(coding = 0.999, taxonomy = 1),
                        random_seed = 1111,
+                       limits = list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA),
                        scoring_function = "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3"
 ){
   
@@ -115,6 +116,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
                        cols = colnames(logical_for_pruning)[!colnames(logical_for_pruning) %in% "Language_ID"],
                        taxonomy = glottolog_tree_adj_table,
                        taxon_id = "Language_ID",
+                       limits= limits,
                        density_mean_weights = density_mean_weights)
     
     statistical_log <-
@@ -124,6 +126,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
                        cols = colnames(statistical_for_pruning)[!colnames(statistical_for_pruning) %in% "Language_ID"],
                        taxonomy = glottolog_tree_adj_table,
                        taxon_id = "Language_ID",
+                       limits= limits,
                        density_mean_weights = density_mean_weights)
     
     # prune to optima
