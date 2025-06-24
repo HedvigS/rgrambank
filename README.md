@@ -30,7 +30,7 @@ Detailed descriptions of the functions parameters and behaviour can be found in 
 
 # Who did what
 
-The entire set of code of the Grambank release-paper and grambank-analysed was primarily written by Simon Greenhill, Sam Passmore, Hedvig Skirgård, Damián Blasi, Russell Dinnage, Hannah Haynie, Angela Chira and Luke Maurits. The functions here, in rgrambank, are primarily written by Simon Greenhill and Hedvig Skirgård. Specific author(s) is/are specified for each function.
+The entire set of code of the Grambank release-paper and grambank-analysed was primarily written by Simon Greenhill, Sam Passmore, Hedvig Skirgård, Damián Blasi, Russell Dinnage, Hannah Haynie, Angela Chira and Luke Maurits. The functions here, in rgrambank, are primarily written by Hedvig Skirgård. Specific author(s) is/are specified for each function.
 
 
 # Review
