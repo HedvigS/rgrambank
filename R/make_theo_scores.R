@@ -81,7 +81,7 @@ if(!"GB203b" %in% ParameterTable$ID){
         dplyr::filter(!is.na(Fusion)) %>%
         dplyr::filter(Fusion != 0) %>%
         group_by(Language_ID) %>%
-        mutate(n = n()) %>%
+        dplyr::mutate(n = n()) %>%
         filter(n >= n_fusion_feats * missing_cut_off) %>%
         dplyr::mutate(Value_weighted = ifelse(Fusion == 0.5 & Value == 1, 0.5, Value )) # replacing all instances of 1 for a feature that is weighted to 0.5 bound morph points to 0.5 
       }
@@ -91,7 +91,7 @@ if(!"GB203b" %in% ParameterTable$ID){
           dplyr::filter(!is.na(Fusion)) %>%
           dplyr::filter(Fusion == 1) %>%
           group_by(Language_ID) %>%
-          mutate(n = n()) %>%
+          dplyr::mutate(n = n()) %>%
           filter(n >= n_fusion_feats * missing_cut_off) %>% 
           dplyr::rename(Value_weighted = Value)
         }
@@ -100,10 +100,10 @@ if(!"GB203b" %in% ParameterTable$ID){
       Fusion_df <- ValueTable %>%
         dplyr::filter(!is.na(Fusion)) %>%
         group_by(Language_ID) %>%
-        mutate(n = n()) %>%
+        dplyr::mutate(n = n()) %>%
         filter(n >= n_fusion_feats * missing_cut_off) %>% 
         dplyr::mutate(Value_weighted = ifelse(Fusion == 0.5 & Value == 1, 0.5, Value )) %>%  # replacing all instances of 1 for a feature that is weighted to 0.5 bound morph points to 0.5 
-        mutate(value_weighted = if_else(Fusion == 0, abs(value-1), value_weighted)) # reversing the values of the features that refer to free-standing markers 
+        dplyr::mutate(value_weighted = if_else(Fusion == 0, abs(value-1), value_weighted)) # reversing the values of the features that refer to free-standing markers 
     }
     
           
@@ -117,7 +117,7 @@ if(!"GB203b" %in% ParameterTable$ID){
     lg_df_for_flex_count <- ValueTable  %>%
         dplyr::filter(!is.na(Flexivity)) %>%
         group_by(Language_ID) %>%
-        mutate(n = n()) %>%
+        dplyr::mutate(n = n()) %>%
         filter(n >= n_flexivity_feats * missing_cut_off) %>%
         # reversing the Values of the features that have a score of 0
         dplyr::mutate(Value_weighted = ifelse(Flexivity == 0, abs(Value-1), Value)) %>%
@@ -128,7 +128,7 @@ if(!"GB203b" %in% ParameterTable$ID){
     lg_df_for_HM_DM_count <- ValueTable %>%
         dplyr::filter(!is.na(Locus_of_Marking)) %>%
         group_by(Language_ID) %>%
-        mutate(n = n()) %>%
+        dplyr::mutate(n = n()) %>%
         filter(n >= n_locus_marking_feats * missing_cut_off) %>%
         # reversing the Values of the features that have a score of 0
         dplyr::mutate(Value_weighted = ifelse(Locus_of_Marking == 0, abs(Value-1), Value)) %>%
@@ -139,7 +139,7 @@ if(!"GB203b" %in% ParameterTable$ID){
     lg_df_for_gender_nc_count <- ValueTable  %>%
         dplyr::filter(!is.na(Gender_or_Noun_Class)) %>%
         group_by(Language_ID) %>%
-        mutate(n = n()) %>%
+        dplyr::mutate(n = n()) %>%
         filter(n >= n_gender_NC_feats * missing_cut_off) %>%
         # reversing the Values of the features that have a score of 0
         dplyr::mutate(Value_weighted = ifelse(Gender_or_Noun_Class == 0, abs(Value-1), Value)) %>%
@@ -150,7 +150,7 @@ if(!"GB203b" %in% ParameterTable$ID){
      lg_df_for_OV_VO_count <- ValueTable  %>%
          dplyr::filter(!is.na(Word_Order)) %>%
          group_by(Language_ID) %>%
-         mutate(n = n()) %>%
+         dplyr::mutate(n = n()) %>%
          filter(n >= n_word_order_feats * missing_cut_off) %>%
          dplyr::mutate(Value_weighted = ifelse(Word_Order == 0, abs(Value-1), Value)) %>%
          dplyr::group_by(Language_ID) %>%
@@ -160,7 +160,7 @@ if(!"GB203b" %in% ParameterTable$ID){
     lg_df_informativity_score <-  ValueTable  %>%
         dplyr::filter(!is.na(Informativity)) %>%
         group_by(Language_ID) %>%
-        mutate(n = n()) %>%
+        dplyr::mutate(n = n()) %>%
         filter(n >= n_informativity_feats * missing_cut_off) %>%
         # reversing GB140 because 0 is the informative state
         dplyr::mutate(Value = ifelse(Parameter_ID == "GB140", abs(Value-1), Value)) %>%
