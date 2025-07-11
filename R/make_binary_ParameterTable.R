@@ -24,10 +24,6 @@ make_binary_ParameterTable<- function(ParameterTable,
     
   }else{
   
-  
-  
-  
-  
 .Parameter_binary <- data.frame(
     ID = c(
         "GB024", "GB024",
@@ -92,24 +88,20 @@ make_binary_ParameterTable<- function(ParameterTable,
 multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
 
 ParameterTable_new <- ParameterTable %>%
-    full_join(.Parameter_binary, by = "ID") %>% 
-    mutate(ID = ifelse(!is.na(ID_binary), ID_binary, ID)) %>%
-    mutate(Name = ifelse(!is.na(Name_binary), Name_binary, Name)) %>%
-    mutate(Grambank_ID_desc = ifelse(!is.na(Grambank_ID_desc_binary), Grambank_ID_desc_binary, Grambank_ID_desc)) %>%
-    mutate(Word_Order = ifelse(!is.na(Word_Order_binary), Word_Order_binary, Word_Order)) %>%
+    dplyr::full_join(.Parameter_binary, by = "ID") %>% 
+    dplyr::mutate(ID = ifelse(!is.na(ID_binary), ID_binary, ID)) %>%
+    dplyr::mutate(Name = ifelse(!is.na(Name_binary), Name_binary, Name)) %>%
+    dplyr::mutate(Grambank_ID_desc = ifelse(!is.na(Grambank_ID_desc_binary), Grambank_ID_desc_binary, Grambank_ID_desc)) %>%
+    dplyr::mutate(Word_Order = ifelse(!is.na(Word_Order_binary), Word_Order_binary, Word_Order)) %>%
     dplyr::select(-c("ID_binary", Name_binary, Grambank_ID_desc_binary, Word_Order_binary)) %>%
-    mutate(Binary_Multistate= ifelse(ID %in% multistate_features, "Multi", Binary_Multistate)) %>%
-    mutate(Binary_Multistate = ifelse(is.na(Binary_Multistate), "Binary", Binary_Multistate))
-
+    dplyr::mutate(Binary_Multistate= ifelse(ID %in% multistate_features, "Multi", Binary_Multistate)) %>%
+    dplyr::mutate(Binary_Multistate = ifelse(is.na(Binary_Multistate), "Binary", Binary_Multistate))
   }
 
 if(keep_multi_state_features == FALSE){
 ParameterTable_new <-     ParameterTable_new %>%
-    filter(!(ID %in% multistate_features))
+    dplyr::filter(!(ID %in% multistate_features))
 }
-
-
-
 
 ParameterTable_new
 }
