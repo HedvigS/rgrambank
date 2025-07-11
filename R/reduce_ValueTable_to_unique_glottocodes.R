@@ -95,7 +95,7 @@ if(multiple_values_per_parameter > 1){
 
 if(treat_question_mark_as_missing == TRUE){
   ValueTable <- ValueTable %>% 
-    mutate(Value = ifelse(Value == "?", NA, Value))
+    dplyr::mutate(Value = ifelse(Value == "?", NA, Value))
 }
 
 ## Check if LanguageTables are able to be used for merging dialects (if merge_dialects == TRUE) and set-up LanguageTable for use later.
@@ -106,7 +106,7 @@ if(merge_dialects == TRUE){
       dplyr::distinct(Glottocode, Language_level_ID)
       
     LanguageTable <- LanguageTable %>% 
-      full_join(GlottologLanguageTable, by = "Glottocode")
+      dplyr::full_join(GlottologLanguageTable, by = "Glottocode")
   }
 
 if(replace_missing_language_level_ID == TRUE){
@@ -145,10 +145,10 @@ if(merge_dialects == FALSE){
             dplyr::arrange(desc(n)) %>%
             dplyr::ungroup() %>%
             dplyr::distinct(Glottocode, .keep_all = T) %>%
-            distinct(Language_ID)
+            dplyr::distinct(Language_ID)
 
         levelled_ValueTable <- ValueTable %>% 
-          inner_join(lgs, by = "Language_ID") %>% 
+          dplyr::inner_join(lgs, by = "Language_ID") %>% 
           dplyr::left_join(LanguageTable, by = "Language_ID") 
           
 
@@ -184,18 +184,18 @@ if(merge_dialects == FALSE){
       lgs  <- LanguageTable %>%
             dplyr::group_by(Glottocode) %>%
             dplyr::slice_sample(n = 1) %>%
-        ungroup() %>% 
-        distinct(Language_ID, .keep_all = T) 
+        dplyr::ungroup() %>% 
+        dplyr::distinct(Language_ID, .keep_all = T) 
       
     levelled_ValueTable <- ValueTable %>% 
-      inner_join(lgs, by = "Language_ID") 
+      dplyr::inner_join(lgs, by = "Language_ID") 
 
     } 
 
 
 if(multiple_values_per_parameter > 1){
     levelled_ValueTable <-     levelled_ValueTable %>%
-    unnest(cols = c("Value", "Frequency", "ID", "Code_ID", "Confidence", "Example_ID"))
+    tidyr::unnest(cols = c("Value", "Frequency", "ID", "Code_ID", "Confidence", "Example_ID"))
 }
 
 levelled_ValueTable
