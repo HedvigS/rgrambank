@@ -19,6 +19,7 @@
 #' @param try.another.decomposition logical. If TRUE and the argument func.inv is one of "cholesky", "svd" or "solve", the matrix decomposition or inversion is tested and, if it fails, the argument func.inv is re-set to "eigen".
 #' @param only.inv.lower.diaglogical. If TRUE only the lower triangle and the diagonal of the inverse of the covariance matrix are returned. Defaults to FALSE.
 #' @param \dots Only for internal usage.
+#' @importFrom fields rdist.earth
 #' @details
 #' The elements of the covariance matrix are computed by the function cov.spatial. Typically this is an auxiliary function called by other functions in the geoR package.
 #'
