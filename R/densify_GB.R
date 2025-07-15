@@ -9,11 +9,13 @@
 #' @param density_mean_weights parameter for densify::densify() (defaults to list(coding = 0.999, taxonomy = 1))
 #' @param scoring_function character vector, either "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3" or "n_data_points * coding_density". Other scoring_functions are currently not supported by wrapper function due to evaluation issues.
 #' @param random_seed  Integer
+#' @importFrom densify prune
+#' @importFrom densify densify
+#' @importFrom densify as_flat_taxonomy_matrix
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom dplyr all_of
 #' @importFrom Amelia missmap
-#' @import densify
-#' @import dplyr
-#' @import magrittr
-#' @import reshape2
 #' @note This is a Wrapper function for densify::densify and densify::prune tailored to Grambank data specifically, based on annagrawf/crossling-curated/blob/main/scripts/GBI/densify-datasets.R. The function requires the package densify, which can be installed like this: remotes::install_github("annagraff/densify")
 #' @references Graff, A., Lischka, M., Zakharko, T., Furrer, R., & Bickel, B. (2024). densify: An R package to reduce empty cells in data frames of typological linguistic data. Journal of Open Source Software, 9(101), 7024.
 #' @author Original densify-functions: Anna Graff, Marc Lischka, Taras Zakharko, Reinhard Furrer and Balthasar Bickel. Wrapper function: Anna Graff and Hedvig Skirgård
@@ -79,20 +81,15 @@ densify_GB <- function(Grambank_ValueTable = NA,
   #isolates don't have a classification field at all, so we'll need to infer which are isolates by finding the ones without an entry in glottolog_tree_adj_table now and add them back in
   glottolog_tree_adj_table <- Glottolog_ValueTable %>% 
     dplyr::distinct(`Language_ID`) %>%
-    anti_join(glottolog_tree_adj_table_without_isolates, by = "Language_ID") %>%
-    mutate(parent_id = as.character(NA)) %>% 
-    full_join(glottolog_tree_adj_table_without_isolates, by = c("Language_ID", "parent_id")) %>% 
+    dplyr::anti_join(glottolog_tree_adj_table_without_isolates, by = "Language_ID") %>%
+    dplyr::mutate(parent_id = as.character(NA)) %>% 
+    dplyr::full_join(glottolog_tree_adj_table_without_isolates, by = c("Language_ID", "parent_id")) %>% 
     dplyr::select(id = Language_ID, parent_id) 
   
   taxonomy_matrix  <- densify::as_flat_taxonomy_matrix(x = glottolog_tree_adj_table)
   
-  
- 
-  
   ### GBI
   if(!all(is.na(GBI))){
-    
-    #
     
     # read in logical GBI data
     logical <- GBI$logicalGBI   
@@ -153,11 +150,11 @@ densify_GB <- function(Grambank_ValueTable = NA,
     # retrieve corresponding data from input (to re-establish differences between ? and NA)
     logical_densified_with_question_mark <- logical %>% 
       dplyr::filter(Language_ID %in% logical_densified$Language_ID) %>% 
-      dplyr::select(Language_ID, all_of(colnames(logical_densified)))
+      dplyr::select(Language_ID, dplyr::all_of(colnames(logical_densified)))
     
     statistical_densified_with_question_mark <- statistical %>% 
       dplyr::filter(Language_ID %in% statistical_densified$Language_ID) %>% 
-      dplyr::select(Language_ID, all_of(colnames(statistical_densified)))
+      dplyr::select(Language_ID, dplyr::all_of(colnames(statistical_densified)))
   
   
   if(verbose == T){
@@ -193,8 +190,8 @@ densify_GB <- function(Grambank_ValueTable = NA,
   if(any(!is.na(Grambank_ValueTable))){
     
     Grambank_wide <- Grambank_ValueTable %>% 
-      mutate(Value = as.character(Value)) %>% 
-      mutate(Value = ifelse(is.na(Value), "?", Value)) %>% 
+      dplyr::mutate(Value = as.character(Value)) %>% 
+      dplyr::mutate(Value = ifelse(is.na(Value), "?", Value)) %>% 
       reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value")
     
     Grambank_ValueTable_for_pruning <- .na_convert(Grambank_wide, question_mark_to_na = T)
