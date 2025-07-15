@@ -10,7 +10,7 @@ library(tidyverse)
 #remotes::install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
-#devtools::install_github("HedvigS/rgrambank", ref = "v1.0")
+#devtools::install_github("HedvigS/rgrambank")
 library(rgrambank)
 
 GB_rcldf_obj_v1 <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
