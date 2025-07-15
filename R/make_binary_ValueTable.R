@@ -65,17 +65,15 @@
 }
 
 .gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
-    ValueTable %>% dplyr::filter(Parameter_ID == oldvariable) %>%
+    ValueTable %>% dplyr::filter(.data[["Parameter_ID"]] == oldvariable) %>%
         dplyr::mutate(
-            ID=paste0(newvariable, "-", Language_ID),
+            ID = paste0(newvariable, "-", .data[["Language_ID"]]),
             Parameter_ID=newvariable,
-            Value=func(Value)
+            Value=func(.data[["Value"]])
         ) %>%
         dplyr::mutate(Code_ID = paste0(Parameter_ID, "-", Value)) %>%
         rbind(ValueTable)
 }
-
-
 
 make_binary_ValueTable <- function(ValueTable = NULL,
                      keep_multistate = FALSE,
@@ -86,7 +84,7 @@ make_binary_ValueTable <- function(ValueTable = NULL,
 
     if (trim_to_only_raw_binary == TRUE) {
         ValueTable <- ValueTable %>%
-            dplyr::filter(!(Parameter_ID %in% .multistate_parameters))
+            dplyr::filter(!(.data[["Parameter_ID"]] %in% .multistate_parameters))
 
         if(!(any(Parameter_ID %in% .binary_parameters))){
             stop("There is no raw binary coding at all.")
@@ -96,10 +94,10 @@ make_binary_ValueTable <- function(ValueTable = NULL,
 
     if (keep_raw_binary == FALSE) {
         ValueTable <- ValueTable %>%
-            dplyr::filter(!(Parameter_ID %in% .binary_parameters))
+            dplyr::filter(!(.data[["Parameter_ID"]] %in% .binary_parameters))
     } else {
         ValueTable_raw_binary <- ValueTable %>%
-            dplyr::filter(Parameter_ID %in% .binary_parameters)
+            dplyr::filter(.data[["Parameter_ID"]] %in% .binary_parameters)
     }
 
     # BINARISING MULTISTATE FEATURES
@@ -128,7 +126,7 @@ make_binary_ValueTable <- function(ValueTable = NULL,
     }
     if (keep_multistate == FALSE) {
         ValueTable <- ValueTable %>%
-            dplyr::filter(!(Parameter_ID %in% .multistate_parameters))
+            dplyr::filter(!(.data[["Parameter_ID"]] %in% .multistate_parameters))
         }
     }
 ValueTable
