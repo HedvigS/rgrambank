@@ -10,6 +10,10 @@
 #' @author Hedvig Skirgård
 #' @description
 #' This function takes a CLDF ValueTable and reduces it down to only entries with unique Glottocodes. If there are dialects of the same language, merge_dialects can be set to TRUE and then they are also treated as duplicates and reduced in the same manner as method specifies.
+#' @importFrom dplyr select distinct filter arrange ungroup n full_join left_join inner_join group_by slice_sample
+#' @importFrom readr read_tsv
+#' @importFrom tidyr unnest
+#' @importFrom stringr str_splir
 #' @note
 #'  treat_question_mark_as_missing is set to TRUE by default, that means that '?' values are turned into NA.
 #' @return data-frame of ValueTable without duplicates
