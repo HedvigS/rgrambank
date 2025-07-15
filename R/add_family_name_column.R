@@ -6,6 +6,12 @@
 #' @return data-frame with Family_name column.
 #' @note It is necessary that for every unique glottocode in Family_ID there is a row with a Glottocode and Name to match that. If there isn't, languages will have missing values for their Family_name even though they are not isolates.
 #'  If The current LanguageTable lacks the required columns, consider using a combination of the LanguageTable and ValueTable of glottolog-cldf.
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr distinct
+#' @importFrom dplyr rename
+#' @importFrom dplyr left_join
+#' @importFrom dplyr full_join
 #' @author Hedvig Skirgård
 #' @export
 
@@ -28,7 +34,7 @@ add_family_name_column <- function(LanguageTable = NULL,
         Glottolog_ValueTable_LanguageTable <- Glottolog_ValueTable_LanguageTable %>%
             dplyr::select(Name, Glottocode)
         
-        LanguageTable_large <- full_join( LanguageTable,  Glottolog_ValueTable_LanguageTable, 
+        LanguageTable_large <- dplyr::full_join( LanguageTable,  Glottolog_ValueTable_LanguageTable, 
                                     by = c("Name", "Glottocode"))
     }else{
       
@@ -44,9 +50,9 @@ Family_df <- LanguageTable %>%
   dplyr::rename(Family_name = Name, Family_ID = Glottocode) 
 
 LanguageTable <- LanguageTable %>% 
-  left_join(Family_df,
-            by = join_by(Family_ID), relationship = "many-to-many") %>% 
-  filter(ID %in% lgs_in_input)
+  dplyr::left_join(Family_df,
+            by = "Family_ID", relationship = "many-to-many") %>% 
+  dplyr::filter(ID %in% lgs_in_input)
   
 
     if(NA %in% LanguageTable$Family_name & verbose == TRUE)(
