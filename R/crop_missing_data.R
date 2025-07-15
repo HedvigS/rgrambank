@@ -9,6 +9,9 @@
 #' @note
 #' The cut-offs are defined by the missing data in the full dataset and can be set to any value between 0 and 1. The pruning is not stepwise, i.e. it is not the case that parameters are pruned first and then languages based on the missingness after the first pruning. This can be a practical step before imputation as it reduces missing data to be imputed, but should be used thoughtfully. For more advanced approaches, please see [annagraff/densify](https://github.com/annagraff/densify).
 #' @author Hedvig Skirgård
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
 #' @export
 
 crop_missing_data <- function(ValueTable,
@@ -19,7 +22,7 @@ crop_missing_data <- function(ValueTable,
 
 if(turn_question_mark_into_NA == TRUE){
     ValueTable <- ValueTable %>%
-        filter(Value != "?")
+        dplyr::filter(Value != "?")
 }
 if(verbose == TRUE){
     n_lgs <- length(unique(ValueTable$Language_ID))
@@ -39,13 +42,13 @@ if(verbose == TRUE){
 }
 
 ValueTable_cropped <- ValueTable %>%
-    filter(!is.na(Value)) %>%
-    group_by(Language_ID) %>%
-    mutate(Parameters_filled_for_language = n()) %>%
-    group_by(Parameter_ID) %>%
-    mutate(Languages_filled_for_parameter = n()) %>%
-    filter(Languages_filled_for_parameter >= n_lgs*cut_off_parameters) %>%
-    filter(Parameters_filled_for_language >= n_feats*cut_off_languages)
+    dplyr::filter(!is.na(Value)) %>%
+    dplyr::group_by(Language_ID) %>%
+    dplyr::mutate(Parameters_filled_for_language = n()) %>%
+    dplyr::group_by(Parameter_ID) %>%
+    dplyr::mutate(Languages_filled_for_parameter = n()) %>%
+    dplyr::filter(Languages_filled_for_parameter >= n_lgs*cut_off_parameters) %>%
+    dplyr::filter(Parameters_filled_for_language >= n_feats*cut_off_languages)
 
 if(verbose == TRUE){
 
