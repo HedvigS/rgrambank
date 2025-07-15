@@ -93,18 +93,26 @@ multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
 
 ParameterTable_new <- ParameterTable %>%
     dplyr::full_join(.Parameter_binary, by = "ID") %>% 
-    dplyr::mutate(ID = ifelse(!is.na(ID_binary), ID_binary, ID)) %>%
-    dplyr::mutate(Name = ifelse(!is.na(Name_binary), Name_binary, Name)) %>%
-    dplyr::mutate(Grambank_ID_desc = ifelse(!is.na(Grambank_ID_desc_binary), Grambank_ID_desc_binary, Grambank_ID_desc)) %>%
-    dplyr::mutate(Word_Order = ifelse(!is.na(Word_Order_binary), Word_Order_binary, Word_Order)) %>%
-    dplyr::select(-c("ID_binary", Name_binary, Grambank_ID_desc_binary, Word_Order_binary)) %>%
-    dplyr::mutate(Binary_Multistate= ifelse(ID %in% multistate_features, "Multi", Binary_Multistate)) %>%
-    dplyr::mutate(Binary_Multistate = ifelse(is.na(Binary_Multistate), "Binary", Binary_Multistate))
+    dplyr::mutate(ID = ifelse(!is.na(.data[["ID_binary"]]), yes = .data[["ID_binary"]], no = .data[["ID"]])) %>%
+    dplyr::mutate(Name = ifelse(!is.na(.data[["Name_binary"]]), yes = .data[["Name_binary"]], no = .data[["Name"]])) %>%
+    dplyr::mutate(Grambank_ID_desc = ifelse(!is.na(.data[["Grambank_ID_desc_binary"]]), 
+                                            yes = .data[["Grambank_ID_desc_binary"]],
+                                            no = .data[["Grambank_ID_desc"]])) %>%
+    dplyr::mutate(Word_Order = ifelse(!is.na(.data[["Word_Order_binary"]]), 
+                                      yes = .data[["Word_Order_binary"]], 
+                                      no = .data[["Word_Order"]])) %>%
+    dplyr::select(-c("ID_binary", "Name_binary", "Grambank_ID_desc_binary", "Word_Order_binary")) %>%
+    dplyr::mutate(Binary_Multistate= ifelse(.data[["ID"]] %in% multistate_features, 
+                                                  yes = "Multi", 
+                                                  no= .data[["Binary_Multistate"]])) %>%
+    dplyr::mutate(Binary_Multistate = ifelse(is.na(.data[["Binary_Multistate"]]), 
+                                             yes = .data[["Binary"]], 
+                                             no =.data[["Binary_Multistate"]]))
   }
 
 if(keep_multi_state_features == FALSE){
 ParameterTable_new <-     ParameterTable_new %>%
-    dplyr::filter(!(ID %in% multistate_features))
+    dplyr::filter(!(.data[["ID"]] %in% multistate_features))
 }
 
 ParameterTable_new
