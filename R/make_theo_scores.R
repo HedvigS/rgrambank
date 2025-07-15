@@ -4,6 +4,7 @@
 #' @param ParameterTable data-frame of Grambank ParameterTable. . If not already binarised, make_binary_ParameterTable will be applied.
 #' @param missing_cut_off numeric value between 0 and 1 representing cut-off for how much coverage each language should have, for each feature set. For each set of features for the theoretical scores, if a language falls under the threshold, it is not considered for the theoretical score (but may be considered for other sets). 0.75 means that languages with 75% of feature values non-missing for that set of features are included, less than 75% coverage are dropped.
 #' @param Fusion_option Character vector: "count_zero_half_and_one", "count_one_only" or "count_one_and_half". The features in the ParameterTable are assigned Fusion weights of 0 (pertains to free-marking), 1 (pertains to bound marking) and half (could be bound, affixal or other). Users can choose approach in how these contribute to the fusion score. If you choose "count_zero_half_and_one" then features assigned as 0 will be reversed, i.e. free-marking with contribute negatively to the fusion-score. Default is "count_one_and_half".
+#' @importFrom dplyr select mutate group_by summarise filter
 #' @author Hedvig Skirgård and Hannah Haynie and Olena Shcherbakova
 #' @return A data-frame with theoretical scores per language.
 #' @export
