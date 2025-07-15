@@ -7,6 +7,11 @@
 #' @return Data-frame with desired modifications.
 #' @note If Glottolog_ValueTable_LanguageTable is used, then the following columns are overwritten (if they exists) in LanguageTable: level (changed to "Level"), Family_ID and "Is_Isolate". If the LanguageTable is generated using information from a different version of Glottolog than Glottolog_ValueTable_LanguageTable, mismatches can happen in at least the following columns: lineage, subclassification and classification. For example, in Grambank v1 fuyu1242 appears as a member of the family goli1242, but in Glottolog v5 this language is instead treated as an isolate.
 #' @author Hedvig Skirgård
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
+#' @importFrom dplyr any_of
+#' @importFrom dplyr full_join
 #' @export
 
 add_isolate_info <- function(LanguageTable = NULL,
@@ -27,7 +32,7 @@ add_isolate_info <- function(LanguageTable = NULL,
       dplyr::select(Family_ID, Level, Glottocode, Language_level_ID, Is_Isolate)
     
     LanguageTable <- LanguageTable %>% 
-      dplyr::select(-any_of(c("Family_ID", "level", "Level", "Language_level_ID", "Language_ID"))) %>% 
+      dplyr::select(-dplyr::any_of(c("Family_ID", "level", "Level", "Language_level_ID", "Language_ID"))) %>% 
       full_join(Glottolog_ValueTable_LanguageTable, by = "Glottocode")
     }
   
@@ -46,7 +51,7 @@ add_isolate_info <- function(LanguageTable = NULL,
     }
 
 LanguageTable %>% 
-  filter(ID %in% lgs_in_input) 
+  dplyr::filter(ID %in% lgs_in_input) 
 }
 
 
