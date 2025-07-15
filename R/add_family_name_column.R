@@ -42,7 +42,7 @@ add_family_name_column <- function(LanguageTable = NULL,
       }
   
 Family_df <- LanguageTable %>% 
-  dplyr::filter(!is.na(Family_ID)) %>% 
+  dplyr::filter(!is.na(.data[["Family_ID"]])) %>% 
   dplyr::distinct(Family_ID) %>% 
   dplyr::rename(Glottocode = Family_ID) %>% 
   dplyr::left_join(dplyr::select(LanguageTable_large, Glottocode, Name), 
@@ -52,14 +52,14 @@ Family_df <- LanguageTable %>%
 LanguageTable <- LanguageTable %>% 
   dplyr::left_join(Family_df,
             by = "Family_ID", relationship = "many-to-many") %>% 
-  dplyr::filter(ID %in% lgs_in_input)
+  dplyr::filter(.data[["ID"]] %in% lgs_in_input)
   
 
     if(NA %in% LanguageTable$Family_name & verbose == TRUE)(
 
         warning("There was no Family_name found for the following entries. It could be because they are isolates and Family_ID was empty.\n",
                 LanguageTable %>%
-                    dplyr::filter(is.na(Family_name)) %>%
+                    dplyr::filter(is.na(.data[["Family_name"]])) %>%
                     dplyr::select(Name)
                 ))
 
