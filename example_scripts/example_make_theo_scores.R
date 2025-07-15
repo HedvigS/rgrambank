@@ -7,7 +7,7 @@ library(tidyverse)
 #install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
-#devtools::install_github("HedvigS/rgrambank", ref = "d61b62c738c706e125cfd8456b1c2732c9ceffbe")
+#devtools::install_github("HedvigS/rgrambank")
 library(rgrambank)
 
   # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
