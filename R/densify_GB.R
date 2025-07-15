@@ -58,10 +58,10 @@ densify_GB <- function(Grambank_ValueTable = NA,
     #  matrix = logical_densified
     matrix <- .na_convert(matrix)
     nfam <- taxonomy_matrix  %>% 
-      dplyr::filter(id %in% matrix$Language_ID) %>% 
+      dplyr::filter(.data[["id"]] %in% matrix$Language_ID) %>% 
       distinct(level1) %>% nrow()
     
-    bare_matrix <- matrix %>% select(-Language_ID)
+    bare_matrix <- matrix %>% dplyr::select(-Language_ID)
     nlg <- nrow(bare_matrix)
     nvar <- ncol(bare_matrix)
     data_prop <- sum(!is.na(bare_matrix))/(nlg*nvar)
@@ -74,8 +74,8 @@ densify_GB <- function(Grambank_ValueTable = NA,
   #make taxonomy matrix out of Glottolog ValueTable in the way that densify expects.
   glottolog_tree_adj_table_without_isolates <- Glottolog_ValueTable %>% 
     dplyr::select(Language_ID, Parameter_ID, Value) %>% 
-    dplyr::filter(Parameter_ID == "classification") %>% 
-    dplyr::mutate(parent_id = str_replace(Value, pattern = "^.*\\/", replacement = "")) %>% 
+    dplyr::filter(.data[["Parameter_ID"]] == "classification") %>% 
+    dplyr::mutate(parent_id = str_replace(.data[["Value"]], pattern = "^.*\\/", replacement = "")) %>% 
     dplyr::select(Language_ID, parent_id)
   
   #isolates don't have a classification field at all, so we'll need to infer which are isolates by finding the ones without an entry in glottolog_tree_adj_table now and add them back in
@@ -149,11 +149,11 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     # retrieve corresponding data from input (to re-establish differences between ? and NA)
     logical_densified_with_question_mark <- logical %>% 
-      dplyr::filter(Language_ID %in% logical_densified$Language_ID) %>% 
+      dplyr::filter(.data[["Language_ID"]] %in% logical_densified$Language_ID) %>% 
       dplyr::select(Language_ID, dplyr::all_of(colnames(logical_densified)))
     
     statistical_densified_with_question_mark <- statistical %>% 
-      dplyr::filter(Language_ID %in% statistical_densified$Language_ID) %>% 
+      dplyr::filter(.data[["Language_ID"]] %in% statistical_densified$Language_ID) %>% 
       dplyr::select(Language_ID, dplyr::all_of(colnames(statistical_densified)))
   
   
@@ -190,8 +190,8 @@ densify_GB <- function(Grambank_ValueTable = NA,
   if(any(!is.na(Grambank_ValueTable))){
     
     Grambank_wide <- Grambank_ValueTable %>% 
-      dplyr::mutate(Value = as.character(Value)) %>% 
-      dplyr::mutate(Value = ifelse(is.na(Value), "?", Value)) %>% 
+      dplyr::mutate(Value = as.character(.data[["Value"]])) %>% 
+      dplyr::mutate(Value = ifelse(is.na(.data[["Value"]]), "?", .data[["Value"]])) %>% 
       reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value")
     
     Grambank_ValueTable_for_pruning <- .na_convert(Grambank_wide, question_mark_to_na = T)
@@ -222,7 +222,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
 
     Grambank_densified_with_question_mark <- Grambank_wide %>% 
-      dplyr::filter(Language_ID %in% Grambank_densified$Language_ID) %>% 
+      dplyr::filter(.data[["Language_ID"]] %in% Grambank_densified$Language_ID) %>% 
       dplyr::select(Language_ID, all_of(colnames(Grambank_densified)))
   
   
