@@ -12,13 +12,17 @@ library(missForest)
 #remotes::install_version("reshape2", version = "1.4.4", repos = "http://cran.us.r-project.org")
 library(reshape2)
 
-library(grDevices) #version = "4.3.1"
-
 #remotes::install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
-#devtools::install_github("HedvigS/rgrambank", ref = "aee3b9bb3f610b75174a2687a55d5acf7ee5f880")
+#install.packages("mapproj", version = "1.2.1.2.", repos = "http://cran.us.r-project.org")
+library(mapproj)
+
+#devtools::install_github("HedvigS/rgrambank")
 library(rgrambank)
+
+#install_github("HedvigS/SH.misc", ref = "3ad2758d63792e1e9216119b4b5bad269a3bf944")
+library(SH.misc)
 
 if(!dir.exists("output")){dir.create("output")}
 if(!dir.exists("output/plots")){dir.create("output/plots")}
@@ -112,8 +116,7 @@ map <- basemap_list$basemap +
 
 ggsave(plot = map, filename = "output/plots/PCA_RGB_map.png", width = 10, height = 10)
 
-#install_github("HedvigS/SH.misc", ref = "3ad2758d63792e1e9216119b4b5bad269a3bf944")
-library(SH.misc)
+
 
 SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
   geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
