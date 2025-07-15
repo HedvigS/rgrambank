@@ -72,9 +72,9 @@ reduce_ValueTable_to_unique_glottocodes <- function(
 
 multiple_values_per_parameter <- ValueTable %>%
         dplyr::distinct() %>%
-        dplyr::group_by(Language_ID, Parameter_ID) %>%
+        dplyr::group_by(.data[["Language_ID"]], .data[["Parameter_ID"]]) %>%
         dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-        dplyr::filter(n > 1) %>%
+        dplyr::filter(.data[["n"]] > 1) %>%
     nrow()
 
 #in cases like with APiCS there could be more than one value for the same language and parameter to represent distributions of values.
@@ -86,20 +86,20 @@ if(multiple_values_per_parameter > 1){
 
     message("Found more than one Value per Language_ID and Parameter_ID. Collapsing, will unnest at the end. May take a little big longer.")
     ValueTable  <-   ValueTable %>%
-        dplyr::group_by(Language_ID, Parameter_ID) %>%
-        dplyr::mutate(Value = stringr::str_split(paste0(Value, collapse = ";"), pattern = ";"),
-                      Frequency = stringr::str_split(paste0(Frequency, collapse = ";"), pattern = ";"),
-                      ID = stringr::str_split(paste0(ID, collapse = ";"), pattern = ";"),
-                      Code_ID = stringr::str_split(paste0(Code_ID, collapse = ";"), pattern = ";"),
-                      Confidence = stringr::str_split(paste0(Confidence, collapse = ";"), pattern = ";"),
-                      Example_ID = stringr::str_split(paste0(Example_ID, collapse = ";"), pattern = ";")) %>%
+        dplyr::group_by(.data[["Language_ID"]], .data[["Parameter_ID"]]) %>%
+        dplyr::mutate(Value = stringr::str_split(paste0(  .data[["Value"]], collapse = ";"), pattern = ";"),
+                      Frequency = stringr::str_split(paste0(.data[["Frequency"]], collapse = ";"), pattern = ";"),
+                      ID = stringr::str_split(paste0(.data[["ID"]], collapse = ";"), pattern = ";"),
+                      Code_ID = stringr::str_split(paste0(.data[["Code_ID"]], collapse = ";"), pattern = ";"),
+                      Confidence = stringr::str_split(paste0(.data[["Confidence"]], collapse = ";"), pattern = ";"),
+                      Example_ID = stringr::str_split(paste0(.data[["Example_ID"]], collapse = ";"), pattern = ";")) %>%
     dplyr::distinct() %>%
     dplyr::ungroup()
     }
 
 if(treat_question_mark_as_missing == TRUE){
   ValueTable <- ValueTable %>% 
-    dplyr::mutate(Value = ifelse(Value == "?", NA, Value))
+    dplyr::mutate(Value = ifelse(.data[["Value"]] == "?", NA, Value))
 }
 
 ## Check if LanguageTables are able to be used for merging dialects (if merge_dialects == TRUE) and set-up LanguageTable for use later.
@@ -119,7 +119,9 @@ if(replace_missing_language_level_ID == TRUE){
     # with the content in the Glottocode column.
     LanguageTable   <- LanguageTable %>%
         dplyr::mutate(Language_level_ID = ifelse(
-            is.na(Language_level_ID) | Language_level_ID == "", Glottocode, Language_level_ID)
+            is.na(.data[["Language_level_ID"]]) | .data[["Language_level_ID"]] == "", 
+            yes = .data[["Glottocode"]], 
+            no = .data[["Language_level_ID"]])
         )
 }
 
@@ -142,9 +144,9 @@ if(merge_dialects == FALSE){
       ## PICK THE ONE ENTRY WHEN DUPLICATE GLOTTOCODES THAT HAS THE LEAST MISSING DATA
       
         lgs <- ValueTable %>%
-            dplyr::filter(!is.na(Value)) %>%
+            dplyr::filter(!is.na(.data[["Value"]])) %>%
             dplyr::left_join(LanguageTable, by = "Language_ID") %>%
-            dplyr::group_by(Language_ID) %>%
+            dplyr::group_by(.data[["Language_ID"]]) %>%
             dplyr::mutate(n = dplyr::n()) %>%
             dplyr::arrange(desc(n)) %>%
             dplyr::ungroup() %>%
@@ -161,23 +163,23 @@ if(merge_dialects == FALSE){
     if (method == "combine_random") {
       # MERGE BY MAKING A FRANKENSTEIN COMBINATION OF ALL DUPLICATE GLOTTOCODES
         ValueTable_grouped <- ValueTable %>%
-            dplyr::filter(!is.na(Value)) %>%
+            dplyr::filter(!is.na(.data[["Value"]])) %>%
             dplyr::left_join(LanguageTable, by = "Language_ID",
                       relationship = "many-to-many") %>%
-            dplyr::group_by(Glottocode, Parameter_ID) %>%
+            dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) %>%
             dplyr::mutate(n = dplyr::n()) %>%
             dplyr::ungroup() 
 
         # it's faster if we do slice_sample (choose randomly) only on those that have more than 1
         # value per language rather than on all duplicate rows.
         ValueTable_long_n_greater_than_1 <- ValueTable_grouped %>%
-            dplyr::filter(n > 1) %>%
-            dplyr::group_by(Glottocode, Parameter_ID) %>% 
-            dplyr::slice_sample(n = 1) %>%
+            dplyr::filter(.data[["n"]] > 1) %>%
+            dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) %>% 
+            dplyr::slice_sample(.data[["n"]] = 1) %>%
             dplyr::ungroup()
 
         levelled_ValueTable <- ValueTable_grouped %>% 
-            dplyr::filter(n == 1) %>%
+            dplyr::filter(.data[["n"]] == 1) %>%
           suppressMessages( dplyr::full_join(ValueTable_long_n_greater_than_1)) %>%
             dplyr::select(-n) 
 
@@ -186,8 +188,8 @@ if(merge_dialects == FALSE){
 
     if (method == "singular_random") {
       lgs  <- LanguageTable %>%
-            dplyr::group_by(Glottocode) %>%
-            dplyr::slice_sample(n = 1) %>%
+            dplyr::group_by(.data[["Glottocode"]]) %>%
+            dplyr::slice_sample(.data[["n"]] = 1) %>%
         dplyr::ungroup() %>% 
         dplyr::distinct(Language_ID, .keep_all = T) 
       
@@ -195,7 +197,6 @@ if(merge_dialects == FALSE){
       dplyr::inner_join(lgs, by = "Language_ID") 
 
     } 
-
 
 if(multiple_values_per_parameter > 1){
     levelled_ValueTable <-     levelled_ValueTable %>%
