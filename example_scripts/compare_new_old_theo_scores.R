@@ -21,7 +21,7 @@ library(rcldf)
 #devtools::install_github("HedvigS/rgrambank", ref = "v1.0")
 library(rgrambank)
 
-if(!dir.exists("ouptut")){dir.create("output")}
+if(!dir.exists("output")){dir.create("output")}
 
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
@@ -55,7 +55,7 @@ colnames(theo_scores_table_grambank_analysed)[2:7] <- paste0(colnames(theo_score
 
 joined <- inner_join(theo_scores_table_cookbook, theo_scores_table_grambank_analysed, by = join_by(Language_ID))
 
-joined %>% 
+p <- joined %>% 
   filter(!is.na(Fusion_cookbook)) %>% 
   filter(!is.na(`Fusion_grambank-analysed`)) %>% 
   ggplot(aes(x = Fusion_cookbook, y = `Fusion_grambank-analysed`)) +
@@ -65,9 +65,9 @@ joined %>%
   ggpubr::stat_cor(method = "pearson", p.digits = 2, geom = "label", color = "blue",
                    label.y.npc="top", label.x.npc = "left", alpha = 0.8) 
 
-ggsave("output/theo_scores_table_cookbook_theo_scores_table_grambank_analysed_theo_score_fusion.png", height = 3, width = 3)
+ggsave(plot = p, filename = "output/theo_scores_table_cookbook_theo_scores_table_grambank_analysed_theo_score_fusion.png", height = 3, width = 3)
 
-joined %>% 
+p <- joined %>% 
   filter(!is.na(Informativity_cookbook)) %>% 
   filter(!is.na(`Informativity_grambank-analysed`)) %>%
   ggplot(mapping = aes(x = Informativity_cookbook, 
@@ -78,4 +78,4 @@ joined %>%
   ggpubr::stat_cor(method = "pearson", p.digits = 2, geom = "label", color = "blue",
                    label.y.npc="top", label.x.npc = "left", alpha = 0.8) 
 
-ggsave("output/theo_scores_table_cookbook_theo_scores_table_grambank_analysed_theo_score_inform.png", height = 3, width = 3)
+ggsave(plot = p, filename = "output/theo_scores_table_cookbook_theo_scores_table_grambank_analysed_theo_score_inform.png", height = 3, width = 3)
