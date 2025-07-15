@@ -3,10 +3,13 @@
 #'@note This function is based on Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data . Original code can be found here: https://github.com/annagraff/crossling-curated/tree/main/scripts. The function rgrambank::make_GBI has been modified by Hedvig Skirgård to adapt to the rgrambank package and take into account changes between Grambank v1 and v2. The modifications are: turn binarised features (in Grambank v2 and further versions) corresponding multistate, rename variables to avoid loading recode-patterns several times and remove language meta-data.
 #' @param ValueTable data-frame. Grambank ValueTable.
 #'@references Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data 
-#' @import tidyverse
-#' @import testthat
-#' @import reshape2
-#' @import data.table
+#' @importFrom dplyr filter
+#' @importFrom dplyr full_join
+#' @importFrom tidyr spread
+#' @importFrom reshape2 dcast
+#' @importFrom reshape2 melt
+#' @importFrom stringr str_split
+
 #' @author Anna Graff and Hedvig Skirgård
 #' @export
 
@@ -389,7 +392,7 @@ make_GBI <- function(ValueTable = NULL,
   
   
   # save the recoded data from retained features and the simple recodings as recoded_data for further use
-  recoded_data <- full_join(first_set_rec, retained_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(first_set_rec, retained_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 2 (merge features - recode via logical arguments) ##
   # subset to features that have to be merged via logical arguments
@@ -429,7 +432,7 @@ make_GBI <- function(ValueTable = NULL,
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(second_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(second_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 3 (merge features - recode via logical arguments - simple conditioning) ##
   # subset to features that have to be recoded via logical arguments if a condition applies
@@ -484,7 +487,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(third_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(third_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 4 (merge features - recode via logical arguments - multiple conditioning) ##
   # subset to features that have to be recoded via logical arguments if several conditions apply
@@ -567,7 +570,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(fourth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(fourth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 5 (simple conditioning) ##
   # subset to features that have to be conditioned on another feature
@@ -605,7 +608,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(fifth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(fifth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   
   ## recode group 6 (multiple conditioning) ## 
@@ -672,7 +675,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(sixth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(sixth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   
   ## recode group 7 (simple conditioning [conditioned feature]) ##
@@ -712,7 +715,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(seventh_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(seventh_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   ## recode group 8 (multiple conditioning [conditioned feature]) ## 
   # subset to features that have to be conditioned on several features
@@ -778,7 +781,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(eighth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(eighth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   
   ## recode group 9 (merge features - recode via logical arguments - simple conditioning [conditioned feature]) ##
@@ -833,7 +836,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(feature, value)
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(ninth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(ninth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   
   ## recode group 10 (merge features - recode via logical arguments - multiple conditioning [conditioned feature]) ##
@@ -918,7 +921,7 @@ make_GBI <- function(ValueTable = NULL,
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- full_join(tenth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(tenth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
   
   # replace all NA as explicit "NA"
   recoded_data[is.na(recoded_data)]<-"NA"
@@ -947,8 +950,8 @@ make_GBI <- function(ValueTable = NULL,
   expect_true(all(original_names_should %in% original_names_is))
   
   ### logical dataset: check all original features that should be in the logical filter are in there and vice versa
-  design_add <- c(unique(unlist(str_split(dplyr::filter(logical_decisions,is.added.feature.kept == "yes")$resulting.added.features,", "))),NA)
-  design_remove <- unique(unlist(str_split(logical_decisions$resulting.removed.features,", ")))
+  design_add <- c(unique(unlist(stringr::str_split(dplyr::filter(logical_decisions,is.added.feature.kept == "yes")$resulting.added.features,", "))),NA)
+  design_remove <- unique(unlist(stringr::str_split(logical_decisions$resulting.removed.features,", ")))
   # logical dataset is: a) original features, plus b) all design/logical additions, minus c) all design/logical removals
   logical_names_should <- unique(c(original_names_is,design_add))[unique(c(original_names_is,design_add)) %in% design_remove==F]
   logical_names_is <- names(logical_data)[names(logical_data)!="Language_ID"]
@@ -958,7 +961,7 @@ make_GBI <- function(ValueTable = NULL,
   
   ### statistical dataset: check all original features that should be in the statistical filter are in there and vice versa
   statistical_add <- unique(statistical_decisions$resulting.added.features) 
-  statistical_remove <- unique(unlist(str_split(statistical_decisions$resulting.removed.features,", ")))
+  statistical_remove <- unique(unlist(stringr::str_split(statistical_decisions$resulting.removed.features,", ")))
   # statistical dataset is: a) the features from the final logical dataset, plus b) all statistical additions, minus c) all statistical removals
   statistical_names_should <- unique(c(logical_names_is,statistical_add))[unique(c(logical_names_is,statistical_add)) %in% statistical_remove==F]
   statistical_names_is <- names(statistical_data)[names(statistical_data)!="Language_ID"]
@@ -967,7 +970,7 @@ make_GBI <- function(ValueTable = NULL,
   expect_true(all(statistical_names_should %in% statistical_names_is))
   
   ### modification ID match --> ensure all modification IDs in the features sheet are in the modification sheet and vice versa
-  mod_IDs_is <- na.omit(unique(c(unlist(str_split(recode_patterns_full$modification.IDs,";")),(unlist(str_split(recode_patterns_full$associated.modification.IDs.without.resulting.action,";"))))))
+  mod_IDs_is <- na.omit(unique(c(unlist(stringr::str_split(recode_patterns_full$modification.IDs,";")),(unlist(stringr::str_split(recode_patterns_full$associated.modification.IDs.without.resulting.action,";"))))))
   mod_IDs_is <- mod_IDs_is[mod_IDs_is!=""]
   mod_IDs_should <- na.omit(all_decisions$modification.ID)
   expect_true(all(mod_IDs_is %in% mod_IDs_should))
@@ -979,50 +982,72 @@ make_GBI <- function(ValueTable = NULL,
     type <- dplyr::filter(all_decisions,modification.ID == id)$modification.type
     if (type == "statistical"){
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
-      should_all <- all_decisions %>% dplyr::filter(modification.ID == id) %>% select(c("feature.1.for.test","feature.2.for.test","resulting.added.features","resulting.removed.features")) %>% as.character() %>% unique()
+      should_all <- all_decisions %>% dplyr::filter(modification.ID == id) %>% 
+        dplyr::select(c("feature.1.for.test","feature.2.for.test","resulting.added.features","resulting.removed.features")) %>% 
+        as.character() %>% 
+        unique()
       should_all <- na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
-      is_all <- recode_patterns_full %>% slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
+      is_all <- recode_patterns_full %>% dplyr::slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
       is_all <- is_all$new.name
       expect_true(all(is_all %in% should_all))
       expect_true(all(should_all %in% is_all))
       
       # check that each instance of a modification ID WITH EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
-      should_actedupon <- all_decisions %>% dplyr::filter(modification.ID == id) %>% select(c("resulting.added.features","resulting.removed.features")) %>% as.character() %>% unique()
+      should_actedupon <- all_decisions %>% 
+        dplyr::filter(modification.ID == id) %>% 
+        dplyr::select(c("resulting.added.features","resulting.removed.features")) %>% 
+        as.character() %>% 
+        unique()
       should_actedupon <- na.omit(unique(unlist(strsplit(should_actedupon[should_actedupon!="NA"],", "))))
-      is_actedupon <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$modification.IDs)))
+      is_actedupon <- recode_patterns_full %>% dplyr::slice(which(grepl(id,recode_patterns_full$modification.IDs)))
       is_actedupon <- is_actedupon$new.name
       expect_true(all(is_actedupon %in% should_actedupon))
       expect_true(all(should_actedupon %in% is_actedupon))
       
       # check that each instance of a modification ID WITHOUT EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
-      should_associated <- all_decisions %>% dplyr::filter(modification.ID == id) %>% select(c("feature.1.for.test","feature.2.for.test")) %>% as.character() %>% unique()
+      should_associated <- all_decisions %>% 
+        dplyr::filter(modification.ID == id) %>% 
+        dplyr::select(c("feature.1.for.test","feature.2.for.test")) %>% 
+        as.character() 
+      %>% unique()
       should_associated <- setdiff(na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
-      is_associated <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
+      is_associated <- recode_patterns_full %>% 
+        dplyr::slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
       is_associated <- is_associated$new.name
       expect_true(all(is_associated %in% should_associated))
       expect_true(all(should_associated %in% is_associated))
     }
     else if (type %in% c("logical","design-automated","design-manual")){ 
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
-      should_all <- all_decisions %>% dplyr::filter(modification.ID == id) %>% select(c("relevant.features","resulting.added.features","resulting.removed.features")) %>% as.character() %>% unique()
+      should_all <- all_decisions %>% 
+        dplyr::filter(modification.ID == id) %>% 
+        dplyr::select(c("relevant.features","resulting.added.features","resulting.removed.features")) %>% 
+        as.character() %>% unique()
       should_all <- na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
-      is_all <- recode_patterns_full %>% slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
+      is_all <- recode_patterns_full %>% 
+        dplyr::slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
       is_all <- is_all$new.name
       expect_true(all(is_all %in% should_all))
       expect_true(all(should_all %in% is_all))
       
       # check that each instance of a modification ID WITH EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
-      should_actedupon <- all_decisions %>% dplyr::filter(modification.ID == id) %>% select(c("resulting.added.features","resulting.removed.features")) %>% as.character() %>% unique()
+      should_actedupon <- all_decisions %>% 
+        dplyr::filter(modification.ID == id) %>% 
+        dplyr::select(c("resulting.added.features","resulting.removed.features")) %>% 
+        as.character() %>% 
+        unique()
       should_actedupon <- na.omit(unique(unlist(strsplit(should_actedupon[should_actedupon!="NA"],", "))))
-      is_actedupon <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$modification.IDs)))
+      is_actedupon <- recode_patterns_full %>% 
+        dplyr::slice(which(grepl(id,recode_patterns_full$modification.IDs)))
       is_actedupon <- is_actedupon$new.name
       expect_true(all(is_actedupon %in% should_actedupon))
       expect_true(all(should_actedupon %in% is_actedupon))
       
       # check that each instance of a modification ID WITHOUT EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
-      should_associated <- all_decisions %>% dplyr::filter(modification.ID == id) %>% select("relevant.features") %>% as.character() %>% unique()
+      should_associated <- all_decisions %>% dplyr::filter(modification.ID == id) %>% 
+        dplyr::select("relevant.features") %>% as.character() %>% unique()
       should_associated <- setdiff(na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
-      is_associated <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
+      is_associated <- recode_patterns_full %>% dplyr::slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
       is_associated <- is_associated$new.name
       expect_true(all(is_associated %in% should_associated))
       expect_true(all(should_associated %in% is_associated))
@@ -1032,9 +1057,15 @@ make_GBI <- function(ValueTable = NULL,
   ## known.remaining dependencies match - check remaining dependencies are appropriately logged (one-sided, because there are dependencies not associated with statistical tests!)
   rds <- dplyr::filter(all_decisions, resulting.modification == "tendency logged in known.remaining.dependencies")
   for (rd in 1:nrow(rds)){
-    id <- rds %>% slice(rd) %>% select(modification.ID)
-    should_associated <- rds %>% slice(rd) %>% select(c(feature.1.for.test,feature.2.for.test)) %>% as.character
-    is_associated <- recode_patterns_full %>% slice(which(grepl(id,recode_patterns_full$known.remaining.dependencies.after.statistical.treatment))) %>% select(new.name) %>% unlist %>% as.character
+    id <- rds %>% 
+      dplyr::slice(rd) %>% 
+      dplyr::select(modification.ID)
+    should_associated <- rds %>% 
+      dplyr::slice(rd) %>% 
+      dplyr::select(c(feature.1.for.test,feature.2.for.test)) %>% 
+      as.character()
+    is_associated <- recode_patterns_full %>% 
+      dplyr::slice(which(grepl(id,recode_patterns_full$known.remaining.dependencies.after.statistical.treatment))) %>% dplyr::select(new.name) %>% unlist %>% as.character
     expect_true(all(is_associated %in% should_associated))
     expect_true(all(should_associated %in% is_associated))
   }
@@ -1057,14 +1088,17 @@ make_GBI <- function(ValueTable = NULL,
   # parameters.csv
   parameters <- recode_patterns_full
   
-  parameters_logical <- parameters %>% dplyr::filter(design.logical==T)
-  parameters_statistical <- parameters %>% dplyr::filter(design.logical.statistical==T)
+  parameters_logical <- parameters %>% 
+    dplyr::filter(design.logical==T)
+  parameters_statistical <- parameters %>% 
+    dplyr::filter(design.logical.statistical==T)
   
   # values.csv
   logical_long <- reshape2::melt(setDT(logical_data), id.vars = "Language_ID", variable.name = "new.name")
   logical_long$value_ID <- apply(logical_long,1,function(x) paste(x[2],x[1],sep="-"))
   logical_long$code_ID <- apply(logical_long,1,function(x) paste(x[2],x[3],sep="-"))
-  logical_long <- logical_long %>% select(c("value_ID","Language_ID","new.name","value","code_ID"))
+  logical_long <- logical_long %>% 
+    dplyr::select(c("value_ID","Language_ID","new.name","value","code_ID"))
   logical_long$Language_ID <- as.character(logical_long$Language_ID)
   logical_long$new.name <- as.character(logical_long$new.name)
   
