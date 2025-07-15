@@ -48,7 +48,7 @@ add_isolate_info <- function(LanguageTable = NULL,
           LanguageTable <- LanguageTable %>%
             dplyr::mutate(Family_ID = ifelse(is.na(.data[["Family_ID"]])|
                                                .data[["Family_ID"]] == "" & .data[["Level"]] == "language",
-                                             yes = .data[["Glottocode"], no = .data[["Family_ID"]])) 
+                                             yes = .data[["Glottocode"]], no = .data[["Family_ID"]])) 
     }
 
 LanguageTable %>% 
