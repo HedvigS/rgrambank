@@ -33,7 +33,7 @@ match_to_rgb <- function(x = NULL,
     }
   
 RGB <- x %>% 
-  dplyr::select(all_of(cols) ) %>%
+  dplyr::select(dplyr::all_of(cols) ) %>%
   base::sweep(2, apply(., 2, function(x){ 2 * max(abs(x)) }), "/") %>%
   base::sweep(2, 0.5, "+") %>%
   grDevices::rgb(alpha = 1)
