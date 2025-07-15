@@ -1,13 +1,8 @@
-#remotes::install_github("Hedvigs/rgrambank")
+remotes::install_github("Hedvigs/rgrambank")
 library(rgrambank)
 library(tidyverse)
-library(testthat)
-library(data.table)
 library(reshape2)
-library(SH.misc)
 library(missForest)
-library(ggarrange)
-#install.packages("patchwork")
 library(patchwork)
 #remotes::install_github("annagraff/densify")
 library(densify)
@@ -52,10 +47,6 @@ beep()
 GBI_dense <- densify_GB(GBI = GBI, Glottolog_ValueTable = Glottolog_ValueTable)
 
 GB_statistical_multistate_non_numeric_feats <- c("GB995F", "GB332EON", "GB900EO")
-
-#SH.misc::basemap_EEZ()
-
-#rgrambank::match_to_rgb()
 
 GB_dense_long <- GB_dense$Grambank_densified_with_question_mark %>% 
   reshape2::melt(id.vars = "Language_ID") %>% 
