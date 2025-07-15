@@ -8,6 +8,7 @@
 #' @importFrom dplyr select
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
+#' @importFrom dplyr if_else
 #' @importFrom ggplot2 map_data
 #' @importFrom ggplot2 geom_polygon
 #' @importFrom ggplot2 theme
@@ -37,7 +38,9 @@ if(!all(DataTable$ID %in% LongLatTable$ID)){
   
   LongLatTable <- LongLatTable %>% 
     dplyr::select(ID, Longitude, Latitude) %>% 
-    dplyr::mutate(Longitude = if_else(Longitude <= -25, Longitude + 360, Longitude)) #shifting the longlat of the dataframe to match the pacific centered map
+    dplyr::mutate(Longitude = dplyr::if_else(.data[["Longitude"]] <= -25, 
+                                      true = .data[["Longitude"]] + 360, 
+                                      false = .data[["Longitude"]])) #shifting the longlat of the dataframe to match the pacific centered map
 
 Table <- DataTable %>% 
   dplyr::left_join(LongLatTable, by = "ID")
@@ -70,7 +73,6 @@ basemap <- ggplot2::ggplot(Table) +
   ) +
   ggplot2::coord_map(projection = "vandergrinten", ylim=c(-55,73)) +
   ggplot2::expand_limits(x = Table$Longitude, y = Table$Latitude)
-
 
 list(basemap = basemap, MapTable = Table)
 
