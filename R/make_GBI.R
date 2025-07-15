@@ -1007,9 +1007,10 @@ make_GBI <- function(ValueTable = NULL,
       # check that each instance of a modification ID WITHOUT EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_associated <- all_decisions %>% 
         dplyr::filter(modification.ID == id) %>% 
-        dplyr::select(c("feature.1.for.test","feature.2.for.test")) %>% 
-        as.character() 
-      %>% unique()
+        dplyr::select(c("feature.1.for.test","feature.2.for.test")) %>%       
+        as.character()  %>% 
+        unique()
+      
       should_associated <- setdiff(na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
       is_associated <- recode_patterns_full %>% 
         dplyr::slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
