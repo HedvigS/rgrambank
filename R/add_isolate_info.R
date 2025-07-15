@@ -38,20 +38,21 @@ add_isolate_info <- function(LanguageTable = NULL,
   
     if(mark_isolate_dialects_as_isolates == TRUE){
         LanguageTable <- LanguageTable %>% 
-            dplyr::mutate(Is_Isolate = ifelse(Family_ID == Language_level_ID & Level == "dialect",
-                                           TRUE, Is_Isolate)) 
+            dplyr::mutate(Is_Isolate = ifelse(.data[["Family_ID"]] == .data[["Language_level_ID"]] & 
+                                                .data[["Level"]] == "dialect",
+                                           TRUE, .data[["Is_Isolate"]])) 
         
     }
 
     if(set_isolates_Family_ID_as_themselves == TRUE){
           LanguageTable <- LanguageTable %>%
-            dplyr::mutate(Family_ID = ifelse(is.na(Family_ID)|
-                                                 Family_ID == "" & Level == "language",
-                                             yes = Glottocode, no = Family_ID)) 
+            dplyr::mutate(Family_ID = ifelse(is.na(.data[["Family_ID"]])|
+                                               .data[["Family_ID"]] == "" & .data[["Level"]] == "language",
+                                             yes = .data[["Glottocode"], no = .data[["Family_ID"]])) 
     }
 
 LanguageTable %>% 
-  dplyr::filter(ID %in% lgs_in_input) 
+  dplyr::filter(.data[["ID"]] %in% lgs_in_input) 
 }
 
 
