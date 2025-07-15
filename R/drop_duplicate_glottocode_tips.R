@@ -7,6 +7,16 @@
 #' @param rename_tips_to_glottocodes logical. If TRUE, the tip-labels of the output tree are renamed to the corresponding Glottocodes. If FALSE, the original tip-labels are retained.
 #' @return tree without tips with duplicate Glottocodes, optionally all but one dialect is dropped as well.
 #' @author Hedvig Skirgård
+#' @importFrom dplyr distinct
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#' @importFrom dplyr rename
+#' @importFrom dplyr group_by
+#' @importFrom dplyr slice_sample
+#' @importFrom ape Ntip
+#' @importFrom ape keep.tip
+#' @importFrom dplyr left_join
+#' @importFrom dplyr full_join
 #' @export
 
 drop_duplicate_glottocode_tips <- function(tree = NULL,
@@ -48,7 +58,7 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
       dplyr::distinct(Glottocode, Language_level_ID)
     
     TaxonTable <- TaxonTable %>% 
-      full_join(GlottologLanguageTable, by = "Glottocode") %>%         
+      dplyr::full_join(GlottologLanguageTable, by = "Glottocode") %>%         
       dplyr::mutate(Language_level_ID = ifelse(is.na(Language_level_ID) | Language_level_ID == "", Glottocode, Language_level_ID))
     
   
@@ -64,7 +74,7 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
 to_keep <- tree$tip.label %>%
               as.data.frame() %>%
     dplyr::rename(taxon = ".") %>%
-    left_join(TaxonTable, by = join_by(taxon)) %>% 
+    dplyr::left_join(TaxonTable, by = join_by(taxon)) %>% 
     dplyr::group_by(Glottocode) %>%
     dplyr::mutate(n = n()) %>% 
     dplyr::slice_sample(n = 1)
@@ -76,7 +86,7 @@ if(rename_tips_to_glottocodes == TRUE){
 tip_df <- tree$tip.label %>%
   as.data.frame() %>%
   dplyr::rename(taxon = ".") %>%
-  left_join(TaxonTable, by = join_by(taxon)) 
+  dplyr::left_join(TaxonTable, by = "taxon") 
 
 tree$tip.label <- tip_df$Glottocode
 }
