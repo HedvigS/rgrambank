@@ -9,7 +9,6 @@
 #' @importFrom reshape2 dcast
 #' @importFrom reshape2 melt
 #' @importFrom stringr str_split
-
 #' @author Anna Graff and Hedvig Skirgård
 #' @export
 
@@ -23,8 +22,10 @@
   if (equator == " == "){ 
     # if the condition in question is positive (" == "), we want to keep languages that have the desired state of conditioned_upon_feature OR which are "?" to both conditioned_upon_feature and feature_to_be_conditioned to not become NA
     # select languages with desired state or "?" in conditioned_upon_feature
-    condition_applies_strict <- dplyr::filter(conditioned_upon_feature,
-                                              conditioned_upon_feature[2]==condition[2])$Language_ID
+    condition_applies_strict <- dplyr::filter(conditioned_upon_feature, conditioned_upon_feature[[2]] == condition[2])$Language_ID
+      
+#      dplyr::filter(conditioned_upon_feature,
+#                                              conditioned_upon_feature[2]==condition[2])$Language_ID
     
     condition_applies_q <- dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]=="?")$Language_ID
     
