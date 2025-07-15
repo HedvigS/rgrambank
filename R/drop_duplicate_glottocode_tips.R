@@ -59,7 +59,10 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
     
     TaxonTable <- TaxonTable %>% 
       dplyr::full_join(GlottologLanguageTable, by = "Glottocode") %>%         
-      dplyr::mutate(Language_level_ID = ifelse(is.na(Language_level_ID) | Language_level_ID == "", Glottocode, Language_level_ID))
+      dplyr::mutate(Language_level_ID = ifelse(is.na(.data[["Language_level_ID"]]) | 
+                                                 .data[["Language_level_ID"]] == "", 
+                                               yes = .data[["Glottocode"]], 
+                                                no =  .data[["Language_level_ID"]]))
     
   
   # Still in the merge_dialect == TRUE if loop
@@ -74,7 +77,7 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
 to_keep <- tree$tip.label %>%
               as.data.frame() %>%
     dplyr::rename(taxon = ".") %>%
-    dplyr::left_join(TaxonTable, by = join_by(taxon)) %>% 
+    dplyr::left_join(TaxonTable, by = "taxon") %>% 
     dplyr::group_by(Glottocode) %>%
     dplyr::mutate(n = n()) %>% 
     dplyr::slice_sample(n = 1)
