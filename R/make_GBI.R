@@ -203,10 +203,10 @@
   expect_true(length(recoding_groups)>1) # must have at least 2 recoding groups
   expect_true(all(!is.na(unlist(recoding_groups)))) # can't have NAs
   expect_true(all(unlist(recoding_groups) %in% expected_levels$i)) # must correspond to original values
-  expect_false(any(duplicated(unlist(recoding_groups)))) # can't have any duplicates
+  testthat::expect_false(any(duplicated(unlist(recoding_groups)))) # can't have any duplicates
   
   # build the recoding table
-  expect_true(length(recoding_groups)==length(recoded_levels)) # must have at least 2 recoding groups
+  testthat::expect_true(length(recoding_groups)==length(recoded_levels)) # must have at least 2 recoding groups
   recoded_levels <- bind_rows(mapply(recoded_levels, recoding_groups, FUN=function(value, ii) {
     data.frame(i = ii, new_level=as.character(value), stringsAsFactors=FALSE)
   }, SIMPLIFY=FALSE))
@@ -214,7 +214,7 @@
   level_table <- full_join(expected_levels, recoded_levels, by="i")
   
   # sanity checks
-  expect_true(all(!is.na(level_table$level)))
+  testthat::expect_true(all(!is.na(level_table$level)))
   
   # recode the data
   if (recode_mode == "simple"){
@@ -430,7 +430,7 @@ make_GBI <- function(ValueTable = NULL,
          }
     
     # check that the original feature is present in the original feature matrix
-    expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
+    testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
     original_data <- na.omit(as.character(original_feature_matrix[[.$`original.names`]]))
     
     # extract relevant attributes for recoding
@@ -649,7 +649,7 @@ make_GBI <- function(ValueTable = NULL,
     if(verbose == TRUE){ cat("Fifth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
-    expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
+    testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
     feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))]
     
     # select condition statement
@@ -690,7 +690,7 @@ make_GBI <- function(ValueTable = NULL,
     if(verbose == TRUE){  cat("Sixth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
-    expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
+    testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
     feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))]
     
     # select conditions
@@ -760,7 +760,7 @@ make_GBI <- function(ValueTable = NULL,
     if(verbose == TRUE){  cat("Seventh, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
-    expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
+    testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
     feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))]
     
     # select condition statement
@@ -800,7 +800,7 @@ make_GBI <- function(ValueTable = NULL,
     if(verbose == TRUE){  cat("Eight, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
-    expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
+    testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
     feature_to_be_conditioned <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))]
     
     # select conditions
@@ -1021,8 +1021,8 @@ make_GBI <- function(ValueTable = NULL,
   ### check all original features that should be in the original_feature filter are in there and vice versa
   original_names_is <- original_layer$new.name
   original_names_should <- names(retained_data)[-1]
-  expect_true(all(original_names_is %in% original_names_should))
-  expect_true(all(original_names_should %in% original_names_is))
+  testthat::expect_true(all(original_names_is %in% original_names_should))
+  testthat::expect_true(all(original_names_should %in% original_names_is))
   
   ### logical dataset: check all original features that should be in the logical filter are in there and vice versa
   design_add <- c(unique(unlist(stringr::str_split(dplyr::filter(logical_decisions,
@@ -1032,8 +1032,8 @@ make_GBI <- function(ValueTable = NULL,
   logical_names_should <- unique(c(original_names_is,design_add))[unique(c(original_names_is,design_add)) %in% design_remove==F]
   logical_names_is <- names(logical_data)[names(logical_data)!="Language_ID"]
   # sanity checks
-  expect_true(all(logical_names_is %in% logical_names_should))
-  expect_true(all(logical_names_should %in% logical_names_is))
+  testthat::expect_true(all(logical_names_is %in% logical_names_should))
+  testthat::expect_true(all(logical_names_should %in% logical_names_is))
   
   ### statistical dataset: check all original features that should be in the statistical filter are in there and vice versa
   statistical_add <- unique(statistical_decisions$resulting.added.features) 
@@ -1042,15 +1042,15 @@ make_GBI <- function(ValueTable = NULL,
   statistical_names_should <- unique(c(logical_names_is,statistical_add))[unique(c(logical_names_is,statistical_add)) %in% statistical_remove==F]
   statistical_names_is <- names(statistical_data)[names(statistical_data)!="Language_ID"]
   # sanity checks
-  expect_true(all(statistical_names_is %in% statistical_names_should))
-  expect_true(all(statistical_names_should %in% statistical_names_is))
+  testthat::expect_true(all(statistical_names_is %in% statistical_names_should))
+  testthat::expect_true(all(statistical_names_should %in% statistical_names_is))
   
   ### modification ID match --> ensure all modification IDs in the features sheet are in the modification sheet and vice versa
   mod_IDs_is <- na.omit(unique(c(unlist(stringr::str_split(recode_patterns_full$modification.IDs,";")),(unlist(stringr::str_split(recode_patterns_full$associated.modification.IDs.without.resulting.action,";"))))))
   mod_IDs_is <- mod_IDs_is[mod_IDs_is!=""]
   mod_IDs_should <- na.omit(all_decisions$modification.ID)
-  expect_true(all(mod_IDs_is %in% mod_IDs_should))
-  expect_true(all(mod_IDs_should %in% mod_IDs_is))
+  testthat::expect_true(all(mod_IDs_is %in% mod_IDs_should))
+  testthat::expect_true(all(mod_IDs_should %in% mod_IDs_is))
   
   # specific modification ID match --> ensure that each modification ID in the features sheet is in the modification sheet, associated via the correct columns and features; and vice versa
   ids <- na.omit(all_decisions$modification.ID)
@@ -1065,8 +1065,8 @@ make_GBI <- function(ValueTable = NULL,
       should_all <- na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
       is_all <- recode_patterns_full %>% dplyr::slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
       is_all <- is_all$new.name
-      expect_true(all(is_all %in% should_all))
-      expect_true(all(should_all %in% is_all))
+      testthat::expect_true(all(is_all %in% should_all))
+      testthat::expect_true(all(should_all %in% is_all))
       
       # check that each instance of a modification ID WITH EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_actedupon <- all_decisions %>% 
@@ -1077,8 +1077,8 @@ make_GBI <- function(ValueTable = NULL,
       should_actedupon <- na.omit(unique(unlist(strsplit(should_actedupon[should_actedupon!="NA"],", "))))
       is_actedupon <- recode_patterns_full %>% dplyr::slice(which(grepl(id,recode_patterns_full$modification.IDs)))
       is_actedupon <- is_actedupon$new.name
-      expect_true(all(is_actedupon %in% should_actedupon))
-      expect_true(all(should_actedupon %in% is_actedupon))
+      testthat::expect_true(all(is_actedupon %in% should_actedupon))
+      testthat::expect_true(all(should_actedupon %in% is_actedupon))
       
       # check that each instance of a modification ID WITHOUT EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_associated <- all_decisions %>% 
@@ -1091,8 +1091,8 @@ make_GBI <- function(ValueTable = NULL,
       is_associated <- recode_patterns_full %>% 
         dplyr::slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
       is_associated <- is_associated$new.name
-      expect_true(all(is_associated %in% should_associated))
-      expect_true(all(should_associated %in% is_associated))
+      testthat::expect_true(all(is_associated %in% should_associated))
+      testthat::expect_true(all(should_associated %in% is_associated))
     }
     else if (type %in% c("logical","design-automated","design-manual")){ 
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
@@ -1104,8 +1104,8 @@ make_GBI <- function(ValueTable = NULL,
       is_all <- recode_patterns_full %>% 
         dplyr::slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
       is_all <- is_all$new.name
-      expect_true(all(is_all %in% should_all))
-      expect_true(all(should_all %in% is_all))
+      testthat::expect_true(all(is_all %in% should_all))
+      testthat::expect_true(all(should_all %in% is_all))
       
       # check that each instance of a modification ID WITH EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_actedupon <- all_decisions %>% 
@@ -1117,8 +1117,8 @@ make_GBI <- function(ValueTable = NULL,
       is_actedupon <- recode_patterns_full %>% 
         dplyr::slice(which(grepl(id,recode_patterns_full$modification.IDs)))
       is_actedupon <- is_actedupon$new.name
-      expect_true(all(is_actedupon %in% should_actedupon))
-      expect_true(all(should_actedupon %in% is_actedupon))
+      testthat::expect_true(all(is_actedupon %in% should_actedupon))
+      testthat::expect_true(all(should_actedupon %in% is_actedupon))
       
       # check that each instance of a modification ID WITHOUT EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_associated <- all_decisions %>% 
@@ -1127,8 +1127,8 @@ make_GBI <- function(ValueTable = NULL,
       should_associated <- setdiff(na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
       is_associated <- recode_patterns_full %>% dplyr::slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
       is_associated <- is_associated$new.name
-      expect_true(all(is_associated %in% should_associated))
-      expect_true(all(should_associated %in% is_associated))
+      testthat::expect_true(all(is_associated %in% should_associated))
+      testthat::expect_true(all(should_associated %in% is_associated))
     }
   }
   
@@ -1145,11 +1145,11 @@ make_GBI <- function(ValueTable = NULL,
       as.character()
     is_associated <- recode_patterns_full %>% 
       dplyr::slice(which(grepl(id,recode_patterns_full$known.remaining.dependencies.after.statistical.treatment))) %>% dplyr::select(new.name) %>% unlist %>% as.character
-    expect_true(all(is_associated %in% should_associated))
-    expect_true(all(should_associated %in% is_associated))
+    testthat::expect_true(all(is_associated %in% should_associated))
+    testthat::expect_true(all(should_associated %in% is_associated))
   }
-  expect_true(all(rds$modification.ID %in% unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";"))))
-  expect_true(all(na.omit(unique(unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";")))) %in% rds$modification.ID))
+  testthat::expect_true(all(rds$modification.ID %in% unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";"))))
+  testthat::expect_true(all(na.omit(unique(unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";")))) %in% rds$modification.ID))
   
   
   ########## make, check and save cldf  ########## 
@@ -1200,28 +1200,28 @@ make_GBI <- function(ValueTable = NULL,
   modifications <- all_decisions
   
   # cldf quality checks:
-  expect_true(all(unique(logical_long$Language_ID) %in% taxonomy_logical$Language_ID))
-  expect_true(all(unique(statistical_long$Language_ID) %in% taxonomy_statistical$Language_ID))
-  expect_true(all(taxonomy_logical$Language_ID %in% unique(logical_long$Language_ID)))
-  expect_true(all(taxonomy_statistical$Language_ID %in% unique(statistical_long$Language_ID)))
+  testthat::expect_true(all(unique(logical_long$Language_ID) %in% taxonomy_logical$Language_ID))
+  testthat::expect_true(all(unique(statistical_long$Language_ID) %in% taxonomy_statistical$Language_ID))
+  testthat::expect_true(all(taxonomy_logical$Language_ID %in% unique(logical_long$Language_ID)))
+  testthat::expect_true(all(taxonomy_statistical$Language_ID %in% unique(statistical_long$Language_ID)))
   
-  expect_true(all(unique(logical_long$new.name) %in% parameters$new.name))
-  expect_true(all(unique(statistical_long$new.name) %in% parameters$new.name))
-  expect_true(all(dplyr::filter(parameters,
+  testthat::expect_true(all(unique(logical_long$new.name) %in% parameters$new.name))
+  testthat::expect_true(all(unique(statistical_long$new.name) %in% parameters$new.name))
+  testthat::expect_true(all(dplyr::filter(parameters,
                                 .data[["design.logical"]] == "TRUE")$new.name %in% unique(logical_long$new.name)))
-  expect_true(all(dplyr::filter(parameters,
+  testthat::expect_true(all(dplyr::filter(parameters,
                                 .data[["design.logical.statistical"]] == "TRUE")$new.name %in% unique(statistical_long$new.name)))
   
-  expect_true(all(unique(logical_long$code_ID) %in% logical_codes$code_ID))
-  expect_true(all(unique(statistical_long$code_ID) %in% statistical_codes$code_ID))
-  expect_true(all(logical_codes$code_ID %in% unique(logical_long$code_ID)))
-  expect_true(all(statistical_codes$code_ID %in% unique(statistical_long$code_ID)))
+  testthat::expect_true(all(unique(logical_long$code_ID) %in% logical_codes$code_ID))
+  testthat::expect_true(all(unique(statistical_long$code_ID) %in% statistical_codes$code_ID))
+  testthat::expect_true(all(logical_codes$code_ID %in% unique(logical_long$code_ID)))
+  testthat::expect_true(all(statistical_codes$code_ID %in% unique(statistical_long$code_ID)))
   
-  expect_true(all(unique(unlist(strsplit(dplyr::filter(parameters, 
+  testthat::expect_true(all(unique(unlist(strsplit(dplyr::filter(parameters, 
                                                        .data[["modification.IDs"]] !="")$modification.IDs,";"))) %in% modifications$modification.ID))
-  expect_true(all(unique(unlist(strsplit(dplyr::filter(parameters, 
+  testthat::expect_true(all(unique(unlist(strsplit(dplyr::filter(parameters, 
   .data[["associated.modification.IDs.without.resulting.action"]] !="")$associated.modification.IDs.without.resulting.action,";"))) %in% modifications$modification.ID))
-  expect_true(all(modifications$modification.ID %in% c(unique(unlist(strsplit(dplyr::filter(parameters,
+  testthat::expect_true(all(modifications$modification.ID %in% c(unique(unlist(strsplit(dplyr::filter(parameters,
                                                                                             .data[["modification.IDs"]] !="")$modification.IDs,";"))),
                                                        unique(unlist(strsplit(dplyr::filter(parameters,
                                                                                             .data[["associated.modification.IDs.without.resulting.action"]]!="")$associated.modification.IDs.without.resulting.action,";"))))))
