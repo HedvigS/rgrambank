@@ -198,9 +198,9 @@
 ################## MAIN FUNCTION ##############################################
 
 make_GBI <- function(ValueTable = NULL,
-                     verbose = TRUE
-#                     recode_patterns = NULL, 
-#                     all_decisions = null
+                     verbose = TRUE,
+                     recode_patterns_full = NULL, 
+                     all_decisions = null
                             # LanguageTable = NULL
     ){
   
