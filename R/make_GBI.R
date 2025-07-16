@@ -9,6 +9,7 @@
 #' @importFrom reshape2 dcast
 #' @importFrom reshape2 melt
 #' @importFrom testthat expect_true
+#' @importFrom testthat expect_false
 #' @importFrom stringr str_split
 #' @author Anna Graff and Hedvig Skirgård
 #' @export
