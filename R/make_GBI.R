@@ -1129,7 +1129,7 @@ make_GBI <- function(ValueTable = NULL,
     dplyr::filter( .data[["design.logical.statistical"]] ==T)
   
   # values.csv
-  logical_long <- reshape2::melt(setDT(logical_data), id.vars = "Language_ID", variable.name = "new.name")
+  logical_long <- reshape2::melt(as.data.frame(logical_data), id.vars = "Language_ID", variable.name = "new.name")
   logical_long$value_ID <- apply(logical_long,1,function(x) paste(x[2],x[1],sep="-"))
   logical_long$code_ID <- apply(logical_long,1,function(x) paste(x[2],x[3],sep="-"))
   logical_long <- logical_long %>% 
@@ -1137,7 +1137,7 @@ make_GBI <- function(ValueTable = NULL,
   logical_long$Language_ID <- as.character(logical_long$Language_ID)
   logical_long$new.name <- as.character(logical_long$new.name)
   
-  statistical_long <- reshape2::melt(setDT(statistical_data), id.vars = "Language_ID", variable.name = "new.name")
+  statistical_long <- reshape2::melt(as.data.frame(statistical_data), id.vars = "Language_ID", variable.name = "new.name")
   statistical_long$value_ID <- apply(statistical_long,1,function(x) paste(x[2],x[1],sep="-"))
   statistical_long$code_ID <- apply(statistical_long,1,function(x) paste(x[2],x[3],sep="-"))
   statistical_long$Language_ID <- as.character(statistical_long$Language_ID)
