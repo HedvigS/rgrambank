@@ -512,7 +512,7 @@ make_GBI <- function(ValueTable = NULL,
   fourth_set <- dplyr::filter(recode_patterns, 
                               .data[["recode.operation.type"]]=="recode group 4 (merge features - recode via logical arguments - multiple conditioning)")
   recode_patterns <- dplyr::filter(recode_patterns, 
-                                   .data[["recode.operation.type!"]]="recode group 4 (merge features - recode via logical arguments - multiple conditioning)")
+                                   .data[["recode.operation.type"]] !="recode group 4 (merge features - recode via logical arguments - multiple conditioning)")
   
   # merge and recode via logical arguments if a condition applies
   fourth_set_rec <- rowwise(fourth_set) %>% do({
