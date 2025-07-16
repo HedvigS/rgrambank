@@ -200,9 +200,9 @@
   recoding_groups <- strsplit(recoding_groups, "/") %>% lapply(as.integer)
   
   # sanity checks
-  expect_true(length(recoding_groups)>1) # must have at least 2 recoding groups
-  expect_true(all(!is.na(unlist(recoding_groups)))) # can't have NAs
-  expect_true(all(unlist(recoding_groups) %in% expected_levels$i)) # must correspond to original values
+  testthat::expect_true(length(recoding_groups)>1) # must have at least 2 recoding groups
+  testthat::expect_true(all(!is.na(unlist(recoding_groups)))) # can't have NAs
+  testthat::expect_true(all(unlist(recoding_groups) %in% expected_levels$i)) # must correspond to original values
   testthat::expect_false(any(duplicated(unlist(recoding_groups)))) # can't have any duplicates
   
   # build the recoding table
