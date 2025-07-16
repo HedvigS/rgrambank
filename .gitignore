@@ -8,3 +8,4 @@ R_grambank_cookbook.Rproj
 *output*
 example_scripts/example_scripts.Rproj
 rgrambank.Rproj
+.Rbuildignore
