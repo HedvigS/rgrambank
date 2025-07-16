@@ -54,7 +54,8 @@
       condition_applies <- setdiff(conditioned_upon_feature$Language_ID, condition_applies_strict)
     
     # select languages in feature_to_be_conditioned to which condition applies
-    conditioned_data <- dplyr::filter(feature_to_be_conditioned, .data[["Language_ID"]] %in% as.character(condition_applies))
+    conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
+                                      .data[["Language_ID"]] %in% as.character(condition_applies))
     
   } else if (equator == " %in% "){ ## this applies if the condition in the question is multiple --> conservative (" %in% ")
     
@@ -75,11 +76,34 @@
       dplyr::pull(Language_ID)
     
     # if there are more than 2 desired states, add the third
-    if(nr_desired_states>2){condition_applies_desired_states <- c(condition_applies_desired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==desired_states[3])$Language_ID)}
+    if(nr_desired_states>2){
+      
+      col_name <- names(conditioned_upon_feature)[2]
+      condition_applies_desired_states_2 <- conditioned_upon_feature %>%
+        dplyr::filter(.data[[col_name]] ==desired_states[3] ) %>%
+        dplyr::pull(Language_ID)
+      
+      condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_2)
+      }
     # if there are more than 3 desired states, add the fourth
-    if(nr_desired_states>3){condition_applies_desired_states <- c(condition_applies_desired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==desired_states[4])$Language_ID)}
+    if(nr_desired_states>3){
+      col_name <- names(conditioned_upon_feature)[2]
+      condition_applies_desired_states_3 <- conditioned_upon_feature %>%
+        dplyr::filter(.data[[col_name]] ==desired_states[4] ) %>%
+        dplyr::pull(Language_ID)
+      
+      condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_3)
+    }
     # if there are more than 4 desired states, add the fifth
-    if(nr_desired_states>4){condition_applies_desired_states <- c(condition_applies_desired_states,dplyr::filter(conditioned_upon_feature,conditioned_upon_feature[2]==desired_states[5])$Language_ID)}
+    if(nr_desired_states>4){
+      
+      col_name <- names(conditioned_upon_feature)[2]
+      condition_applies_desired_states_4 <- conditioned_upon_feature %>%
+        dplyr::filter(.data[[col_name]] ==desired_states[5] ) %>%
+        dplyr::pull(Language_ID)
+    
+      condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_4)
+      }
     
     # select languages in feature_to_be_conditioned to which condition applies (strict and q)
     conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
@@ -179,18 +203,18 @@
                                 stringsAsFactors=FALSE)
   
   # sanity checks
-  expect_true(all(!is.na(expected_levels$i)))
-  expect_true(all(!is.na(expected_levels$level)))
+  testthat::expect_true(all(!is.na(expected_levels$i)))
+  testthat::expect_true(all(!is.na(expected_levels$level)))
   
   # make sure that the expected values match the original values found (applies only to simple recode)
   if (recode_mode=="simple"){
     if(nvar=="single"){
-      expect_true(setequal(expected_levels$level, na.omit(original_data)), info=
+      testthat::expect_true(setequal(expected_levels$level, na.omit(original_data)), info=
                     paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
                            "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
     }
     if(nvar=="multiple"){
-      expect_true(all(unique(na.omit(original_data$merged)) %in% expected_levels$level), info=
+      testthat::expect_true(all(unique(na.omit(original_data$merged)) %in% expected_levels$level), info=
                     paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
                            "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
     }
@@ -1082,7 +1106,7 @@ make_GBI <- function(ValueTable = NULL,
       
       # check that each instance of a modification ID WITHOUT EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_associated <- all_decisions %>% 
-        dplyr::filter(modification.ID == id) %>% 
+        dplyr::filter(.data[["modification.ID"]] == id) %>% 
         dplyr::select(c("feature.1.for.test","feature.2.for.test")) %>%       
         as.character()  %>% 
         unique()
@@ -1097,7 +1121,7 @@ make_GBI <- function(ValueTable = NULL,
     else if (type %in% c("logical","design-automated","design-manual")){ 
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_all <- all_decisions %>% 
-        dplyr::filter(modification.ID == id) %>% 
+        dplyr::filter(.data[["modification.ID"]] == id) %>% 
         dplyr::select(c("relevant.features","resulting.added.features","resulting.removed.features")) %>% 
         as.character() %>% unique()
       should_all <- na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
