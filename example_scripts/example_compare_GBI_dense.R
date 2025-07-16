@@ -5,6 +5,7 @@ library(reshape2)
 library(missForest)
 library(patchwork)
 library(Amelia)
+library(testthat)
 #remotes::install_github("annagraff/densify")
 library(densify)
 library(beepr)
@@ -26,11 +27,14 @@ Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(Value
 
 Grambank_ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = Grambank_ValueTable, 
                                                                 keep_multistate = F, keep_raw_binary = T) %>% 
-  filter(Value != "?") %>% 
-  filter(Value != "NA") %>% 
-  filter(!is.na(Value))
+  dplyr::filter(Value != "?") %>% 
+  dplyr::filter(Value != "NA") %>% 
+  dplyr::filter(!is.na(Value))
 
-GBI <- make_GBI(ValueTable = Grambank_ValueTable)
+recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
+all_decisions <- read.csv("fixed/decisions-log.csv")
+
+GBI <- make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_full = recode_patterns, all_decisions = all_decisions)
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
