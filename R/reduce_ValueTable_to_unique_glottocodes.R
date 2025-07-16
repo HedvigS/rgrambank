@@ -175,7 +175,7 @@ if(merge_dialects == FALSE){
         ValueTable_long_n_greater_than_1 <- ValueTable_grouped %>%
             dplyr::filter(.data[["n"]] > 1) %>%
             dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) %>% 
-            dplyr::slice_sample(.data[["n"]] = 1) %>%
+            dplyr::slice_sample(n = 1) %>%
             dplyr::ungroup()
 
         levelled_ValueTable <- ValueTable_grouped %>% 
@@ -189,7 +189,7 @@ if(merge_dialects == FALSE){
     if (method == "singular_random") {
       lgs  <- LanguageTable %>%
             dplyr::group_by(.data[["Glottocode"]]) %>%
-            dplyr::slice_sample(.data[["n"]] = 1) %>%
+            dplyr::slice_sample(n = 1) %>%
         dplyr::ungroup() %>% 
         dplyr::distinct(Language_ID, .keep_all = T) 
       
