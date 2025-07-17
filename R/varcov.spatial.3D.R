@@ -1,6 +1,8 @@
 #This script contains the code from the package geoR for the particular funciton varcov.spatial. It was not possible to load the package itself due to problems with XQuartz from xquartz.macosforge.org no longer part of  OS X, making it cumbersome for many mac-users to run the code. We are grateful to the creators of the package (Paulo J. Ribeiro Jr, Peter J. Diggle, Ole Christensen, Martin Schlather, Roger Bivand and Brian Ripley) for their labour acknowledge that this is their funciton.
 # ' Computes Covariance Matrix and Related Results. Adjusted function from geoR which computes earth distances better. The functions in the package files for geoR are in the script named "geoR/R/corcov.R".
 
+#' Builds the covariance matrix for a set of spatial locations
+#'
 #' @description
 #' This function builds the covariance matrix for a set of spatial locations, given the covariance parameters. According to the input options other results related to the covariance matrix (such as decompositions, determinants, inverse. etc) can also be returned.
 #' This function is an updated version of geoR::varcov.spatial. The adjustment concerns when the function is given coordinates. The old function used 2D euclidean distances (stats::dist()), which is not appropriate for earth. The updated function uses fields::rdst.earth() instead.
