@@ -17,7 +17,9 @@ Imports:
     fields,
     ggplot2,
     grDevices,
+    magrittr,
     reshape2,
+    rlang,
     stringr,
     testthat,
     tidyr
@@ -28,3 +30,4 @@ Suggests:
 RoxygenNote: 7.3.2
 Remotes:
     annagraff/densify
+    SimonGreenhill/rcldf
