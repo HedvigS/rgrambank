@@ -7,16 +7,6 @@
 #' @param rename_tips_to_glottocodes logical. If TRUE, the tip-labels of the output tree are renamed to the corresponding Glottocodes. If FALSE, the original tip-labels are retained.
 #' @return tree without tips with duplicate Glottocodes, optionally all but one dialect is dropped as well.
 #' @author Hedvig Skirgård
-#' @importFrom dplyr distinct
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
-#' @importFrom dplyr rename
-#' @importFrom dplyr group_by
-#' @importFrom dplyr slice_sample
-#' @importFrom ape Ntip
-#' @importFrom ape keep.tip
-#' @importFrom dplyr left_join
-#' @importFrom dplyr full_join
 #' @export
 
 drop_duplicate_glottocode_tips <- function(tree = NULL,

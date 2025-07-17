@@ -6,12 +6,6 @@
 #' @return data-frame with Family_name column.
 #' @note It is necessary that for every unique glottocode in Family_ID there is a row with a Glottocode and Name to match that. If there isn't, languages will have missing values for their Family_name even though they are not isolates.
 #'  If The current LanguageTable lacks the required columns, consider using a combination of the LanguageTable and ValueTable of glottolog-cldf.
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr distinct
-#' @importFrom dplyr rename
-#' @importFrom dplyr left_join
-#' @importFrom dplyr full_join
 #' @author Hedvig Skirgård
 #' @export
 

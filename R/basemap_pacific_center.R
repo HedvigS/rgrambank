@@ -5,18 +5,6 @@
 #' @note DataTable is good to include because it will ensure that the records are matched and that the shifted Longitudes are used (necessary for making the plot pacific-centered).
 #' @return A list, first object is a ggplot2 layer of a Pacific-centered worldmap and the second object is a combination of LongLatTable and DataTable, with Longitude adjusted to match the map.
 #' @author Hedvig Skirgård
-#' @importFrom dplyr select
-#' @importFrom dplyr left_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr if_else
-#' @importFrom ggplot2 map_data
-#' @importFrom ggplot2 geom_polygon
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 element_rect
-#' @importFrom ggplot2 coord_map
-#' @importFrom ggplot2 expand_limits
-#' @importFrom ggplot2 ggplot
 #' @export
 
 basemap_pacific_center <- function(LongLatTable = NULL, 
