@@ -15,9 +15,9 @@ crop_missing_data(
 \arguments{
 \item{ValueTable}{Data-frame of the CLDF-type VaueTable, i.e. a long data-table with at least columns "Parameter_ID", "Value" and "Language_ID". This ValueTable can be the product of make_binary_ValueTable() and/or reduce_ValueTable_to_unique_glottocodes.}
 
-\item{cut_off_parameters}{Integer between 0 and 1 representing the cut-off for missing data for features. 0.75 means that features that are filled out for less than 75% of the possible languages are dropped from the result.}
+\item{cut_off_parameters}{Integer between 0 and 1 representing the cut-off for missing data for features. 0.75 means that features that are filled out for less than 75\% of the possible languages are dropped from the result.}
 
-\item{cut_off_languages}{Integer between 0 and 1 representing the cut-off for missing data for languages. 0.75 means that features that are filled out for less than 75% of the possible features are dropped from the result.}
+\item{cut_off_languages}{Integer between 0 and 1 representing the cut-off for missing data for languages. 0.75 means that features that are filled out for less than 75\% of the possible features are dropped from the result.}
 
 \item{turn_question_mark_into_NA}{Logical. If TRUE Value cells consisting of "?" are treated the same as missing data.}
 
