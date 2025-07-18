@@ -5,259 +5,6 @@
 #' @references Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence. Scientific Data 12:106 https://doi.org/10.1038/s41597-024-04319-4
 #' @author Original GBI code: Anna Graff, Natalia Chousou-Polydouri, David Inman, Hedvig Skirgård, Marc Lischka, Taras Zakharko, Chiara Barbieri & Balthasar Bickel. Wrapper function: Anna Graff and Hedvig Skirgård.
 #' @export
-
-# this function serves to condition a feature on another -- note that the currently implemented function works for up to 5 desired states in the %in% case
-.implement_conditioning <- function(feature_to_be_conditioned, condition, equator, recoded_data){
-  
-  # select conditioned upon feature
-  conditioned_upon_feature <- recoded_data[,c(1,which(names(recoded_data) %in% condition[1]))]
-  
-  # select Language_IDs for which condition applies and turn data into "?" where applicable
-  if (equator == " == "){ 
-    # if the condition in question is positive (" == "), we want to keep languages that have the desired state of conditioned_upon_feature OR which are "?" to both conditioned_upon_feature and feature_to_be_conditioned to not become NA
-    # select languages with desired state or "?" in conditioned_upon_feature
-    col_name <- names(conditioned_upon_feature)[2]
-    
-    condition_applies_strict <- conditioned_upon_feature %>%
-      dplyr::filter(.data[[col_name]] == condition[2]) %>%
-      dplyr::pull(Language_ID)
-      
-    condition_applies_q <- conditioned_upon_feature %>%
-      dplyr::filter(.data[[col_name]] == "?") %>%
-      dplyr::pull(Language_ID)
-      
-    # select languages in feature_to_be_conditioned to which condition applies (strict and q)
-    conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
-                                      .data[["Language_ID"]] %in% as.character(c(condition_applies_strict,condition_applies_q)))
- 
-     names(conditioned_data)[2] <- "conditioned_upon_feature"
-    
-    # the languages, which are "?" to conditioned_upon_feature but specified for feature_to_be_conditioned are recoded into "?"
-    conditioned_data$conditioned_upon_feature[conditioned_data$Language_ID %in% condition_applies_q] <- rep("?")
-    
-  } else if (equator == " != "){ ## this applies if the condition in question is negative (" != ")
-    # if the condition in question is negative (" != "), we want to keep all languages that do not have the specified state of conditioned_upon_feature
-    # select languages which do not have the specified state in conditioned_upon_feature
-    
-    col_name <- names(conditioned_upon_feature)[2]
-    condition_applies_strict <- conditioned_upon_feature %>%
-      dplyr::filter(.data[[col_name]] == condition[2]) %>%
-      dplyr::pull(Language_ID)
-    
-      condition_applies <- setdiff(conditioned_upon_feature$Language_ID, condition_applies_strict)
-    
-    # select languages in feature_to_be_conditioned to which condition applies
-    conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
-                                      .data[["Language_ID"]] %in% as.character(condition_applies))
-    
-  } else if (equator == " %in% "){ ## this applies if the condition in the question is multiple --> conservative (" %in% ")
-    
-    # if the condition in question is multiple (" %in% "), we want to keep languages that have any of the desired state of conditioned_upon_feature OR which are "?" to both conditioned_upon_feature and feature_to_be_conditioned to not become NA
-    desired_states <- unlist(strsplit(condition[2],", "))
-    nr_desired_states <- length(desired_states)
-    
-    # select languages with desired states or "?" in conditioned_upon_feature
-    
-    col_name <- names(conditioned_upon_feature)[2]
-    condition_applies_q <- conditioned_upon_feature %>%
-      dplyr::filter(.data[[col_name]] == "?") %>%
-      dplyr::pull(Language_ID)
-    
-    condition_applies_desired_states <- conditioned_upon_feature %>%
-      dplyr::filter(.data[[col_name]] ==desired_states[1]|
-                      .data[[col_name]] ==desired_states[2]  ) %>%
-      dplyr::pull(Language_ID)
-    
-    # if there are more than 2 desired states, add the third
-    if(nr_desired_states>2){
-      
-      col_name <- names(conditioned_upon_feature)[2]
-      condition_applies_desired_states_2 <- conditioned_upon_feature %>%
-        dplyr::filter(.data[[col_name]] ==desired_states[3] ) %>%
-        dplyr::pull(Language_ID)
-      
-      condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_2)
-      }
-    # if there are more than 3 desired states, add the fourth
-    if(nr_desired_states>3){
-      col_name <- names(conditioned_upon_feature)[2]
-      condition_applies_desired_states_3 <- conditioned_upon_feature %>%
-        dplyr::filter(.data[[col_name]] ==desired_states[4] ) %>%
-        dplyr::pull(Language_ID)
-      
-      condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_3)
-    }
-    # if there are more than 4 desired states, add the fifth
-    if(nr_desired_states>4){
-      
-      col_name <- names(conditioned_upon_feature)[2]
-      condition_applies_desired_states_4 <- conditioned_upon_feature %>%
-        dplyr::filter(.data[[col_name]] ==desired_states[5] ) %>%
-        dplyr::pull(Language_ID)
-    
-      condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_4)
-      }
-    
-    # select languages in feature_to_be_conditioned to which condition applies (strict and q)
-    conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
-                                      .data[["Language_ID"]] %in% as.character(c(condition_applies_q, condition_applies_desired_states)))
-    names(conditioned_data)[2] <- "conditioned_upon_feature"
-    
-    # the languages, which are "?" to conditioned_upon_feature but specified for feature_to_be_conditioned are recoded into "?"
-    conditioned_data$conditioned_upon_feature[conditioned_data$Language_ID %in% condition_applies_q] <- rep("?")
-    
-  } else if (equator == " ! %in%  "){ ## this applies if the condition in the question is multiple (but negative) --> liberal ("! %in% ")
-    # if the condition in question is negative multiple (" ! %in%  "), we want to keep all languages that do not have the specified states of conditioned_upon_feature
-    # select languages which do not have the specified state in conditioned_upon_feature
-    undesired_states <- unlist(strsplit(condition[2],", "))
-    nr_undesired_states <- length(undesired_states)
-    
-    
-    col_name <- names(conditioned_upon_feature)[2]
-    
-    condition_applies_undesired_states <-  conditioned_upon_feature %>%
-      dplyr::filter(.data[[col_name]] == undesired_states[1]|
-                      .data[[col_name]] == undesired_states[2] ) %>%
-      dplyr::pull(Language_ID)
-    
-    # if there are more than 2 undesired states, add the third
-    if(nr_undesired_states>2){
-      
-      col_name <- names(conditioned_upon_feature)[2]
-      
-      condition_applies_undesired_states_2 <-  conditioned_upon_feature %>%
-        dplyr::filter(.data[[col_name]] == undesired_states[3]) %>%
-        dplyr::pull(Language_ID)
-      
-      condition_applies_undesired_states <- c(condition_applies_undesired_states,      condition_applies_undesired_states_2)
-    }
-    # if there are more than 3 undesired states, add the fourth
-    if(nr_undesired_states>3){
-      
-      col_name <- names(conditioned_upon_feature)[2]
-      
-      condition_applies_undesired_states_3 <-  conditioned_upon_feature %>%
-        dplyr::filter(.data[[col_name]] == undesired_states[4]) %>%
-        dplyr::pull(Language_ID)
-      
-      condition_applies_undesired_states <- c(condition_applies_undesired_states,      condition_applies_undesired_states_3)
-    } 
-      
-    # if there are more than 4 undesired states, add the fifth
-    if(nr_undesired_states>4){
-      
-      col_name <- names(conditioned_upon_feature)[2]
-      
-      condition_applies_undesired_states_4 <-  conditioned_upon_feature %>%
-        dplyr::filter(.data[[col_name]] == undesired_states[5]) %>%
-        dplyr::pull(Language_ID)
-      
-      condition_applies_undesired_states <- c(condition_applies_undesired_states, condition_applies_undesired_states_4)
-    }
-      
-    condition_applies <- setdiff(conditioned_upon_feature$Language_ID,condition_applies_undesired_states)
-    # select languages in feature_to_be_conditioned to which condition applies
-    conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
-                                      .data[["Language_ID"]] %in% as.character(condition_applies))
-  }
-  
-  return(conditioned_data)
-}
-
-# this function serves to extract "condition" and "equator" from a condition statement for further use
-.extract_condition_and_equator <- function(condition_statement){
-  condition <- unlist(strsplit(condition_statement," == "))
-  equator <- " == "
-  # if condition has not been split, it is not positive; check whether it is negative
-  if (length(condition)==1){ 
-    condition <- unlist(strsplit(condition_statement," != "))
-    equator <- " != "
-  }
-  # if condition has not been split, it is not positive or negative, check whether it is positive multiple
-  if (length(condition)==1){
-    condition <- unlist(strsplit(condition_statement," %in% "))
-    equator <- " %in% "
-  }
-  # if condition has not been split, it is not positive or negative or positive mulitple, so it is negative multiple
-  if (length(condition)==1){
-    condition <- unlist(strsplit(condition_statement," ! %in%  "))
-    equator <- " ! %in%  "
-  } 
-  
-  return(list(condition,equator))
-}
-
-# this function serves to recode states from one or several original features into other states, as specified in modifications.csv
-.implement_recode <- function(original_data, expected_levels, recoding_groups, recoded_levels, nvar, recode_mode){
-  
-  # make a table of original values
-  expected_levels <- data.frame(i = as.integer(gsub("^([0-9])*([0-9])+.+$", "\\1\\2", expected_levels)),
-                                level = gsub("^[0-9]+\\.? +", "", expected_levels),
-                                stringsAsFactors=FALSE)
-  
-  # sanity checks
-  testthat::expect_true(all(!is.na(expected_levels$i)))
-  testthat::expect_true(all(!is.na(expected_levels$level)))
-  
-  # make sure that the expected values match the original values found (applies only to simple recode)
-  if (recode_mode=="simple"){
-    if(nvar=="single"){
-      testthat::expect_true(setequal(expected_levels$level, na.omit(original_data)), info=
-                    paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
-                           "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
-    }
-    if(nvar=="multiple"){
-      testthat::expect_true(all(unique(na.omit(original_data$merged)) %in% expected_levels$level), info=
-                    paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
-                           "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
-    }
-  }
-  
-  # parse the recoding pattern
-  recoding_groups <- strsplit(recoding_groups, "/") %>% lapply(as.integer)
-  
-  # sanity checks
-  testthat::expect_true(length(recoding_groups)>1) # must have at least 2 recoding groups
-  testthat::expect_true(all(!is.na(unlist(recoding_groups)))) # can't have NAs
-  testthat::expect_true(all(unlist(recoding_groups) %in% expected_levels$i)) # must correspond to original values
-  testthat::expect_false(any(duplicated(unlist(recoding_groups)))) # can't have any duplicates
-  
-  # build the recoding table
-  testthat::expect_true(length(recoding_groups)==length(recoded_levels)) # must have at least 2 recoding groups
-  recoded_levels <- bind_rows(mapply(recoded_levels, recoding_groups, FUN=function(value, ii) {
-    data.frame(i = ii, new_level=as.character(value), stringsAsFactors=FALSE)
-  }, SIMPLIFY=FALSE))
-  
-  level_table <- full_join(expected_levels, recoded_levels, by="i")
-  
-  # sanity checks
-  testthat::expect_true(all(!is.na(level_table$level)))
-  
-  # recode the data
-  if (recode_mode == "simple"){
-    if (nvar=="single"){
-      new_data <- level_table$new_level[match(original_data, level_table$level)]
-    }
-    if (nvar=="multiple"){
-      new_data <- level_table$new_level[match(original_data$merged, level_table$level)]
-    }
-  }
-  
-  if (recode_mode == "logical_arguments"){
-    # recode the data according to prioritised feature
-    for (i in 1:nrow(level_table)){
-      original_data[original_data$Language_ID %in% dplyr::filter(original_data,
-                                                                 eval(parse(text=level_table$level[i])))$Language_ID,"merged"]<-level_table$new_level[i]
-    }
-    # make "other" state become "?" if applicable
-    original_data[is.na(original_data)]<-"?"
-    new_data <- original_data$merged
-  }
-  return(new_data)
-}
-
-################## MAIN FUNCTION ##############################################
-
 make_GBI <- function(ValueTable = NULL,
                      verbose = TRUE,
                      recode_patterns_full = NULL, 
@@ -1262,4 +1009,256 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
   "codes_statisticalGBI" = statistical_codes  %>% as.data.frame(),
   "modificationsGBI" = modifications  %>% as.data.frame())
   output
+}
+
+#### helper functions ####
+
+# this function serves to condition a feature on another -- note that the currently implemented function works for up to 5 desired states in the %in% case
+.implement_conditioning <- function(feature_to_be_conditioned, condition, equator, recoded_data){
+  
+  # select conditioned upon feature
+  conditioned_upon_feature <- recoded_data[,c(1,which(names(recoded_data) %in% condition[1]))]
+  
+  # select Language_IDs for which condition applies and turn data into "?" where applicable
+  if (equator == " == "){ 
+    # if the condition in question is positive (" == "), we want to keep languages that have the desired state of conditioned_upon_feature OR which are "?" to both conditioned_upon_feature and feature_to_be_conditioned to not become NA
+    # select languages with desired state or "?" in conditioned_upon_feature
+    col_name <- names(conditioned_upon_feature)[2]
+    
+    condition_applies_strict <- conditioned_upon_feature %>%
+      dplyr::filter(.data[[col_name]] == condition[2]) %>%
+      dplyr::pull(Language_ID)
+    
+    condition_applies_q <- conditioned_upon_feature %>%
+      dplyr::filter(.data[[col_name]] == "?") %>%
+      dplyr::pull(Language_ID)
+    
+    # select languages in feature_to_be_conditioned to which condition applies (strict and q)
+    conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
+                                      .data[["Language_ID"]] %in% as.character(c(condition_applies_strict,condition_applies_q)))
+    
+    names(conditioned_data)[2] <- "conditioned_upon_feature"
+    
+    # the languages, which are "?" to conditioned_upon_feature but specified for feature_to_be_conditioned are recoded into "?"
+    conditioned_data$conditioned_upon_feature[conditioned_data$Language_ID %in% condition_applies_q] <- rep("?")
+    
+  } else if (equator == " != "){ ## this applies if the condition in question is negative (" != ")
+    # if the condition in question is negative (" != "), we want to keep all languages that do not have the specified state of conditioned_upon_feature
+    # select languages which do not have the specified state in conditioned_upon_feature
+    
+    col_name <- names(conditioned_upon_feature)[2]
+    condition_applies_strict <- conditioned_upon_feature %>%
+      dplyr::filter(.data[[col_name]] == condition[2]) %>%
+      dplyr::pull(Language_ID)
+    
+    condition_applies <- setdiff(conditioned_upon_feature$Language_ID, condition_applies_strict)
+    
+    # select languages in feature_to_be_conditioned to which condition applies
+    conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
+                                      .data[["Language_ID"]] %in% as.character(condition_applies))
+    
+  } else if (equator == " %in% "){ ## this applies if the condition in the question is multiple --> conservative (" %in% ")
+    
+    # if the condition in question is multiple (" %in% "), we want to keep languages that have any of the desired state of conditioned_upon_feature OR which are "?" to both conditioned_upon_feature and feature_to_be_conditioned to not become NA
+    desired_states <- unlist(strsplit(condition[2],", "))
+    nr_desired_states <- length(desired_states)
+    
+    # select languages with desired states or "?" in conditioned_upon_feature
+    
+    col_name <- names(conditioned_upon_feature)[2]
+    condition_applies_q <- conditioned_upon_feature %>%
+      dplyr::filter(.data[[col_name]] == "?") %>%
+      dplyr::pull(Language_ID)
+    
+    condition_applies_desired_states <- conditioned_upon_feature %>%
+      dplyr::filter(.data[[col_name]] ==desired_states[1]|
+                      .data[[col_name]] ==desired_states[2]  ) %>%
+      dplyr::pull(Language_ID)
+    
+    # if there are more than 2 desired states, add the third
+    if(nr_desired_states>2){
+      
+      col_name <- names(conditioned_upon_feature)[2]
+      condition_applies_desired_states_2 <- conditioned_upon_feature %>%
+        dplyr::filter(.data[[col_name]] ==desired_states[3] ) %>%
+        dplyr::pull(Language_ID)
+      
+      condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_2)
+    }
+    # if there are more than 3 desired states, add the fourth
+    if(nr_desired_states>3){
+      col_name <- names(conditioned_upon_feature)[2]
+      condition_applies_desired_states_3 <- conditioned_upon_feature %>%
+        dplyr::filter(.data[[col_name]] ==desired_states[4] ) %>%
+        dplyr::pull(Language_ID)
+      
+      condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_3)
+    }
+    # if there are more than 4 desired states, add the fifth
+    if(nr_desired_states>4){
+      
+      col_name <- names(conditioned_upon_feature)[2]
+      condition_applies_desired_states_4 <- conditioned_upon_feature %>%
+        dplyr::filter(.data[[col_name]] ==desired_states[5] ) %>%
+        dplyr::pull(Language_ID)
+      
+      condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_4)
+    }
+    
+    # select languages in feature_to_be_conditioned to which condition applies (strict and q)
+    conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
+                                      .data[["Language_ID"]] %in% as.character(c(condition_applies_q, condition_applies_desired_states)))
+    names(conditioned_data)[2] <- "conditioned_upon_feature"
+    
+    # the languages, which are "?" to conditioned_upon_feature but specified for feature_to_be_conditioned are recoded into "?"
+    conditioned_data$conditioned_upon_feature[conditioned_data$Language_ID %in% condition_applies_q] <- rep("?")
+    
+  } else if (equator == " ! %in%  "){ ## this applies if the condition in the question is multiple (but negative) --> liberal ("! %in% ")
+    # if the condition in question is negative multiple (" ! %in%  "), we want to keep all languages that do not have the specified states of conditioned_upon_feature
+    # select languages which do not have the specified state in conditioned_upon_feature
+    undesired_states <- unlist(strsplit(condition[2],", "))
+    nr_undesired_states <- length(undesired_states)
+    
+    
+    col_name <- names(conditioned_upon_feature)[2]
+    
+    condition_applies_undesired_states <-  conditioned_upon_feature %>%
+      dplyr::filter(.data[[col_name]] == undesired_states[1]|
+                      .data[[col_name]] == undesired_states[2] ) %>%
+      dplyr::pull(Language_ID)
+    
+    # if there are more than 2 undesired states, add the third
+    if(nr_undesired_states>2){
+      
+      col_name <- names(conditioned_upon_feature)[2]
+      
+      condition_applies_undesired_states_2 <-  conditioned_upon_feature %>%
+        dplyr::filter(.data[[col_name]] == undesired_states[3]) %>%
+        dplyr::pull(Language_ID)
+      
+      condition_applies_undesired_states <- c(condition_applies_undesired_states,      condition_applies_undesired_states_2)
+    }
+    # if there are more than 3 undesired states, add the fourth
+    if(nr_undesired_states>3){
+      
+      col_name <- names(conditioned_upon_feature)[2]
+      
+      condition_applies_undesired_states_3 <-  conditioned_upon_feature %>%
+        dplyr::filter(.data[[col_name]] == undesired_states[4]) %>%
+        dplyr::pull(Language_ID)
+      
+      condition_applies_undesired_states <- c(condition_applies_undesired_states,      condition_applies_undesired_states_3)
+    } 
+    
+    # if there are more than 4 undesired states, add the fifth
+    if(nr_undesired_states>4){
+      
+      col_name <- names(conditioned_upon_feature)[2]
+      
+      condition_applies_undesired_states_4 <-  conditioned_upon_feature %>%
+        dplyr::filter(.data[[col_name]] == undesired_states[5]) %>%
+        dplyr::pull(Language_ID)
+      
+      condition_applies_undesired_states <- c(condition_applies_undesired_states, condition_applies_undesired_states_4)
+    }
+    
+    condition_applies <- setdiff(conditioned_upon_feature$Language_ID,condition_applies_undesired_states)
+    # select languages in feature_to_be_conditioned to which condition applies
+    conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
+                                      .data[["Language_ID"]] %in% as.character(condition_applies))
+  }
+  
+  return(conditioned_data)
+}
+
+# this function serves to extract "condition" and "equator" from a condition statement for further use
+.extract_condition_and_equator <- function(condition_statement){
+  condition <- unlist(strsplit(condition_statement," == "))
+  equator <- " == "
+  # if condition has not been split, it is not positive; check whether it is negative
+  if (length(condition)==1){ 
+    condition <- unlist(strsplit(condition_statement," != "))
+    equator <- " != "
+  }
+  # if condition has not been split, it is not positive or negative, check whether it is positive multiple
+  if (length(condition)==1){
+    condition <- unlist(strsplit(condition_statement," %in% "))
+    equator <- " %in% "
+  }
+  # if condition has not been split, it is not positive or negative or positive mulitple, so it is negative multiple
+  if (length(condition)==1){
+    condition <- unlist(strsplit(condition_statement," ! %in%  "))
+    equator <- " ! %in%  "
+  } 
+  
+  return(list(condition,equator))
+}
+
+# this function serves to recode states from one or several original features into other states, as specified in modifications.csv
+.implement_recode <- function(original_data, expected_levels, recoding_groups, recoded_levels, nvar, recode_mode){
+  
+  # make a table of original values
+  expected_levels <- data.frame(i = as.integer(gsub("^([0-9])*([0-9])+.+$", "\\1\\2", expected_levels)),
+                                level = gsub("^[0-9]+\\.? +", "", expected_levels),
+                                stringsAsFactors=FALSE)
+  
+  # sanity checks
+  testthat::expect_true(all(!is.na(expected_levels$i)))
+  testthat::expect_true(all(!is.na(expected_levels$level)))
+  
+  # make sure that the expected values match the original values found (applies only to simple recode)
+  if (recode_mode=="simple"){
+    if(nvar=="single"){
+      testthat::expect_true(setequal(expected_levels$level, na.omit(original_data)), info=
+                              paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
+                                     "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
+    }
+    if(nvar=="multiple"){
+      testthat::expect_true(all(unique(na.omit(original_data$merged)) %in% expected_levels$level), info=
+                              paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
+                                     "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
+    }
+  }
+  
+  # parse the recoding pattern
+  recoding_groups <- strsplit(recoding_groups, "/") %>% lapply(as.integer)
+  
+  # sanity checks
+  testthat::expect_true(length(recoding_groups)>1) # must have at least 2 recoding groups
+  testthat::expect_true(all(!is.na(unlist(recoding_groups)))) # can't have NAs
+  testthat::expect_true(all(unlist(recoding_groups) %in% expected_levels$i)) # must correspond to original values
+  testthat::expect_false(any(duplicated(unlist(recoding_groups)))) # can't have any duplicates
+  
+  # build the recoding table
+  testthat::expect_true(length(recoding_groups)==length(recoded_levels)) # must have at least 2 recoding groups
+  recoded_levels <- bind_rows(mapply(recoded_levels, recoding_groups, FUN=function(value, ii) {
+    data.frame(i = ii, new_level=as.character(value), stringsAsFactors=FALSE)
+  }, SIMPLIFY=FALSE))
+  
+  level_table <- full_join(expected_levels, recoded_levels, by="i")
+  
+  # sanity checks
+  testthat::expect_true(all(!is.na(level_table$level)))
+  
+  # recode the data
+  if (recode_mode == "simple"){
+    if (nvar=="single"){
+      new_data <- level_table$new_level[match(original_data, level_table$level)]
+    }
+    if (nvar=="multiple"){
+      new_data <- level_table$new_level[match(original_data$merged, level_table$level)]
+    }
+  }
+  
+  if (recode_mode == "logical_arguments"){
+    # recode the data according to prioritised feature
+    for (i in 1:nrow(level_table)){
+      original_data[original_data$Language_ID %in% dplyr::filter(original_data,
+                                                                 eval(parse(text=level_table$level[i])))$Language_ID,"merged"]<-level_table$new_level[i]
+    }
+    # make "other" state become "?" if applicable
+    original_data[is.na(original_data)]<-"?"
+    new_data <- original_data$merged
+  }
+  return(new_data)
 }

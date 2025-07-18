@@ -13,7 +13,6 @@
 #' @note
 #'  treat_question_mark_as_missing is set to TRUE by default, that means that '?' values are turned into NA.
 #' @return data-frame of ValueTable without duplicates
-#' @export
 #'
 
 # ValueTable <- readr::read_csv("https://github.com/cldf-datasets/apics/raw/master/cldf/values.csv")
@@ -28,6 +27,7 @@
 # method = "singular_least_missing_data"
 # merge_dialects = FALSE
 
+#' @export
 reduce_ValueTable_to_unique_glottocodes <- function(
                               ValueTable = NULL,
                               LanguageTable = NULL,

@@ -41,17 +41,17 @@ varcov.spatial.3D(
 
 \item{func.inv}{algorithm used for the decomposition and inversion of the covariance matrix. Options are "chol" for Cholesky decomposition, "svd" for singular value decomposition and "eigen" for eigenvalues/eigenvectors decomposition. Defaults to "chol".}
 
+\item{scaled}{logical indicating whether the covariance matrix should be scaled. If TRUE the partial sill parameter σ^2 is set to 1. Defaults to FALSE.}
+
 \item{only.decomposition}{logical. If TRUE only the square root of the covariance matrix is returned. Defaults to FALSE.}
 
 \item{sqrt.inv}{if TRUE the square root of the inverse of  covariance matrix is returned. Defaults to FALSE.}
 
 \item{try.another.decomposition}{logical. If TRUE and the argument func.inv is one of "cholesky", "svd" or "solve", the matrix decomposition or inversion is tested and, if it fails, the argument func.inv is re-set to "eigen".}
 
+\item{only.inv.lower.diag}{logical. If TRUE only the lower triangle and the diagonal of the inverse of the covariance matrix are returned. Defaults to FALSE.}
+
 \item{\dots}{Only for internal usage.}
-
-\item{scaledlogical}{indicating whether the covariance matrix should be scaled. If TRUE the partial sill parameter σ^2 is set to 1. Defaults to FALSE.}
-
-\item{only.inv.lower.diaglogical.}{If TRUE only the lower triangle and the diagonal of the inverse of the covariance matrix are returned. Defaults to FALSE.}
 }
 \value{
 The result is always list of the same kind as geoR::varcov.spatial. The components will vary according to the input options. The possible components are:

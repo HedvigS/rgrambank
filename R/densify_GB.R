@@ -14,7 +14,6 @@
 #'@references Graff, A., Lischka, M., Zakharko, T., Furrer, R., & Bickel, B. (2024). densify: An R package to reduce empty cells in data frames of typological linguistic data. Journal of Open Source Software, 9(101), 7024.
 #' @author Original densify-functions: Anna Graff, Marc Lischka, Taras Zakharko, Reinhard Furrer and Balthasar Bickel. Wrapper function: Anna Graff and Hedvig Skirgård
 #' @export
-
 densify_GB <- function(Grambank_ValueTable = NA,
                        GBI = NA, 
                        Glottolog_ValueTable = NA, 

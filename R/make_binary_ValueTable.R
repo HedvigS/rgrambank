@@ -8,70 +8,6 @@
 #' @author Hedvig Skirgård and Simon Greenhill
 #' @return Data-frame (long ValueTable)
 #' @export
-
-
-
-
-.binary_parameters <- c(
-    "GB024a", "GB024b",
-    "GB025a", "GB025b",
-    "GB065a", "GB065b",
-    "GB130a","GB130b",
-    "GB193a","GB193b",
-    "GB203a", "GB203b")
-
-.multistate_parameters <- c(
-    "GB024",
-    "GB025",
-    "GB065",
-    "GB130",
-    "GB193",
-    "GB203")
-
-# functions for turning 4 of the multistate features into binarised version. These features don't have the 0 option.
-#GB024 multistate 1; Num-N; 2: N-Num; 3: both.
-#GB025 multistate 1: Dem-N; 2: N-Dem; 3: both.
-#GB065 multistate 1:Possessor-Possessed; 2:Possessed-Possessor; 3: both
-#GB130 multistate 1: SV; 2: VS; 3: both
-.binarise_GBXXX_to_GBXXXa_without_zero <- function(values) {
-    if ("0" %in% values) {
-        stop("Feature contains zero-values which are not permitted.")
-    }
-    dplyr::case_match(values, "1" ~ "1", "2" ~ "0", "3" ~ "1", "?" ~ "?",  NA ~ NA)
-}
-
-
-.binarise_GBXXX_to_GBXXXb_without_zero <- function(values) {
-    if ("0" %in% values) {
-        stop("Feature contains zero-values which are not permitted.")
-    }
-    dplyr::case_match(values, "1" ~ "0", "2" ~ "1", "3" ~ "1",  "?" ~ "?", NA ~ NA)
-}
-
-# functions for turning 2 of the multistate features into binarised version. These features have the 0 option.
-# we can just use this function for all multistate, since the other ones shouldn't legally have 0's in them at all. However, to be conservative I (Hedvig) separated them out so that if anything weird happens and somehow GB065 has a 0 value, the code breaks rather than does the wrong thing.
-
-#GB193 multistate 0: they cannot be used attributively, 1: ANM-N; 2: N-ANM; 3: both.
-#GB203 multistate 0: no UQ, 1: UQ-N; 2: N-UQ; 3: both.
-.binarise_GBXXX_to_GBXXXa_with_zero <- function(values) {
-    dplyr::case_match(values, "0"~"0", "1" ~ "1", "2" ~ "0", "3" ~ "1", "?" ~ "?",  NA ~ NA)
-}
-
-.binarise_GBXXX_to_GBXXXb_with_zero <- function(values) {
-    dplyr::case_match(values, "0"~"0", "1" ~ "0", "2" ~ "1", "3" ~ "1",  "?" ~ "?", NA ~ NA)
-}
-
-.gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
-    ValueTable %>% dplyr::filter(.data[["Parameter_ID"]] == oldvariable) %>%
-        dplyr::mutate(
-            ID = paste0(newvariable, "-", .data[["Language_ID"]]),
-            Parameter_ID=newvariable,
-            Value=func(.data[["Value"]])
-        ) %>%
-        dplyr::mutate(Code_ID = paste0(Parameter_ID, "-", Value)) %>%
-        rbind(ValueTable)
-}
-
 make_binary_ValueTable <- function(ValueTable = NULL,
                      keep_multistate = FALSE,
                      keep_raw_binary = TRUE,
@@ -127,4 +63,66 @@ make_binary_ValueTable <- function(ValueTable = NULL,
         }
     }
 ValueTable
+}
+
+#### helper functions ####
+
+.binary_parameters <- c(
+  "GB024a", "GB024b",
+  "GB025a", "GB025b",
+  "GB065a", "GB065b",
+  "GB130a","GB130b",
+  "GB193a","GB193b",
+  "GB203a", "GB203b")
+
+.multistate_parameters <- c(
+  "GB024",
+  "GB025",
+  "GB065",
+  "GB130",
+  "GB193",
+  "GB203")
+
+# functions for turning 4 of the multistate features into binarised version. These features don't have the 0 option.
+#GB024 multistate 1; Num-N; 2: N-Num; 3: both.
+#GB025 multistate 1: Dem-N; 2: N-Dem; 3: both.
+#GB065 multistate 1:Possessor-Possessed; 2:Possessed-Possessor; 3: both
+#GB130 multistate 1: SV; 2: VS; 3: both
+.binarise_GBXXX_to_GBXXXa_without_zero <- function(values) {
+  if ("0" %in% values) {
+    stop("Feature contains zero-values which are not permitted.")
+  }
+  dplyr::case_match(values, "1" ~ "1", "2" ~ "0", "3" ~ "1", "?" ~ "?",  NA ~ NA)
+}
+
+
+.binarise_GBXXX_to_GBXXXb_without_zero <- function(values) {
+  if ("0" %in% values) {
+    stop("Feature contains zero-values which are not permitted.")
+  }
+  dplyr::case_match(values, "1" ~ "0", "2" ~ "1", "3" ~ "1",  "?" ~ "?", NA ~ NA)
+}
+
+# functions for turning 2 of the multistate features into binarised version. These features have the 0 option.
+# we can just use this function for all multistate, since the other ones shouldn't legally have 0's in them at all. However, to be conservative I (Hedvig) separated them out so that if anything weird happens and somehow GB065 has a 0 value, the code breaks rather than does the wrong thing.
+
+#GB193 multistate 0: they cannot be used attributively, 1: ANM-N; 2: N-ANM; 3: both.
+#GB203 multistate 0: no UQ, 1: UQ-N; 2: N-UQ; 3: both.
+.binarise_GBXXX_to_GBXXXa_with_zero <- function(values) {
+  dplyr::case_match(values, "0"~"0", "1" ~ "1", "2" ~ "0", "3" ~ "1", "?" ~ "?",  NA ~ NA)
+}
+
+.binarise_GBXXX_to_GBXXXb_with_zero <- function(values) {
+  dplyr::case_match(values, "0"~"0", "1" ~ "0", "2" ~ "1", "3" ~ "1",  "?" ~ "?", NA ~ NA)
+}
+
+.gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
+  ValueTable %>% dplyr::filter(.data[["Parameter_ID"]] == oldvariable) %>%
+    dplyr::mutate(
+      ID = paste0(newvariable, "-", .data[["Language_ID"]]),
+      Parameter_ID=newvariable,
+      Value=func(.data[["Value"]])
+    ) %>%
+    dplyr::mutate(Code_ID = paste0(Parameter_ID, "-", Value)) %>%
+    rbind(ValueTable)
 }
