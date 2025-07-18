@@ -41,9 +41,9 @@ if(verbose == TRUE){
 ValueTable_cropped <- ValueTable %>%
     dplyr::filter(!is.na(Value)) %>%
     dplyr::group_by(Language_ID) %>%
-    dplyr::mutate(Parameters_filled_for_language = n()) %>%
+    dplyr::mutate(Parameters_filled_for_language = dplyr::n()) %>%
     dplyr::group_by(Parameter_ID) %>%
-    dplyr::mutate(Languages_filled_for_parameter = n()) %>%
+    dplyr::mutate(Languages_filled_for_parameter = dplyr::n()) %>%
     dplyr::filter(.data[["Languages_filled_for_parameter"]] >= n_lgs*cut_off_parameters) %>%
     dplyr::filter(.data[["Parameters_filled_for_language"]] >= n_feats*cut_off_languages)
 

@@ -36,7 +36,7 @@ theo_scores_table_excl_half <- theo_scores_table_excl_half  %>%
   dplyr::select(Language_ID, `Fusion (one only)` = Fusion)
 
 theo_scores_table %>% 
-  full_join(theo_scores_table_excl_half, by = "Language_ID") %>%
+  dplyr::full_join(theo_scores_table_excl_half, by = "Language_ID") %>%
   ggplot(mapping = aes(x =`Fusion (one only)`, y = `Fusion (one & half)`)) +
   geom_point( color = "#e3b839") +
   theme_classic() +

@@ -17,7 +17,7 @@ overview_duplicates <- GB_rcldf_obj$tables$ValueTable %>%
   left_join(GB_rcldf_obj$tables$LanguageTable, by = c("Language_ID" = "ID")) %>% 
   distinct(Language_ID, Language_level_ID) %>%
   group_by(Language_level_ID) %>% 
-  mutate(n = n()) %>% 
+  mutate(n = dplyr::n()) %>% 
   filter(n >1)
 
 cat("There are " , nrow(overview_duplicates), " duplicates of Language_leveL_ID in ValueTable.\n", sep = "")

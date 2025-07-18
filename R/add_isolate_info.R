@@ -28,7 +28,7 @@ add_isolate_info <- function(LanguageTable = NULL,
     
     LanguageTable <- LanguageTable %>% 
       dplyr::select(-dplyr::any_of(c("Family_ID", "level", "Level", "Language_level_ID", "Language_ID"))) %>% 
-      full_join(Glottolog_ValueTable_LanguageTable, by = "Glottocode")
+      dplyr::full_join(Glottolog_ValueTable_LanguageTable, by = "Glottocode")
     }
   
     if(mark_isolate_dialects_as_isolates == TRUE){

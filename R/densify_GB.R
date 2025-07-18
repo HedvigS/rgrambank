@@ -52,7 +52,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
     matrix <- .na_convert(matrix)
     nfam <- taxonomy_matrix  %>% 
       dplyr::filter(.data[["id"]] %in% matrix$Language_ID) %>% 
-      distinct(level1) %>% nrow()
+      dplyr::distinct(level1) %>% nrow()
     
     bare_matrix <- matrix %>% dplyr::select(-Language_ID)
     nlg <- nrow(bare_matrix)
@@ -68,7 +68,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
   glottolog_tree_adj_table_without_isolates <- Glottolog_ValueTable %>% 
     dplyr::select(Language_ID, Parameter_ID, Value) %>% 
     dplyr::filter(.data[["Parameter_ID"]] == "classification") %>% 
-    dplyr::mutate(parent_id = str_replace(.data[["Value"]], pattern = "^.*\\/", replacement = "")) %>% 
+    dplyr::mutate(parent_id = stringr::str_replace(.data[["Value"]], pattern = "^.*\\/", replacement = "")) %>% 
     dplyr::select(Language_ID, parent_id)
   
   #isolates don't have a classification field at all, so we'll need to infer which are isolates by finding the ones without an entry in glottolog_tree_adj_table now and add them back in
@@ -216,7 +216,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
 
     Grambank_densified_with_question_mark <- Grambank_wide %>% 
       dplyr::filter(.data[["Language_ID"]] %in% Grambank_densified$Language_ID) %>% 
-      dplyr::select(Language_ID, all_of(colnames(Grambank_densified)))
+      dplyr::select(Language_ID, dplyr::all_of(colnames(Grambank_densified)))
   
   
   if(verbose == T){

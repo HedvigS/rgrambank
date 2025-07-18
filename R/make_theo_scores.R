@@ -107,7 +107,7 @@ if(!"GB203b" %in% ParameterTable$ID){
         dplyr::filter(.data[["n"]] >= n_fusion_feats * missing_cut_off) %>% 
         dplyr::mutate(Value_weighted = ifelse(.data[["Fusion"]] == 0.5 & .data[["Value"]] == 1, 
                                               yes = 0.5, no = .data[["Value"]])) %>%  # replacing all instances of 1 for a feature that is weighted to 0.5 bound morph points to 0.5 
-        dplyr::mutate(value_weighted = if_else(.data[["Fusion"]] == 0, 
+        dplyr::mutate(value_weighted = dplyr::if_else(.data[["Fusion"]] == 0, 
                                                yes = abs(.data[["value"]]-1), 
                                                no = .data[["value_weighted"]])) # reversing the values of the features that refer to free-standing markers 
     }

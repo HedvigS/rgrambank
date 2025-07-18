@@ -69,7 +69,7 @@ to_keep <- tree$tip.label %>%
     dplyr::rename(taxon = ".") %>%
     dplyr::left_join(TaxonTable, by = "taxon") %>% 
     dplyr::group_by(Glottocode) %>%
-    dplyr::mutate(n = n()) %>% 
+    dplyr::mutate(n = dplyr::n()) %>% 
     dplyr::slice_sample(n = 1)
 
 tree <- ape::keep.tip(tree, tip = to_keep$taxon)

@@ -144,7 +144,7 @@ if(merge_dialects == FALSE){
             dplyr::left_join(LanguageTable, by = "Language_ID") %>%
             dplyr::group_by(.data[["Language_ID"]]) %>%
             dplyr::mutate(n = dplyr::n()) %>%
-            dplyr::arrange(desc(n)) %>%
+            dplyr::arrange(dplyr::desc(n)) %>%
             dplyr::ungroup() %>%
             dplyr::distinct(Glottocode, .keep_all = T) %>%
             dplyr::distinct(Language_ID)

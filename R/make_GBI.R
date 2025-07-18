@@ -188,7 +188,7 @@ make_GBI <- function(ValueTable = NULL,
                                    .data[["recode.operation.type"]] != "recode group 1 (simple recode)")
   
   # recode all features that require simple recoding
-  first_set_rec <- rowwise(first_set) %>% do({
+  first_set_rec <- dplyr::rowwise(first_set) %>% dplyr::do({
   
          if(verbose == TRUE){ cat("First set, processing ", .$new.name, "\n", sep="")
          }
@@ -226,7 +226,7 @@ make_GBI <- function(ValueTable = NULL,
   recode_patterns <- dplyr::filter(recode_patterns, .data[["recode.operation.type"]]!="recode group 2 (merge features - recode via logical arguments)")
   
   # merge and recode features via logical arguments
-  second_set_rec <- rowwise(second_set) %>% do({
+  second_set_rec <- dplyr::rowwise(second_set) %>% dplyr::do({
     if(verbose == TRUE){cat("Second set, processing ", .$new.name, "\n", sep="")}
     
     # check that the original features are present in the original feature matrix
@@ -267,7 +267,7 @@ make_GBI <- function(ValueTable = NULL,
   recode_patterns <- dplyr::filter(recode_patterns, .data[["recode.operation.type"]]!="recode group 3 (merge features - recode via logical arguments - simple conditioning)")
   
   # merge and recode via logical arguments if a condition applies
-  third_set_rec <- rowwise(third_set) %>% do({
+  third_set_rec <- dplyr::rowwise(third_set) %>% dplyr::do({
     #. <- third_set[1,]
     if(verbose == TRUE){cat("Third set, processing ", .$new.name, "\n", sep="")}
     
@@ -324,7 +324,7 @@ make_GBI <- function(ValueTable = NULL,
                                    .data[["recode.operation.type"]] !="recode group 4 (merge features - recode via logical arguments - multiple conditioning)")
   
   # merge and recode via logical arguments if a condition applies
-  fourth_set_rec <- rowwise(fourth_set) %>% do({
+  fourth_set_rec <- dplyr::rowwise(fourth_set) %>% dplyr::do({
     if(verbose == TRUE){ cat("Fourth, processing ", .$new.name, "\n", sep="")}
     
     # check that the original features are present in the original feature matrix
@@ -409,7 +409,7 @@ make_GBI <- function(ValueTable = NULL,
                                    .data[["recode.operation.type"]]!="recode group 5 (simple conditioning)")
   
   # condition feature on another feature
-  fifth_set_rec <- rowwise(fifth_set) %>% do({
+  fifth_set_rec <- dplyr::rowwise(fifth_set) %>% dplyr::do({
     if(verbose == TRUE){ cat("Fifth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
@@ -450,7 +450,7 @@ make_GBI <- function(ValueTable = NULL,
                                    .data[["recode.operation.type"]] !="recode group 6 (multiple conditioning)")
   
   # condition on several features
-  sixth_set_rec <- rowwise(sixth_set) %>% do({
+  sixth_set_rec <- dplyr::rowwise(sixth_set) %>% dplyr::do({
     if(verbose == TRUE){  cat("Sixth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
@@ -519,7 +519,7 @@ make_GBI <- function(ValueTable = NULL,
                                    .data[["recode.operation.type"]] !="recode group 7 (simple conditioning [conditioned feature])")
   
   # condition on conditioned feature
-  seventh_set_rec <- rowwise(seventh_set) %>% do({
+  seventh_set_rec <- dplyr::rowwise(seventh_set) %>% dplyr::do({
 
     if(verbose == TRUE){  cat("Seventh, processing ", .$new.name, "\n", sep="") }
     
@@ -560,7 +560,7 @@ make_GBI <- function(ValueTable = NULL,
                                    .data[["recode.operation.type"]] !="recode group 8 (multiple conditioning [conditioned feature])")
   
   # condition on several features
-  eighth_set_rec <- rowwise(eighth_set) %>% do({
+  eighth_set_rec <- dplyr::rowwise(eighth_set) %>% dplyr::do({
     if(verbose == TRUE){  cat("Eight, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
@@ -628,7 +628,7 @@ make_GBI <- function(ValueTable = NULL,
   recode_patterns <- dplyr::filter(recode_patterns, .data[["recode.operation.type"]]!="recode group 9 (merge features - recode via logical arguments - simple conditioning [conditioned feature])")
   
   # merge and recode via logical arguments if a condition applies
-  ninth_set_rec <- rowwise(ninth_set) %>% do({
+  ninth_set_rec <- dplyr::rowwise(ninth_set) %>% dplyr::do({
     if(verbose == TRUE){    cat("Ninth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original features are present in the original feature matrix
@@ -683,7 +683,7 @@ make_GBI <- function(ValueTable = NULL,
   recode_patterns <- dplyr::filter(recode_patterns, .data[["recode.operation.type"]]!="recode group 10 (merge features - recode via logical arguments - multiple conditioning [conditioned feature])")
   
   # merge and recode via logical arguments if a condition applies
-  tenth_set_rec <- rowwise(tenth_set) %>% do({
+  tenth_set_rec <- dplyr::rowwise(tenth_set) %>% dplyr::do({
     if(verbose == TRUE){    cat("Tenth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original features are present in the original feature matrix
@@ -1231,11 +1231,11 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
   
   # build the recoding table
   testthat::expect_true(length(recoding_groups)==length(recoded_levels)) # must have at least 2 recoding groups
-  recoded_levels <- bind_rows(mapply(recoded_levels, recoding_groups, FUN=function(value, ii) {
+  recoded_levels <- dplyr::bind_rows(mapply(recoded_levels, recoding_groups, FUN=function(value, ii) {
     data.frame(i = ii, new_level=as.character(value), stringsAsFactors=FALSE)
   }, SIMPLIFY=FALSE))
   
-  level_table <- full_join(expected_levels, recoded_levels, by="i")
+  level_table <- dplyr::full_join(expected_levels, recoded_levels, by="i")
   
   # sanity checks
   testthat::expect_true(all(!is.na(level_table$level)))
