@@ -24,9 +24,10 @@ if(turn_question_mark_into_NA == TRUE){
     ValueTable <- ValueTable %>%
         dplyr::filter(Value != "?")
 }
-if(verbose == TRUE){
-    n_lgs <- length(unique(ValueTable$Language_ID))
-    n_feats <- length(unique(ValueTable$Parameter_ID))
+  n_lgs <- length(unique(ValueTable$Language_ID))
+  n_feats <- length(unique(ValueTable$Parameter_ID))
+  
+  if(verbose == TRUE){
     theoretical_max_data_points <- n_lgs * n_feats
     n_data_points <- ValueTable %>% nrow()
 
@@ -50,10 +51,11 @@ ValueTable_cropped <- ValueTable %>%
     dplyr::filter(.data[["Languages_filled_for_parameter"]] >= n_lgs*cut_off_parameters) %>%
     dplyr::filter(.data[["Parameters_filled_for_language"]] >= n_feats*cut_off_languages)
 
+n_lgs_cropped <- length(unique(ValueTable_cropped$Language_ID))
+n_feats_cropped <- length(unique(ValueTable_cropped$Parameter_ID))
+
 if(verbose == TRUE){
 
-    n_lgs_cropped <- length(unique(ValueTable_cropped$Language_ID))
-    n_feats_cropped <- length(unique(ValueTable_cropped$Parameter_ID))
     theoretical_max_data_points_cropped <- n_lgs_cropped * n_feats_cropped
     n_data_points_cropped <- ValueTable_cropped %>% nrow()
 
