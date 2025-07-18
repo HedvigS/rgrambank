@@ -195,7 +195,7 @@ make_GBI <- function(ValueTable = NULL,
     
     # check that the original feature is present in the original feature matrix
     testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
-    original_data <- na.omit(as.character(original_feature_matrix[[.$`original.names`]]))
+    original_data <- stats::na.omit(as.character(original_feature_matrix[[.$`original.names`]]))
     
     # extract relevant attributes for recoding
     expected_states <- unlist(strsplit(unlist(.$original.states), ";"))
@@ -209,7 +209,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = na.omit(original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))])$Language_ID, 
+      Language_ID = stats::na.omit(original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))])$Language_ID, 
       value = new_data,  
       stringsAsFactors=FALSE)  
   })  %>% 
@@ -810,14 +810,14 @@ make_GBI <- function(ValueTable = NULL,
   testthat::expect_true(all(statistical_names_should %in% statistical_names_is))
   
   ### modification ID match --> ensure all modification IDs in the features sheet are in the modification sheet and vice versa
-  mod_IDs_is <- na.omit(unique(c(unlist(stringr::str_split(recode_patterns_full$modification.IDs,";")),(unlist(stringr::str_split(recode_patterns_full$associated.modification.IDs.without.resulting.action,";"))))))
+  mod_IDs_is <- stats::na.omit(unique(c(unlist(stringr::str_split(recode_patterns_full$modification.IDs,";")),(unlist(stringr::str_split(recode_patterns_full$associated.modification.IDs.without.resulting.action,";"))))))
   mod_IDs_is <- mod_IDs_is[mod_IDs_is!=""]
-  mod_IDs_should <- na.omit(all_decisions$modification.ID)
+  mod_IDs_should <- stats::na.omit(all_decisions$modification.ID)
   testthat::expect_true(all(mod_IDs_is %in% mod_IDs_should))
   testthat::expect_true(all(mod_IDs_should %in% mod_IDs_is))
   
   # specific modification ID match --> ensure that each modification ID in the features sheet is in the modification sheet, associated via the correct columns and features; and vice versa
-  ids <- na.omit(all_decisions$modification.ID)
+  ids <- stats::na.omit(all_decisions$modification.ID)
   for (id in ids){
     type <- dplyr::filter(all_decisions,modification.ID == id)$modification.type
     if (type == "statistical"){
@@ -826,7 +826,7 @@ make_GBI <- function(ValueTable = NULL,
         dplyr::select(c("feature.1.for.test","feature.2.for.test","resulting.added.features","resulting.removed.features")) %>% 
         as.character() %>% 
         unique()
-      should_all <- na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
+      should_all <- stats::na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
       is_all <- recode_patterns_full %>% dplyr::slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
       is_all <- is_all$new.name
       testthat::expect_true(all(is_all %in% should_all))
@@ -838,7 +838,7 @@ make_GBI <- function(ValueTable = NULL,
         dplyr::select(c("resulting.added.features","resulting.removed.features")) %>% 
         as.character() %>% 
         unique()
-      should_actedupon <- na.omit(unique(unlist(strsplit(should_actedupon[should_actedupon!="NA"],", "))))
+      should_actedupon <- stats::na.omit(unique(unlist(strsplit(should_actedupon[should_actedupon!="NA"],", "))))
       is_actedupon <- recode_patterns_full %>% dplyr::slice(which(grepl(id,recode_patterns_full$modification.IDs)))
       is_actedupon <- is_actedupon$new.name
       testthat::expect_true(all(is_actedupon %in% should_actedupon))
@@ -851,7 +851,7 @@ make_GBI <- function(ValueTable = NULL,
         as.character()  %>% 
         unique()
       
-      should_associated <- setdiff(na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
+      should_associated <- setdiff(stats::na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
       is_associated <- recode_patterns_full %>% 
         dplyr::slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
       is_associated <- is_associated$new.name
@@ -864,7 +864,7 @@ make_GBI <- function(ValueTable = NULL,
         dplyr::filter(.data[["modification.ID"]] == id) %>% 
         dplyr::select(c("relevant.features","resulting.added.features","resulting.removed.features")) %>% 
         as.character() %>% unique()
-      should_all <- na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
+      should_all <- stats::na.omit(unique(unlist(strsplit(should_all[should_all!="NA"],", "))))
       is_all <- recode_patterns_full %>% 
         dplyr::slice(c(which(grepl(id,recode_patterns_full$modification.IDs)),which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action))))
       is_all <- is_all$new.name
@@ -877,7 +877,7 @@ make_GBI <- function(ValueTable = NULL,
         dplyr::select(c("resulting.added.features","resulting.removed.features")) %>% 
         as.character() %>% 
         unique()
-      should_actedupon <- na.omit(unique(unlist(strsplit(should_actedupon[should_actedupon!="NA"],", "))))
+      should_actedupon <- stats::na.omit(unique(unlist(strsplit(should_actedupon[should_actedupon!="NA"],", "))))
       is_actedupon <- recode_patterns_full %>% 
         dplyr::slice(which(grepl(id,recode_patterns_full$modification.IDs)))
       is_actedupon <- is_actedupon$new.name
@@ -888,7 +888,7 @@ make_GBI <- function(ValueTable = NULL,
       should_associated <- all_decisions %>% 
         dplyr::filter( .data[["modification.ID"]] == id) %>% 
         dplyr::select("relevant.features") %>% as.character() %>% unique()
-      should_associated <- setdiff(na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
+      should_associated <- setdiff(stats::na.omit(unique(unlist(strsplit(should_associated[should_associated!="NA"],", ")))),is_actedupon)
       is_associated <- recode_patterns_full %>% dplyr::slice(which(grepl(id,recode_patterns_full$associated.modification.IDs.without.resulting.action)))
       is_associated <- is_associated$new.name
       testthat::expect_true(all(is_associated %in% should_associated))
@@ -913,7 +913,7 @@ make_GBI <- function(ValueTable = NULL,
     testthat::expect_true(all(should_associated %in% is_associated))
   }
   testthat::expect_true(all(rds$modification.ID %in% unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";"))))
-  testthat::expect_true(all(na.omit(unique(unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";")))) %in% rds$modification.ID))
+  testthat::expect_true(all(stats::na.omit(unique(unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";")))) %in% rds$modification.ID))
   
   
   ########## make, check and save cldf  ########## 
@@ -1209,12 +1209,12 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
   # make sure that the expected values match the original values found (applies only to simple recode)
   if (recode_mode=="simple"){
     if(nvar=="single"){
-      testthat::expect_true(setequal(expected_levels$level, na.omit(original_data)), info=
+      testthat::expect_true(setequal(expected_levels$level, stats::na.omit(original_data)), info=
                               paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
                                      "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
     }
     if(nvar=="multiple"){
-      testthat::expect_true(all(unique(na.omit(original_data$merged)) %in% expected_levels$level), info=
+      testthat::expect_true(all(unique(stats::na.omit(original_data$merged)) %in% expected_levels$level), info=
                               paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
                                      "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
     }

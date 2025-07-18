@@ -52,11 +52,11 @@ if(!"GB203b" %in% ParameterTable$ID){
         sum(ParameterTable$Fusion == 0.5, na.rm = T) 
     }
     
-    n_informativity_feats <- length(ParameterTable$Informativity %>% na.omit())
-    n_gender_NC_feats <- length(ParameterTable$Gender_or_Noun_Class %>% na.omit())
-    n_flexivity_feats <- length(ParameterTable$Flexivity %>% na.omit())
-    n_locus_marking_feats <- length(ParameterTable$Locus_of_Marking %>% na.omit())
-    n_word_order_feats <- length(ParameterTable$Word_Order %>% na.omit())
+    n_informativity_feats <- length(ParameterTable$Informativity %>% stats::na.omit())
+    n_gender_NC_feats <- length(ParameterTable$Gender_or_Noun_Class %>% stats::na.omit())
+    n_flexivity_feats <- length(ParameterTable$Flexivity %>% stats::na.omit())
+    n_locus_marking_feats <- length(ParameterTable$Locus_of_Marking %>% stats::na.omit())
+    n_word_order_feats <- length(ParameterTable$Word_Order %>% stats::na.omit())
     
     if(any(n_fusion_feats == 0, 
         n_informativity_feats == 0, 
