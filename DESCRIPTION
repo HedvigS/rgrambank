@@ -29,5 +29,5 @@ Suggests:
     densify
 RoxygenNote: 7.3.2
 Remotes:
-    annagraff/densify
-    SimonGreenhill/rcldf
+    github::annagraff/densify,
+    github::SimonGreenhill/rcldf
