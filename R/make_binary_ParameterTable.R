@@ -12,7 +12,9 @@
 make_binary_ParameterTable<- function(ParameterTable,
                                       keep_multi_state_features = TRUE,
                                       keep_raw_binary = FALSE){
-
+  
+  multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
+  
  
   binarised_feats <-  c(
     "GB024a", "GB024b",
@@ -89,7 +91,6 @@ make_binary_ParameterTable<- function(ParameterTable,
     ),
     Binary_Multistate = c("Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised"))
 
-multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
 
 ParameterTable_new <- ParameterTable %>%
     dplyr::full_join(.Parameter_binary, by = "ID") %>% 
