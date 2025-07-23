@@ -45,7 +45,7 @@ ValueTable_dialect_reduced <- rgrambank::reduce_ValueTable_to_unique_glottocodes
 
 #make Grambank ValueTable binary
 ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = ValueTable_dialect_reduced, 
-                                                       keep_multistate = F, keep_raw_binary = T)
+                                                       keep_multistate = F, keep_native_binary = T)
 
 #prep for imputation
 

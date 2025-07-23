@@ -11,7 +11,7 @@
 
 make_binary_ParameterTable<- function(ParameterTable,
                                       keep_multi_state_features = TRUE,
-                                      keep_raw_binary = FALSE){
+                                      keep_native_binary = FALSE){
   
   #ParameterTable <- parametertabke
   
@@ -25,7 +25,7 @@ make_binary_ParameterTable<- function(ParameterTable,
     "GB193a","GB193b",
     "GB203a", "GB203b")
   
-  if(keep_raw_binary == TRUE & all(  binarised_feats %in% ParameterTable$ID)){
+  if(keep_native_binary == TRUE & all(  binarised_feats %in% ParameterTable$ID)){
 
     ParameterTable_new <- ParameterTable
     

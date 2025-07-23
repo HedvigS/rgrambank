@@ -16,10 +16,10 @@ library(rgrambank)
   ValueTable <- GB_rcldf_obj_v1$tables$ValueTable
   ParameterTable <- GB_rcldf_obj_v1$tables$ParameterTable
 
-ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = ValueTable, keep_multistate = FALSE, keep_raw_binary = TRUE)
+ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = ValueTable, keep_multistate = FALSE, keep_native_binary = TRUE)
 ParameterTable_binary <- rgrambank::make_binary_ParameterTable(ParameterTable = ParameterTable,
                                                     keep_multi_state_features = FALSE,
-                                                    keep_raw_binary = TRUE)
+                                                    keep_native_binary = TRUE)
 
 ValueTable_binary_reduced <- rgrambank::reduce_ValueTable_to_unique_glottocodes(ValueTable = ValueTable_binary, LanguageTable = LanguageTable, merge_dialects = TRUE, method = "combine_random") %>% 
   dplyr::select(-Language_ID) %>% 
