@@ -15,7 +15,6 @@ make_binary_ParameterTable<- function(ParameterTable,
   
   multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
   
- 
   binarised_feats <-  c(
     "GB024a", "GB024b",
     "GB025a", "GB025b",
@@ -93,7 +92,7 @@ make_binary_ParameterTable<- function(ParameterTable,
 
 
 ParameterTable_new <- ParameterTable %>%
-    dplyr::full_join(.Parameter_binary, by = "ID") %>% 
+    dplyr::full_join(.Parameter_binary, by = "ID") %>%
     dplyr::mutate(ID = ifelse(!is.na(.data[["ID_binary"]]), yes = .data[["ID_binary"]], no = .data[["ID"]])) %>%
     dplyr::mutate(Name = ifelse(!is.na(.data[["Name_binary"]]), yes = .data[["Name_binary"]], no = .data[["Name"]])) %>%
     dplyr::mutate(Grambank_ID_desc = ifelse(!is.na(.data[["Grambank_ID_desc_binary"]]), 
@@ -107,7 +106,7 @@ ParameterTable_new <- ParameterTable %>%
                                                   yes = "Multi", 
                                                   no= .data[["Binary_Multistate"]])) %>%
     dplyr::mutate(Binary_Multistate = ifelse(is.na(.data[["Binary_Multistate"]]), 
-                                             yes = .data[["Binary"]], 
+                                             yes = "Binary", 
                                              no =.data[["Binary_Multistate"]]))
   }
 
