@@ -13,9 +13,11 @@ make_binary_ParameterTable<- function(ParameterTable,
                                       keep_multi_state_features = TRUE,
                                       keep_raw_binary = FALSE){
   
-  multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
   #ParameterTable <- parametertabke
-  binarised_feats <-  c(
+  
+  multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
+
+    binarised_feats <-  c(
     "GB024a", "GB024b",
     "GB025a", "GB025b",
     "GB065a", "GB065b",
@@ -115,8 +117,8 @@ ParameterTable_new <-     ParameterTable_new %>%
     dplyr::filter(!(.data[["ID"]] %in% multistate_features))
 }
   
-# there can be two binary rows for the same feature, GB024a. This removes that issue
-    if(keep_raw_binary == TRUE & any(duplicated(ParameterTable_new$ID))
+# there can be two binary rows for the same feature, e.g. GB024a. This removes that issue
+    if(any(duplicated(ParameterTable_new$ID))
      ){
     ParameterTable_new <- ParameterTable_new %>% 
       group_by(ID) %>%
