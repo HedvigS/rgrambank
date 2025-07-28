@@ -18,8 +18,12 @@ make_GBI <- function(ValueTable = NULL,
   
   ########## load and prepare data ########## 
   # read in original grambank data
-  original_feature_matrix <- reshape2::dcast(data = ValueTable, Language_ID ~ Parameter_ID, value.var = "Value")
-
+  original_feature_matrix <- ValueTable %>% 
+    tidyr::pivot_wider(
+      id_cols = Language_ID,
+      names_from = Parameter_ID,
+      values_from = Value
+    )
   # replace missing data by ? (--> because these data points are unknown, not "not applicable")
   original_feature_matrix[is.na(original_feature_matrix)] <- "?"
     
@@ -940,7 +944,12 @@ make_GBI <- function(ValueTable = NULL,
     dplyr::filter( .data[["design.logical.statistical"]] ==T)
   
   # values.csv
-  logical_long <- reshape2::melt(as.data.frame(logical_data), id.vars = "Language_ID", variable.name = "new.name")
+  logical_long <- tidyr::pivot_longer(
+    as.data.frame(logical_data),
+    cols = -Language_ID,
+    names_to = "new.name",
+    values_to = "value"
+  )
   logical_long$value_ID <- apply(logical_long,1,function(x) paste(x[2],x[1],sep="-"))
   logical_long$code_ID <- apply(logical_long,1,function(x) paste(x[2],x[3],sep="-"))
   logical_long <- logical_long %>% 
@@ -948,7 +957,12 @@ make_GBI <- function(ValueTable = NULL,
   logical_long$Language_ID <- as.character(logical_long$Language_ID)
   logical_long$new.name <- as.character(logical_long$new.name)
   
-  statistical_long <- reshape2::melt(as.data.frame(statistical_data), id.vars = "Language_ID", variable.name = "new.name")
+  statistical_long <- tidyr::pivot_longer(
+    as.data.frame(statistical_data),
+    cols = -Language_ID,
+    names_to = "new.name",
+    values_to = "value"
+  )
   statistical_long$value_ID <- apply(statistical_long,1,function(x) paste(x[2],x[1],sep="-"))
   statistical_long$code_ID <- apply(statistical_long,1,function(x) paste(x[2],x[3],sep="-"))
   statistical_long$Language_ID <- as.character(statistical_long$Language_ID)

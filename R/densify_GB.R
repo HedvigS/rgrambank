@@ -185,7 +185,11 @@ densify_GB <- function(Grambank_ValueTable = NA,
     Grambank_wide <- Grambank_ValueTable %>% 
       dplyr::mutate(Value = as.character(.data[["Value"]])) %>% 
       dplyr::mutate(Value = ifelse(is.na(.data[["Value"]]), "?", .data[["Value"]])) %>% 
-      reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value")
+      tidyr::pivot_wider(
+        id_cols = Language_ID,
+        names_from = Parameter_ID,
+        values_from = Value
+      )
     
     Grambank_ValueTable_for_pruning <- .na_convert(Grambank_wide, question_mark_to_na = T)
     

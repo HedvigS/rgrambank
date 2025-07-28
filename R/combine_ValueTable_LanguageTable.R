@@ -20,7 +20,11 @@ if( Is_Glottolog == TRUE){
   }
   
   ValueTable_wide <- ValueTable %>% 
-    reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value")
+    tidyr::pivot_wider(
+      id_cols = Language_ID,
+      names_from = Parameter_ID,
+      values_from = Value
+    )
   
 joined <- LanguageTable %>% 
     dplyr::rename("Language_ID" = "ID") %>% 
