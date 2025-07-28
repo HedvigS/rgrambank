@@ -13,7 +13,7 @@ match_to_rgb <- function(x = NULL,
                          cols = NULL){
 
   
-  if(first_three == FALSE & is.null(cols)){
+  if(first_three == FALSE && is.null(cols)){
     stop("first_three is set to FALSE but no columns were provided.")
     }
   
