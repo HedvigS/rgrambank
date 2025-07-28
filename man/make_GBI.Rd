@@ -8,11 +8,17 @@ make_GBI(
   ValueTable = NULL,
   verbose = TRUE,
   recode_patterns_full = NULL,
-  all_decisions = null
+  all_decisions = NULL
 )
 }
 \arguments{
 \item{ValueTable}{data-frame. Grambank ValueTable.}
+
+\item{verbose}{logical. If TRUE, function reports more information to console while running.}
+
+\item{recode_patterns_full}{data-frame of recoding patterns from Graff et al (2025). Can be found at https://github.com/HedvigS/rgrambank/raw/refs/heads/main/example_scripts/fixed/feature-recode-patterns.csv}
+
+\item{all_decisions}{data-frame ofata-frame of recoding decisions from Graff et al (2025). Can be found at   https://raw.githubusercontent.com/HedvigS/rgrambank/refs/heads/main/example_scripts/fixed/decisions-log.csv}
 }
 \description{
 make_GBI makes the  GBI-logical dataset as per Graff et al (accepted)

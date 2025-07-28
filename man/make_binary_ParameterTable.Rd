@@ -14,6 +14,8 @@ make_binary_ParameterTable(
 \item{ParameterTable}{data-frame, long format. ParameterTable from cldf.}
 
 \item{keep_multi_state_features}{logical. If TRUE, rows with the multistate version of the features remain, if FALSE only binary or binarised features remain in the ParameterTable.}
+
+\item{keep_native_binary}{logical vector. If ParameterTable already contains binary features, should these be kept? If so, the function just feeds back the same ParameterTable that it received. This is mainly useful for backwards compatability (applying scripts meant for Grambank version 1 to version 2).}
 }
 \value{
 data-frame of ParameterTable with added rows for binarised version of multi-state features

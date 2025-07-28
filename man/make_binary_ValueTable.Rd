@@ -16,7 +16,7 @@ make_binary_ValueTable(
 
 \item{keep_multistate}{logical vector. If FALSE,the multistate parent features of the binarised features are dropped, only binary and/or binarised features remain. If TRUE, they are kept alongside their binarised versions.}
 
-\item{keep_native_binary}{logical vector. If TRUE and if the value table already contains some binarised features, they are kept. If false, they are overriden and replaced by values derived from the multi-state features. Note that native binary coding and binarised coding principally differs in terms of ? and 0 coding. See note.}
+\item{keep_native_binary}{logical vector. If TRUE and if the ValueTable already contains some binarised features, they are kept. If false, they are overriden and replaced by values derived from the multi-state features. Note that native binary coding and binarised coding principally differs in terms of ? and 0 coding. See note.}
 
 \item{trim_to_only_native_binary}{logical vector. If TRUE, multi-state features are dropped and not binarised.}
 }

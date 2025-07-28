@@ -35,6 +35,8 @@ densify_GB(
 
 \item{random_seed}{Integer}
 
+\item{limits}{list which defines lower bounds to aim for when pruning. Defaults to list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA).}
+
 \item{scoring_function}{character vector, either "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3" or "n_data_points * coding_density". Other scoring_functions are currently not supported by wrapper function due to evaluation issues.}
 }
 \description{
