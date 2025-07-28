@@ -235,7 +235,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
 
     
     }
-  output <- list(Grambank_densified_with_question_mark = Grambank_densified_with_question_mark)
+  output <- list(Grambank_ValueTable_densified = Grambank_densified_with_question_mark)
   }
 
     return(output)  

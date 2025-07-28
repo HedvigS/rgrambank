@@ -7,10 +7,13 @@
 
 make_binary_ParameterTable<- function(ParameterTable,
                                       keep_multi_state_features = TRUE,
-                                      keep_raw_binary = FALSE){
+                                      keep_native_binary = FALSE){
+  
+  #ParameterTable <- parametertabke
+  
+  multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
 
- 
-  binarised_feats <-  c(
+    binarised_feats <-  c(
     "GB024a", "GB024b",
     "GB025a", "GB025b",
     "GB065a", "GB065b",
@@ -18,7 +21,7 @@ make_binary_ParameterTable<- function(ParameterTable,
     "GB193a","GB193b",
     "GB203a", "GB203b")
   
-  if(keep_raw_binary == TRUE & all(  binarised_feats %in% ParameterTable$ID)){
+  if(keep_native_binary == TRUE & all(  binarised_feats %in% ParameterTable$ID)){
 
     ParameterTable_new <- ParameterTable
     
@@ -85,10 +88,9 @@ make_binary_ParameterTable<- function(ParameterTable,
     ),
     Binary_Multistate = c("Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised"))
 
-multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
 
 ParameterTable_new <- ParameterTable %>%
-    dplyr::full_join(.Parameter_binary, by = "ID") %>% 
+    dplyr::full_join(.Parameter_binary, by = "ID") %>%
     dplyr::mutate(ID = ifelse(!is.na(.data[["ID_binary"]]), yes = .data[["ID_binary"]], no = .data[["ID"]])) %>%
     dplyr::mutate(Name = ifelse(!is.na(.data[["Name_binary"]]), yes = .data[["Name_binary"]], no = .data[["Name"]])) %>%
     dplyr::mutate(Grambank_ID_desc = ifelse(!is.na(.data[["Grambank_ID_desc_binary"]]), 
@@ -102,7 +104,7 @@ ParameterTable_new <- ParameterTable %>%
                                                   yes = "Multi", 
                                                   no= .data[["Binary_Multistate"]])) %>%
     dplyr::mutate(Binary_Multistate = ifelse(is.na(.data[["Binary_Multistate"]]), 
-                                             yes = .data[["Binary"]], 
+                                             yes = "Binary", 
                                              no =.data[["Binary_Multistate"]]))
   }
 
@@ -110,6 +112,16 @@ if(keep_multi_state_features == FALSE){
 ParameterTable_new <-     ParameterTable_new %>%
     dplyr::filter(!(.data[["ID"]] %in% multistate_features))
 }
-
+  
+# there can be two binary rows for the same feature, e.g. GB024a. This removes that issue
+    if(any(duplicated(ParameterTable_new$ID))
+     ){
+    ParameterTable_new <- ParameterTable_new %>% 
+      group_by(ID) %>%
+      filter(!(n() > 1 & Binary_Multistate == "Binarised")) %>%
+      ungroup()
+    
+  }
+  
 ParameterTable_new
 }
