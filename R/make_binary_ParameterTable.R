@@ -21,7 +21,7 @@ make_binary_ParameterTable<- function(ParameterTable,
     "GB193a","GB193b",
     "GB203a", "GB203b")
   
-  if(keep_native_binary == TRUE & all(  binarised_feats %in% ParameterTable$ID)){
+  if(keep_native_binary == TRUE && all(  binarised_feats %in% ParameterTable$ID)){
 
     ParameterTable_new <- ParameterTable
     
@@ -117,8 +117,8 @@ ParameterTable_new <-     ParameterTable_new %>%
     if(any(duplicated(ParameterTable_new$ID))
      ){
     ParameterTable_new <- ParameterTable_new %>% 
-      group_by(ID) %>%
-      filter(!(n() > 1 & Binary_Multistate == "Binarised")) %>%
+      group_by(.data[["ID"]]) %>%
+      filter(!(n() > 1 & .data[["Binary_Multistate"]] == "Binarised")) %>%
       ungroup()
     
   }
