@@ -95,7 +95,7 @@ if(multiple_values_per_parameter > 1){
 
 if(treat_question_mark_as_missing == TRUE){
   ValueTable <- ValueTable %>% 
-    dplyr::mutate(Value = ifelse(.data[["Value"]] == "?", NA, Value))
+    dplyr::mutate(Value = ifelse(.data[["Value"]] == "?", NA, .data[["Value"]]))
 }
 
 ## Check if LanguageTables are able to be used for merging dialects (if merge_dialects == TRUE) and set-up LanguageTable for use later.
@@ -103,7 +103,7 @@ if(merge_dialects == TRUE){
 
   if(!"Language_level_ID" %in% colnames(LanguageTable)){
     GlottologLanguageTable <- GlottologLanguageTable %>%
-      dplyr::distinct(Glottocode, Language_level_ID)
+      dplyr::distinct(dplyr::across(all_of(c("Glottocode", "Language_level_ID"))))
       
     LanguageTable <- LanguageTable %>% 
       dplyr::full_join(GlottologLanguageTable, by = "Glottocode")
@@ -124,14 +124,14 @@ if(replace_missing_language_level_ID == TRUE){
 # Still in the merge_dialect == TRUE if loop
     # Replacing the col glottocode with Language_level_ID merges dialects for the rest of the duplicate pruning
         LanguageTable <- LanguageTable %>%
-        dplyr::select(-Glottocode) %>% 
-        dplyr::select(Language_ID = ID, Glottocode = Language_level_ID)
+        dplyr::select(-"Glottocode") %>% 
+        dplyr::select("Language_ID" = "ID", "Glottocode" = "Language_level_ID")
 
 }
 
 if(merge_dialects == FALSE){
     LanguageTable <- LanguageTable %>%
-        dplyr::select(Language_ID = ID, Glottocode)
+        dplyr::select("Language_ID" = "ID", "Glottocode")
 
     }
 
@@ -146,8 +146,8 @@ if(merge_dialects == FALSE){
             dplyr::mutate(n = dplyr::n()) %>%
             dplyr::arrange(dplyr::desc(n)) %>%
             dplyr::ungroup() %>%
-            dplyr::distinct(Glottocode, .keep_all = T) %>%
-            dplyr::distinct(Language_ID)
+            dplyr::distinct(dplyr::across(all_of(c("Glottocode"))), .keep_all = T) %>%
+            dplyr::distinct(dplyr::across(all_of(c("Language_ID"))))
 
         levelled_ValueTable <- ValueTable %>% 
           dplyr::inner_join(lgs, by = "Language_ID") %>% 
@@ -187,7 +187,7 @@ if(merge_dialects == FALSE){
             dplyr::group_by(.data[["Glottocode"]]) %>%
             dplyr::slice_sample(n = 1) %>%
         dplyr::ungroup() %>% 
-        dplyr::distinct(Language_ID, .keep_all = T) 
+        dplyr::distinct(dplyr::across(all_of(c("Language_ID"))), .keep_all = T) 
       
     levelled_ValueTable <- ValueTable %>% 
       dplyr::inner_join(lgs, by = "Language_ID") 
