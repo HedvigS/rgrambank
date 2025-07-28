@@ -21,9 +21,9 @@ if( Is_Glottolog == TRUE){
   
   ValueTable_wide <- ValueTable %>% 
     tidyr::pivot_wider(
-      id_cols = Language_ID,
-      names_from = Parameter_ID,
-      values_from = Value
+      id_cols = "Language_ID",
+      names_from = "Parameter_ID",
+      values_from = "Value"
     )
   
 joined <- LanguageTable %>% 

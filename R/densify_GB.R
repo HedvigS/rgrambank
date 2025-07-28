@@ -8,6 +8,7 @@
 #' @param density_mean  parameter for densify::densify(). Defaults to log_odds
 #' @param density_mean_weights parameter for densify::densify() (defaults to list(coding = 0.999, taxonomy = 1))
 #' @param scoring_function character vector, either "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3" or "n_data_points * coding_density". Other scoring_functions are currently not supported by wrapper function due to evaluation issues.
+#' @param limits list which defines lower bounds to aim for when pruning. Defaults to list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA).
 #' @param random_seed  Integer
 #' @note This is a Wrapper function for densify::densify and densify::prune tailored to Grambank data specifically, based on annagrawf/crossling-curated/blob/main/scripts/GBI/densify-datasets.R. The function requires the package densify, which can be installed like this: remotes::install_github("annagraff/densify"). The authors of the original densify package are: Anna Graff, Marc, Lischka, Taras Zakharko, Reinhard Furrer and Balthasar Bickel.
 #'@references Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence. Scientific Data 12:106 https://doi.org/10.1038/s41597-024-04319-4
@@ -187,9 +188,9 @@ densify_GB <- function(Grambank_ValueTable = NA,
       dplyr::mutate(Value = as.character(.data[["Value"]])) %>% 
       dplyr::mutate(Value = ifelse(is.na(.data[["Value"]]), "?", .data[["Value"]])) %>% 
       tidyr::pivot_wider(
-        id_cols = Language_ID,
-        names_from = Parameter_ID,
-        values_from = Value
+        id_cols = "Language_ID",
+        names_from ="Parameter_ID",
+        values_from = "Value"
       )
     
     Grambank_ValueTable_for_pruning <- .na_convert(Grambank_wide, question_mark_to_na = T)
