@@ -3,7 +3,6 @@
 #' @param ValueTable Data-frame of the CLDF-type VaueTable, i.e. a long data-table with at least columns "Parameter_ID", "Value" and "Language_ID". This ValueTable can be the product of make_binary_ValueTable() and/or reduce_ValueTable_to_unique_glottocodes.
 #' @param cut_off_parameters Integer between 0 and 1 representing the cut-off for missing data for features. 0.75 means that features that are filled out for less than 75\% of the possible languages are dropped from the result.
 #' @param cut_off_languages Integer between 0 and 1 representing the cut-off for missing data for languages. 0.75 means that features that are filled out for less than 75\% of the possible features are dropped from the result.
-#' @param turn_question_mark_into_NA Logical. If TRUE Value cells consisting of "?" are treated the same as missing data.
 #' @param verbose  Logical. If TRUE, the function reports on the number of languages, features and percentage of missing data before and after cropping.
 #' @return A data-frame of the long ValueTable type where features and languages that don't meet the cut-off for missing data are removed.
 #' @note
@@ -14,15 +13,16 @@
 crop_missing_data <- function(ValueTable,
                               cut_off_parameters = 0.75,
                               cut_off_languages = 0.75,
-                              turn_question_mark_into_NA = TRUE,
+                              ParameterTable,
                               verbose = TRUE){
 
-if(turn_question_mark_into_NA == TRUE){
+  #removing datapoints that are ? or NA
     ValueTable <- ValueTable %>%
-        dplyr::filter(.data[["Value"]] != "?")
-}
+        dplyr::filter(.data[["Value"]] != "?") %>% 
+        dplyr::filter(!is.na(.data[["Value"]]))
+    
   n_lgs <- length(unique(ValueTable$Language_ID))
-  n_feats <- length(unique(ValueTable$Parameter_ID))
+  n_feats <- length(unique(ParameterTable$ID))
   
   if(verbose == TRUE){
     theoretical_max_data_points <- n_lgs * n_feats
