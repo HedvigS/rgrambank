@@ -17,7 +17,7 @@ add_family_name_column <- function(LanguageTable = NULL,
         stop("LanguageTable needs to have all of these columns: Name, Glottocode and Family_ID.")
     }
 
-    if(!is.null(Glottolog_ValueTable_LanguageTable) &
+    if(!is.null(Glottolog_ValueTable_LanguageTable) &&
        !all(c("Family_ID", "Name", "Glottocode") %in% colnames(LanguageTable))){
         stop("Glottolog_ValueTable_LanguageTable needs to have all of these columns: Name, Glottocode and Family_ID.")
     }
@@ -26,7 +26,7 @@ add_family_name_column <- function(LanguageTable = NULL,
   
     if(!is.null(Glottolog_ValueTable_LanguageTable)){
         Glottolog_ValueTable_LanguageTable <- Glottolog_ValueTable_LanguageTable %>%
-            dplyr::select(Name, Glottocode)
+            dplyr::select("Name", "Glottocode")
         
         LanguageTable_large <- dplyr::full_join( LanguageTable,  Glottolog_ValueTable_LanguageTable, 
                                     by = c("Name", "Glottocode"))
@@ -37,11 +37,12 @@ add_family_name_column <- function(LanguageTable = NULL,
   
 Family_df <- LanguageTable %>% 
   dplyr::filter(!is.na(.data[["Family_ID"]])) %>% 
-  dplyr::distinct(Family_ID) %>% 
-  dplyr::rename(Glottocode = Family_ID) %>% 
-  dplyr::left_join(dplyr::select(LanguageTable_large, Glottocode, Name), 
+  dplyr::distinct(.data[["Family_ID"]]) %>% 
+  dplyr::rename("Glottocode" = "Family_ID") %>% 
+  dplyr::left_join(dplyr::select(LanguageTable_large, 
+                                 "Glottocode", "Name"), 
                    by = "Glottocode") %>% 
-  dplyr::rename(Family_name = Name, Family_ID = Glottocode) 
+  dplyr::rename("Family_name" = "Name", "Family_ID" = "Glottocode") 
 
 LanguageTable <- LanguageTable %>% 
   dplyr::left_join(Family_df,
@@ -49,12 +50,12 @@ LanguageTable <- LanguageTable %>%
   dplyr::filter(.data[["ID"]] %in% lgs_in_input)
   
 
-    if(NA %in% LanguageTable$Family_name & verbose == TRUE)(
+    if(NA %in% LanguageTable$Family_name && verbose == TRUE)(
 
         warning("There was no Family_name found for the following entries. It could be because they are isolates and Family_ID was empty.\n",
                 LanguageTable %>%
                     dplyr::filter(is.na(.data[["Family_name"]])) %>%
-                    dplyr::select(Name)
+                    dplyr::select("Name")
                 ))
 
     LanguageTable
