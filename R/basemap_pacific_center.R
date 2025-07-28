@@ -25,7 +25,7 @@ if(!all(DataTable$ID %in% LongLatTable$ID)){
 
   
   LongLatTable <- LongLatTable %>% 
-    dplyr::select(ID, Longitude, Latitude) %>% 
+    dplyr::select("ID", "Longitude", "Latitude") %>% 
     dplyr::mutate(Longitude = dplyr::if_else(.data[["Longitude"]] <= -25, 
                                       true = .data[["Longitude"]] + 360, 
                                       false = .data[["Longitude"]])) #shifting the longlat of the dataframe to match the pacific centered map
@@ -39,10 +39,10 @@ lakes <- ggplot2::map_data("lakes", wrap=c(-25,335), col="white", border="gray",
 
 #Basemap
 basemap <- ggplot2::ggplot(Table) +
-  ggplot2::geom_polygon(data=world, ggplot2::aes(x=long, y=lat, group=group),
+  ggplot2::geom_polygon(data=world, ggplot2::aes(x=.data[["long"]], y=.data[["lat"]], group=.data[["group"]]),
                colour="gray87",
                fill="gray87", linewidth = 0.5) +
-  ggplot2::geom_polygon(data=lakes, ggplot2::aes(x=long, y=lat, group=group),
+  ggplot2::geom_polygon(data=lakes, ggplot2::aes(x=.data[["long"]], y=.data[["lat"]], group=.data[["group"]]),
                colour="gray87",
                fill="white", linewidth = 0.3) +
   ggplot2::theme(
