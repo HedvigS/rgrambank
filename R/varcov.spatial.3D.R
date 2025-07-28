@@ -176,11 +176,11 @@ varcov.spatial.3D <-
             if (func.inv == "eigen") {
                 varcov.eig <- try(eigen(varcov, symmetric = TRUE), silent=TRUE)
                 cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), silent=TRUE)
-                if (inherits(cov.logdeth, "try.error") || inherits(varcov.eig, "try-error")) {
+                if (inherits(cov.logdeth, "try-error") || inherits(varcov.eig, "try-error")) {
                     diag(varcov) <- 1.0001 * diag(varcov)
                     varcov.eig <- try(eigen(varcov, symmetric = TRUE), silent=TRUE)
                     cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), silent=TRUE)
-                    if (inherits(cov.logdeth, "try.error") || inherits(varcov.eig, "try-error")) {
+                    if (inherits(cov.logdeth, "try-error") || inherits(varcov.eig, "try-error")) {
                         return(list(crash.parms = c(tausq=tausq, sigmasq=sigmasq, phi=phi, kappa=kappa)))
                     }
                 }
