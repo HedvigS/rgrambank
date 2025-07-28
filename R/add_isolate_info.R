@@ -15,7 +15,7 @@ add_isolate_info <- function(LanguageTable = NULL,
                              set_isolates_Family_ID_as_themselves = TRUE
         ){
   
-  if(!all(c("Is_Isolate", "Level", "Family_ID")   %in% colnames(LanguageTable)) &
+  if(!all(c("Is_Isolate", "Level", "Family_ID")   %in% colnames(LanguageTable)) &&
      is.null(Glottolog_ValueTable_LanguageTable)){
     stop("LanguageTable lacks necessary columns and Glottolog_ValueTable_LanguageTable is not defined.")
         }
@@ -24,7 +24,7 @@ add_isolate_info <- function(LanguageTable = NULL,
 
    if(!is.null(Glottolog_ValueTable_LanguageTable)){
     Glottolog_ValueTable_LanguageTable <- Glottolog_ValueTable_LanguageTable %>% 
-      dplyr::select(Family_ID, Level, Glottocode, Language_level_ID, Is_Isolate)
+      dplyr::select("Family_ID", "Level", "Glottocode", "Language_level_ID", "Is_Isolate")
     
     LanguageTable <- LanguageTable %>% 
       dplyr::select(-dplyr::any_of(c("Family_ID", "level", "Level", "Language_level_ID", "Language_ID"))) %>% 
