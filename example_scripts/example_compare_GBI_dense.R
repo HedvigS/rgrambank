@@ -1,4 +1,4 @@
-#remotes::install_github("Hedvigs/rgrambank")
+remotes::install_github("Hedvigs/rgrambank",   ref = "ipac")
 library(rgrambank)
 library(tidyverse)
 library(reshape2)
@@ -26,7 +26,7 @@ Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(Value
 
 
 Grambank_ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = Grambank_ValueTable, 
-                                                                keep_multistate = F, keep_binary_binary = T) %>% 
+                                                                keep_multistate = F, keep_native_binary = T) %>% 
   dplyr::filter(Value != "?") %>% 
   dplyr::filter(Value != "NA") %>% 
   dplyr::filter(!is.na(Value))
