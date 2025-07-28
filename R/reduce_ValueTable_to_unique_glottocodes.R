@@ -103,7 +103,7 @@ if(merge_dialects == TRUE){
 
   if(!"Language_level_ID" %in% colnames(LanguageTable)){
     GlottologLanguageTable <- GlottologLanguageTable %>%
-      dplyr::distinct(dplyr::across(all_of(c("Glottocode", "Language_level_ID"))))
+      dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode", "Language_level_ID"))))
       
     LanguageTable <- LanguageTable %>% 
       dplyr::full_join(GlottologLanguageTable, by = "Glottocode")
@@ -144,10 +144,10 @@ if(merge_dialects == FALSE){
             dplyr::left_join(LanguageTable, by = "Language_ID") %>%
             dplyr::group_by(.data[["Language_ID"]]) %>%
             dplyr::mutate(n = dplyr::n()) %>%
-            dplyr::arrange(dplyr::desc(n)) %>%
+            dplyr::arrange(dplyr::desc(.data[["n"]])) %>%
             dplyr::ungroup() %>%
-            dplyr::distinct(dplyr::across(all_of(c("Glottocode"))), .keep_all = T) %>%
-            dplyr::distinct(dplyr::across(all_of(c("Language_ID"))))
+            dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode"))), .keep_all = T) %>%
+            dplyr::distinct(dplyr::across(dplyr::all_of(c("Language_ID"))))
 
         levelled_ValueTable <- ValueTable %>% 
           dplyr::inner_join(lgs, by = "Language_ID") %>% 
@@ -177,7 +177,7 @@ if(merge_dialects == FALSE){
         levelled_ValueTable <- ValueTable_grouped %>% 
             dplyr::filter(.data[["n"]] == 1) %>%
           suppressMessages( dplyr::full_join(ValueTable_long_n_greater_than_1)) %>%
-            dplyr::select(-n) 
+            dplyr::select(-"n") 
 
     # MERGE BY PICKING DIALECTS WHOLLY AT RANDOM
     } 
@@ -187,7 +187,7 @@ if(merge_dialects == FALSE){
             dplyr::group_by(.data[["Glottocode"]]) %>%
             dplyr::slice_sample(n = 1) %>%
         dplyr::ungroup() %>% 
-        dplyr::distinct(dplyr::across(all_of(c("Language_ID"))), .keep_all = T) 
+        dplyr::distinct(dplyr::across(dplyr::all_of(c("Language_ID"))), .keep_all = T) 
       
     levelled_ValueTable <- ValueTable %>% 
       dplyr::inner_join(lgs, by = "Language_ID") 
