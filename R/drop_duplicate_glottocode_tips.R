@@ -45,8 +45,8 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
     }
     
       GlottologLanguageTable <- GlottologLanguageTable %>%
-      dplyr::distinct(.data[["Glottocode"]], .data[["Language_level_ID"]])
-    
+      dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode", "Language_level_ID")))) 
+
     TaxonTable <- TaxonTable %>% 
       dplyr::full_join(GlottologLanguageTable, by = "Glottocode") %>%         
       dplyr::mutate(Language_level_ID = ifelse(is.na(.data[["Language_level_ID"]]) | 
