@@ -45,7 +45,7 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
     }
     
       GlottologLanguageTable <- GlottologLanguageTable %>%
-      dplyr::distinct(Glottocode, Language_level_ID)
+      dplyr::distinct(.data[["Glottocode"]], .data[["Language_level_ID"]])
     
     TaxonTable <- TaxonTable %>% 
       dplyr::full_join(GlottologLanguageTable, by = "Glottocode") %>%         
@@ -58,8 +58,8 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
   # Still in the merge_dialect == TRUE if loop
   # Replacing the col glottocode with Language_level_ID merges dialects for the rest of the duplicate pruning
   TaxonTable <- TaxonTable %>%
-    dplyr::select(-Glottocode) %>% 
-    dplyr::select(taxon, Glottocode = Language_level_ID)
+    dplyr::select(-"Glottocode") %>% 
+    dplyr::select("taxon", "Glottocode" = "Language_level_ID")
   }
 
 
@@ -68,7 +68,7 @@ to_keep <- tree$tip.label %>%
               as.data.frame() %>%
     dplyr::rename(taxon = ".") %>%
     dplyr::left_join(TaxonTable, by = "taxon") %>% 
-    dplyr::group_by(Glottocode) %>%
+    dplyr::group_by(.data[["Glottocode"]]) %>%
     dplyr::mutate(n = dplyr::n()) %>% 
     dplyr::slice_sample(n = 1)
 
