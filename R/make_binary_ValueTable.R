@@ -126,6 +126,6 @@ ValueTable
       Parameter_ID=newvariable,
       Value=func(.data[["Value"]])
     ) %>%
-    dplyr::mutate(Code_ID = paste0(Parameter_ID, "-", Value)) %>%
+    dplyr::mutate(Code_ID = paste0(.data[["Parameter_ID"]], "-", .data[["Value"]])) %>%
     rbind(ValueTable)
 }
