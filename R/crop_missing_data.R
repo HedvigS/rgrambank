@@ -43,6 +43,7 @@ ValueTable_cropped <- ValueTable %>%
     dplyr::filter(!is.na(.data[["Value"]])) %>%
     dplyr::group_by(.data[["Language_ID"]]) %>%
     dplyr::mutate(Parameters_filled_for_language = dplyr::n()) %>%
+    dplyr::ungroup() %>% 
     dplyr::group_by(.data[["Parameter_ID"]]) %>%
     dplyr::mutate(Languages_filled_for_parameter = dplyr::n()) %>%
     dplyr::filter(.data[["Languages_filled_for_parameter"]] >= n_lgs*cut_off_parameters) %>%
