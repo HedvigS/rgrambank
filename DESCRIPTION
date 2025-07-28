@@ -18,7 +18,6 @@ Imports:
     ggplot2,
     grDevices,
     magrittr,
-    reshape2,
     rlang,
     stringr,
     testthat,
