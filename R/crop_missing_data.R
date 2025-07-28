@@ -19,7 +19,7 @@ crop_missing_data <- function(ValueTable,
 
 if(turn_question_mark_into_NA == TRUE){
     ValueTable <- ValueTable %>%
-        dplyr::filter(Value != "?")
+        dplyr::filter(.data[["Value"]] != "?")
 }
   n_lgs <- length(unique(ValueTable$Language_ID))
   n_feats <- length(unique(ValueTable$Parameter_ID))
@@ -40,10 +40,10 @@ if(turn_question_mark_into_NA == TRUE){
 }
 
 ValueTable_cropped <- ValueTable %>%
-    dplyr::filter(!is.na(Value)) %>%
-    dplyr::group_by(Language_ID) %>%
+    dplyr::filter(!is.na(.data[["Value"]])) %>%
+    dplyr::group_by(.data[["Language_ID"]]) %>%
     dplyr::mutate(Parameters_filled_for_language = dplyr::n()) %>%
-    dplyr::group_by(Parameter_ID) %>%
+    dplyr::group_by(.data[["Parameter_ID"]]) %>%
     dplyr::mutate(Languages_filled_for_parameter = dplyr::n()) %>%
     dplyr::filter(.data[["Languages_filled_for_parameter"]] >= n_lgs*cut_off_parameters) %>%
     dplyr::filter(.data[["Parameters_filled_for_language"]] >= n_feats*cut_off_languages)
