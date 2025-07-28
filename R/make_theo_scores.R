@@ -30,7 +30,7 @@ if(!"GB203b" %in% ParameterTable$ID){
 
     #read in sheet with scores for whether a feature denotes fusion
     ParameterTable <- ParameterTable %>%
-        dplyr::select(Parameter_ID = ID, Fusion = Boundness, Informativity, Locus_of_Marking, Word_Order, Gender_or_Noun_Class, Flexivity) %>%
+        dplyr::select("Parameter_ID" = "ID", "Fusion" = "Boundness", "Informativity", "Locus_of_Marking", "Word_Order", "Gender_or_Noun_Class", "Flexivity") %>%
         dplyr::mutate(Fusion = as.numeric(.data[["Fusion"]])) %>%
         dplyr::mutate(Gender_or_Noun_Class = as.numeric(.data[["Gender_or_Noun_Class"]])) %>%
         dplyr::mutate(Flexivity = as.numeric(.data[["Flexivity"]])) %>%
@@ -71,7 +71,7 @@ if(!"GB203b" %in% ParameterTable$ID){
     ValueTable <- ValueTable %>%
         dplyr::inner_join(ParameterTable , by = "Parameter_ID", relationship = "many-to-many") %>%
         dplyr::filter(!is.na(.data[["Value"]])) %>%
-        dplyr::filter(Value != "?") %>%
+        dplyr::filter(.data[["Value"]] != "?") %>%
         dplyr::mutate(Value = as.numeric(.data[["Value"]]))  #makes it possible to sum, mean etc
 
     #fusion counts
@@ -96,12 +96,12 @@ if(!"GB203b" %in% ParameterTable$ID){
           dplyr::group_by(.data[["Language_ID"]]) %>%
           dplyr::mutate(n = dplyr::n()) %>%
           dplyr::filter(.data[["n"]] >= n_fusion_feats * missing_cut_off) %>% 
-          dplyr::rename(Value_weighted = Value)
+          dplyr::rename("Value_weighted" = "Value")
         }
           
     if(Fusion_option == "count_zero_half_and_one") {
       Fusion_df <- ValueTable %>%
-        dplyr::filter(!is.na(Fusion)) %>%
+        dplyr::filter(!is.na(.data[["Fusion"]])) %>%
         dplyr::group_by(.data[["Language_ID"]]) %>%
         dplyr::mutate(n = dplyr::n()) %>%
         dplyr::filter(.data[["n"]] >= n_fusion_feats * missing_cut_off) %>% 
@@ -118,7 +118,7 @@ if(!"GB203b" %in% ParameterTable$ID){
 
     ##Flexivity scores
     lg_df_for_flex_count <- ValueTable  %>%
-        dplyr::filter(!is.na(Flexivity)) %>%
+        dplyr::filter(!is.na(.data[["Flexivity"]])) %>%
         dplyr::group_by(.data[["Language_ID"]]) %>%
         dplyr::mutate(n = dplyr::n()) %>%
         dplyr::filter(.data[["n"]] >= n_flexivity_feats * missing_cut_off) %>%
