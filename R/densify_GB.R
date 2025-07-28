@@ -27,11 +27,12 @@ densify_GB <- function(Grambank_ValueTable = NA,
 ){
   
   #reality checks
-  if(all(is.na(GBI), all(is.na(Grambank_ValueTable)))){
-    stop("Either Grambank_ValueTable or GBI have to be specified, neither.")}
-  
-  if(all(!is.na(GBI), any(!is.na(Grambank_ValueTable)))){
-    stop("Either Grambank_ValueTable or GBI have to be specified, not both")}
+  if(isTRUE(all(is.na(GBI))) && isTRUE(all(is.na(Grambank_ValueTable)))) {
+    stop("Either Grambank_ValueTable or GBI must be specified.")
+  }
+  if(!isTRUE(all(is.na(GBI))) && !isTRUE(all(is.na(Grambank_ValueTable)))) {
+    stop("Specify only one of Grambank_ValueTable or GBI, not both.")
+  }
   
   #setting up aux functions
   
