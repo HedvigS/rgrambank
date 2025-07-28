@@ -1,6 +1,7 @@
 #' Crops ValueTables for features and languages with a large amount of missing data.
 #'
-#' @param ValueTable Data-frame of the CLDF-type VaueTable, i.e. a long data-table with at least columns "Parameter_ID", "Value" and "Language_ID". This ValueTable can be the product of make_binary_ValueTable() and/or reduce_ValueTable_to_unique_glottocodes.
+#' @param ValueTable Data-frame of the CLDF-type ValueTable, i.e. a long data-table with at least columns "Parameter_ID", "Value" and "Language_ID". This ValueTable can be the product of make_binary_ValueTable() and/or reduce_ValueTable_to_unique_glottocodes.
+#' @param ParameterTable Data-frame of the CLDF-type ParameterTable from the same dataset as the ValueTable
 #' @param cut_off_parameters Integer between 0 and 1 representing the cut-off for missing data for features. 0.75 means that features that are filled out for less than 75\% of the possible languages are dropped from the result.
 #' @param cut_off_languages Integer between 0 and 1 representing the cut-off for missing data for languages. 0.75 means that features that are filled out for less than 75\% of the possible features are dropped from the result.
 #' @param verbose  Logical. If TRUE, the function reports on the number of languages, features and percentage of missing data before and after cropping.
