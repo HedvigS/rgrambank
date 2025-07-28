@@ -52,9 +52,9 @@ densify_GB <- function(Grambank_ValueTable = NA,
     matrix <- .na_convert(matrix)
     nfam <- taxonomy_matrix  %>% 
       dplyr::filter(.data[["id"]] %in% matrix$Language_ID) %>% 
-      dplyr::distinct(level1) %>% nrow()
+      dplyr::distinct(.data[["level1"]]) %>% nrow()
     
-    bare_matrix <- matrix %>% dplyr::select(-Language_ID)
+    bare_matrix <- matrix %>% dplyr::select(-"Language_ID")
     nlg <- nrow(bare_matrix)
     nvar <- ncol(bare_matrix)
     data_prop <- sum(!is.na(bare_matrix))/(nlg*nvar)
@@ -66,18 +66,18 @@ densify_GB <- function(Grambank_ValueTable = NA,
   
   #make taxonomy matrix out of Glottolog ValueTable in the way that densify expects.
   glottolog_tree_adj_table_without_isolates <- Glottolog_ValueTable %>% 
-    dplyr::select(Language_ID, Parameter_ID, Value) %>% 
+    dplyr::select("Language_ID", "Parameter_ID", "Value") %>% 
     dplyr::filter(.data[["Parameter_ID"]] == "classification") %>% 
     dplyr::mutate(parent_id = stringr::str_replace(.data[["Value"]], pattern = "^.*\\/", replacement = "")) %>% 
-    dplyr::select(Language_ID, parent_id)
+    dplyr::select("Language_ID", "parent_id")
   
   #isolates don't have a classification field at all, so we'll need to infer which are isolates by finding the ones without an entry in glottolog_tree_adj_table now and add them back in
   glottolog_tree_adj_table <- Glottolog_ValueTable %>% 
-    dplyr::distinct(`Language_ID`) %>%
+    dplyr::distinct(.data[["Language_ID"]]) %>%
     dplyr::anti_join(glottolog_tree_adj_table_without_isolates, by = "Language_ID") %>%
     dplyr::mutate(parent_id = as.character(NA)) %>% 
     dplyr::full_join(glottolog_tree_adj_table_without_isolates, by = c("Language_ID", "parent_id")) %>% 
-    dplyr::select(id = Language_ID, parent_id) 
+    dplyr::select("id" = "Language_ID", "parent_id") 
   
   taxonomy_matrix  <- densify::as_flat_taxonomy_matrix(x = glottolog_tree_adj_table)
   
@@ -124,26 +124,30 @@ densify_GB <- function(Grambank_ValueTable = NA,
     # we include taxonomic index since densification here explicitly seeks to increase taxonomic diversity
     
     if(scoring_function == "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3"){
+      scoring_expr <- expr(n_data_points * coding_density * row_coding_density_min * taxonomic_index^3)
+      
       logical_densified <- densify::prune(logical_log, 
-                                          scoring_function = n_data_points*coding_density*row_coding_density_min*taxonomic_index^3)
+                                          scoring_function = scoring_expr)
       
       statistical_densified <- densify::prune(statistical_log, 
-                                              scoring_function = n_data_points*coding_density*row_coding_density_min*taxonomic_index^3)
+                                              scoring_function = scoring_expr)
       
     }
     
     if(scoring_function == "n_data_points * coding_density"){
+      scoring_expr <- expr(n_data_points * coding_density)
+      
       logical_densified <- densify::prune(logical_log, 
-                                          scoring_function = n_data_points * coding_density)
+                                          scoring_function = scoring_expr)
       
       statistical_densified <- densify::prune(statistical_log, 
-                                              scoring_function = n_data_points * coding_density)
+                                              scoring_function = scoring_expr)
     }
     
     # retrieve corresponding data from input (to re-establish differences between ? and NA)
     logical_densified_with_question_mark <- logical %>% 
       dplyr::filter(.data[["Language_ID"]] %in% logical_densified$Language_ID) %>% 
-      dplyr::select(Language_ID, dplyr::all_of(colnames(logical_densified)))
+      dplyr::select("Language_ID", dplyr::all_of(colnames(logical_densified)))
     
     statistical_densified_with_question_mark <- statistical %>% 
       dplyr::filter(.data[["Language_ID"]] %in% statistical_densified$Language_ID) %>% 
