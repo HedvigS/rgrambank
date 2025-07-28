@@ -21,7 +21,7 @@ make_binary_ParameterTable<- function(ParameterTable,
     "GB193a","GB193b",
     "GB203a", "GB203b")
   
-  if(keep_native_binary == TRUE && all(  binarised_feats %in% ParameterTable$ID)){
+  if(keep_native_binary == TRUE && all(  binarised_feats %in% ParameterTable[["ID"]])){
 
     ParameterTable_new <- ParameterTable
     
@@ -114,7 +114,7 @@ ParameterTable_new <-     ParameterTable_new %>%
 }
   
 # there can be two binary rows for the same feature, e.g. GB024a. This removes that issue
-    if(any(duplicated(ParameterTable_new$ID))
+    if(any(duplicated(ParameterTable_new[["ID"]]))
      ){
     ParameterTable_new <- ParameterTable_new %>% 
       group_by(.data[["ID"]]) %>%
