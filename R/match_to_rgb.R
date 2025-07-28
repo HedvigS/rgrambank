@@ -14,7 +14,7 @@ match_to_rgb <- function(x = NULL,
 
   
   if(first_three == FALSE && is.null(cols)){
-    stop("first_three is set to FALSE but no columns were provided.")
+    stop("first_three is set to FALSE but no specific column names were provided.")
     }
   
   x <- x %>% 
@@ -25,7 +25,11 @@ match_to_rgb <- function(x = NULL,
   }
   
   if(first_three == TRUE){
-    cols = colnames(x[,1:3])
+    if(length(colnames(x) ) >= 3){
+        cols = colnames(x[,1:3])}else{
+          stop("There are not three columns in input data.")
+          
+        }
   }else{
     cols <- cols  
     }
