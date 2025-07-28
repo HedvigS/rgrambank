@@ -15,16 +15,41 @@ make_binary_ValueTable <- function(ValueTable = NULL,
                      keep_multistate = FALSE,
                      keep_native_binary = TRUE,
                      trim_to_only_native_binary = FALSE){
-    if (!inherits(ValueTable, "data.frame")) stop("'ValueTable' must be a dataframe.")
+  
+  
+    if (!inherits(ValueTable, "data.frame")){ 
+      stop("'ValueTable' must be a dataframe.")
+      }
+  
+  if(any(c("ID", "Language_ID", "Parameter_ID", "Value", "Code_ID") %in% colnames(ValueTable)) == FALSE){
+    stop("'ValueTable' must have the columns:'ID', 'Language_ID', 'Parameter_ID', 'Value' and 'Code_ID'.")
+  }
+  
 
-
-    if (trim_to_only_native_binary == TRUE) {
-        ValueTable <- ValueTable %>%
+  .binary_parameters <- c(
+    "GB024a", "GB024b",
+    "GB025a", "GB025b",
+    "GB065a", "GB065b",
+    "GB130a","GB130b",
+    "GB193a","GB193b",
+    "GB203a", "GB203b")
+  
+  .multistate_parameters <- c(
+    "GB024",
+    "GB025",
+    "GB065",
+    "GB130",
+    "GB193",
+    "GB203")
+    
+  if (trim_to_only_native_binary == TRUE) {
+      
+      if(!(any(ValueTable$Parameter_ID %in% .binary_parameters))){
+        stop("There is no native binary coding at all.")
+      }
+        
+    ValueTable <- ValueTable %>%
             dplyr::filter(!(.data[["Parameter_ID"]] %in% .multistate_parameters))
-
-        if(!(any(Parameter_ID %in% .binary_parameters))){
-            stop("There is no native binary coding at all.")
-        }
 
     } else {
 
@@ -53,7 +78,7 @@ make_binary_ValueTable <- function(ValueTable = NULL,
     if (keep_native_binary == TRUE) {
         ValueTable <- ValueTable %>%
             dplyr::anti_join(
-                dplyr::select(ValueTable_native_binary, Language_ID, Parameter_ID),
+                dplyr::select(ValueTable_native_binary, "Language_ID", "Parameter_ID"),
                      by = c("Language_ID", "Parameter_ID")) %>%
             dplyr::full_join(
                 ValueTable_native_binary,
@@ -68,23 +93,6 @@ make_binary_ValueTable <- function(ValueTable = NULL,
 ValueTable
 }
 
-#### helper functions ####
-
-.binary_parameters <- c(
-  "GB024a", "GB024b",
-  "GB025a", "GB025b",
-  "GB065a", "GB065b",
-  "GB130a","GB130b",
-  "GB193a","GB193b",
-  "GB203a", "GB203b")
-
-.multistate_parameters <- c(
-  "GB024",
-  "GB025",
-  "GB065",
-  "GB130",
-  "GB193",
-  "GB203")
 
 # functions for turning 4 of the multistate features into binarised version. These features don't have the 0 option.
 #GB024 multistate 1; Num-N; 2: N-Num; 3: both.
@@ -106,6 +114,8 @@ ValueTable
   dplyr::case_match(values, "1" ~ "0", "2" ~ "1", "3" ~ "1",  "?" ~ "?", NA ~ NA)
 }
 
+#### helper functions ####
+
 # functions for turning 2 of the multistate features into binarised version. These features have the 0 option.
 # we can just use this function for all multistate, since the other ones shouldn't legally have 0's in them at all. However, to be conservative I (Hedvig) separated them out so that if anything weird happens and somehow GB065 has a 0 value, the code breaks rather than does the wrong thing.
 
@@ -118,6 +128,9 @@ ValueTable
 .binarise_GBXXX_to_GBXXXb_with_zero <- function(values) {
   dplyr::case_match(values, "0"~"0", "1" ~ "0", "2" ~ "1", "3" ~ "1",  "?" ~ "?", NA ~ NA)
 }
+
+
+
 
 .gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
   ValueTable %>% dplyr::filter(.data[["Parameter_ID"]] == oldvariable) %>%
