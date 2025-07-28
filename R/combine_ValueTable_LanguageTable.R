@@ -16,14 +16,14 @@ combine_ValueTable_LanguageTable <- function(
   
 if( Is_Glottolog == TRUE){
   LanguageTable <- LanguageTable %>% 
-    dplyr::rename(Language_level_ID = Language_ID)
+    dplyr::rename("Language_level_ID" = "Language_ID")
   }
   
   ValueTable_wide <- ValueTable %>% 
     reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value")
   
 joined <- LanguageTable %>% 
-    dplyr::rename(Language_ID = ID) %>% 
+    dplyr::rename("Language_ID" = "ID") %>% 
     dplyr::full_join(ValueTable_wide, by = "Language_ID") 
     
 joined
