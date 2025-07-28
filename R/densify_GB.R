@@ -122,9 +122,10 @@ densify_GB <- function(Grambank_ValueTable = NA,
     # prune to optima
     # we include minimum row coding density, since NAs on language end should largely be random
     # we include taxonomic index since densification here explicitly seeks to increase taxonomic diversity
-    
-    if(scoring_function == "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3"){
-      scoring_expr <- expr(n_data_points * coding_density * row_coding_density_min * taxonomic_index^3)
+      
+    if(scoring_function == "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3" ||
+       scoring_function == "n_data_points * coding_density"){
+      scoring_expr <- rlang::parse_expr(scoring_function)
       
       logical_densified <- densify::prune(logical_log, 
                                           scoring_function = scoring_expr)
@@ -132,17 +133,12 @@ densify_GB <- function(Grambank_ValueTable = NA,
       statistical_densified <- densify::prune(statistical_log, 
                                               scoring_function = scoring_expr)
       
+    }else{
+      stop("Scoring function has to be either 'n_data_points*coding_density*row_coding_density_min*taxonomic_index^3' or 'n_data_points * coding_density'.")
     }
     
-    if(scoring_function == "n_data_points * coding_density"){
-      scoring_expr <- expr(n_data_points * coding_density)
-      
-      logical_densified <- densify::prune(logical_log, 
-                                          scoring_function = scoring_expr)
-      
-      statistical_densified <- densify::prune(statistical_log, 
-                                              scoring_function = scoring_expr)
-    }
+    
+    
     
     # retrieve corresponding data from input (to re-establish differences between ? and NA)
     logical_densified_with_question_mark <- logical %>% 
@@ -151,7 +147,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     statistical_densified_with_question_mark <- statistical %>% 
       dplyr::filter(.data[["Language_ID"]] %in% statistical_densified$Language_ID) %>% 
-      dplyr::select(Language_ID, dplyr::all_of(colnames(statistical_densified)))
+      dplyr::select("Language_ID", dplyr::all_of(colnames(statistical_densified)))
   
   
   if(verbose == T){
@@ -205,22 +201,18 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     
   
-    if(scoring_function == "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3"){
+    if(scoring_function == "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3" ||
+       scoring_function == "n_data_points * coding_density"){
+      scoring_expr <- rlang::parse_expr(scoring_function)
+      
       Grambank_densified <- densify::prune(Grambank_ValueTable_log, 
-                                          scoring_function = n_data_points*coding_density*row_coding_density_min*taxonomic_index^3)
+                                           scoring_function = scoring_expr)
       
     }
     
-    if(scoring_function == "n_data_points * coding_density"){
-      Grambank_densified <- densify::prune(Grambank_ValueTable_log, 
-                                          scoring_function = n_data_points * coding_density)
-      
-    }
-    
-
     Grambank_densified_with_question_mark <- Grambank_wide %>% 
       dplyr::filter(.data[["Language_ID"]] %in% Grambank_densified$Language_ID) %>% 
-      dplyr::select(Language_ID, dplyr::all_of(colnames(Grambank_densified)))
+      dplyr::select("Language_ID", dplyr::all_of(colnames(Grambank_densified)))
   
   
   if(verbose == T){
