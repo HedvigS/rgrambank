@@ -7,7 +7,7 @@
 make_binary_ParameterTable(
   ParameterTable,
   keep_multi_state_features = TRUE,
-  keep_raw_binary = FALSE
+  keep_native_binary = FALSE
 )
 }
 \arguments{
