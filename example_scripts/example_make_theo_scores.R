@@ -45,5 +45,5 @@ theo_scores_table %>%
   geom_smooth(method='lm', formula = 'y ~ x') 
   
   
-
+if(!dir.exists("output")){dir.create("output")}
 ggsave("output/Fusion_compare_options.png", width = 3, height = 3,  units = "in")

@@ -16,23 +16,20 @@ library(tidyverse)
 #devtools::install_github("SimonGreenhill/rcldf", dependencies = TRUE, ref = "v1.2.0")
 library(rcldf)
 
-#devtools::install_github("HedvigS/rgrambank", ref = "v1.0")
+#devtools::install_github("HedvigS/rgrambank", ref = "ipac")
 library(rgrambank)
 
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
-
-# fetching Grambank locally 
-#GB_rcldf_obj <- rcldf::cldf("../../grambank/grambank/cldf/StructureDataset-metadata.json", load_bib = F)
 
 # load_bib is set to FALSE because the bib-file is not necessary for these actions, and the package that rcldf dependes on for bibTeX parsin (bib2df) has some not-harmful but outdated code which generates warnings.
 
 #turning multistate features and their values in Grambank ValueTable to their binary versions
 GB_ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = GB_rcldf_obj$tables$ValueTable, 
                                                keep_multistate = FALSE, 
-                                               keep_binary_binary = TRUE,
-                                               trim_to_only_binary_binary = FALSE
+                                               trim_to_only_native_binary = FALSE
                                               )
+
 #Turning multistate features in the Grambank ParameterTable to their binary versions.
 #This is useful for example in order to have Feature names to use in plotting.
 GB_ParameterTable_binary <- rgrambank::make_binary_ParameterTable(ParameterTable = GB_rcldf_obj$tables$ParameterTable,
@@ -41,6 +38,6 @@ GB_ParameterTable_binary <- rgrambank::make_binary_ParameterTable(ParameterTable
 dir <- "output"
 if(!dir.exists(dir)){dir.create(dir)}
 
-write_tsv(GB_ValueTable_binary, file = "output/Grambank_ValueTable_binary.tsv", quote = "all", na = "")
+readr::write_tsv(GB_ValueTable_binary, file = "output/Grambank_ValueTable_binary.tsv", quote = "all", na = "")
 
-write_tsv(GB_ParameterTable_binary, file = "output/Grambank_ParameterTable_binary.tsv", quote = "all", na = "")
+readr::write_tsv(GB_ParameterTable_binary, file = "output/Grambank_ParameterTable_binary.tsv", quote = "all", na = "")

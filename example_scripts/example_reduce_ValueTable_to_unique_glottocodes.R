@@ -1,3 +1,6 @@
+remotes::install_github("Hedvigs/rgrambank",   ref = "ipac")
+library(rgrambank)
+
 #install.packages("devtools")
 library(devtools)
 
@@ -22,17 +25,17 @@ overview_duplicates <- GB_rcldf_obj$tables$ValueTable %>%
 
 cat("There are " , nrow(overview_duplicates), " duplicates of Language_leveL_ID in ValueTable.\n", sep = "")
 
-ValueTable_reduced <- reduce_ValueTable_to_unique_glottocodes(ValueTable = GB_rcldf_obj$tables$ValueTable,
+ValueTable_reduced <- rgrambank::reduce_ValueTable_to_unique_glottocodes(ValueTable = GB_rcldf_obj$tables$ValueTable,
                                                               LanguageTable =  GB_rcldf_obj$tables$LanguageTable, 
                                                               method = "singular_least_missing_data", 
                                                               merge_dialects = T)
 
-ValueTable_reduced <- reduce_ValueTable_to_unique_glottocodes(ValueTable = GB_rcldf_obj$tables$ValueTable,
+ValueTable_reduced <- rgrambank::reduce_ValueTable_to_unique_glottocodes(ValueTable = GB_rcldf_obj$tables$ValueTable,
                                                               LanguageTable =  GB_rcldf_obj$tables$LanguageTable, 
                                                               method = "singular_random",
                                                               merge_dialects = T)
 
-ValueTable_reduced <- reduce_ValueTable_to_unique_glottocodes(ValueTable = GB_rcldf_obj$tables$ValueTable,
+ValueTable_reduced <- rgrambank::reduce_ValueTable_to_unique_glottocodes(ValueTable = GB_rcldf_obj$tables$ValueTable,
                                                               LanguageTable =  GB_rcldf_obj$tables$LanguageTable, 
                                                               method = "combine_random",
                                                               merge_dialects = T)
