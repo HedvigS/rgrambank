@@ -8,7 +8,7 @@
 make_GBI <- function(ValueTable = NULL,
                      verbose = TRUE,
                      recode_patterns_full = NULL, 
-                     all_decisions = null
+                     all_decisions = NULL
                             # LanguageTable = NULL
     ){
   
@@ -166,7 +166,7 @@ make_GBI <- function(ValueTable = NULL,
   ## include without modification ##
   # extract the features that we don't need to recode because we recode.operation.type them as they are
   retained <- dplyr::filter(recode_patterns_full, .data[["recode.operation.type"]]=="include without modification")
-  retained_data <- dplyr::select(original_feature_matrix,c(Language_ID, 
+  retained_data <- dplyr::select(original_feature_matrix,c("Language_ID", 
                                                            dplyr::filter(recode_patterns_full, 
                                                                          .data[["recode.operation.type"]]=="include without modification")$`original.names`))
   
@@ -213,7 +213,7 @@ make_GBI <- function(ValueTable = NULL,
       value = new_data,  
       stringsAsFactors=FALSE)  
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
 
   
   
@@ -253,7 +253,7 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
   
   
   
@@ -311,7 +311,7 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(third_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
@@ -396,7 +396,7 @@ make_GBI <- function(ValueTable = NULL,
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(fourth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
@@ -436,7 +436,8 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
+  
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(fifth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
@@ -505,7 +506,7 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(sixth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
@@ -547,7 +548,7 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(seventh_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
@@ -615,7 +616,7 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(eighth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
@@ -671,7 +672,7 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(ninth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
@@ -755,7 +756,7 @@ make_GBI <- function(ValueTable = NULL,
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  %>% 
-    tidyr::spread(feature, value)
+    tidyr::spread(.data[["feature"]], .data[["value"]])
   
   
   # merge new features with recoded_data for further use
@@ -819,10 +820,10 @@ make_GBI <- function(ValueTable = NULL,
   # specific modification ID match --> ensure that each modification ID in the features sheet is in the modification sheet, associated via the correct columns and features; and vice versa
   ids <- stats::na.omit(all_decisions$modification.ID)
   for (id in ids){
-    type <- dplyr::filter(all_decisions,modification.ID == id)$modification.type
+    type <- dplyr::filter(all_decisions, .data[["modification.ID"]] == id)[["modification.type"]]
     if (type == "statistical"){
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
-      should_all <- all_decisions %>% dplyr::filter(modification.ID == id) %>% 
+      should_all <- all_decisions %>% dplyr::filter(.data[["modification.ID"]] == id) %>% 
         dplyr::select(c("feature.1.for.test","feature.2.for.test","resulting.added.features","resulting.removed.features")) %>% 
         as.character() %>% 
         unique()
@@ -834,7 +835,7 @@ make_GBI <- function(ValueTable = NULL,
       
       # check that each instance of a modification ID WITH EFFECT in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
       should_actedupon <- all_decisions %>% 
-        dplyr::filter(modification.ID == id) %>% 
+        dplyr::filter(.data[["modification.ID"]] == id) %>% 
         dplyr::select(c("resulting.added.features","resulting.removed.features")) %>% 
         as.character() %>% 
         unique()
@@ -899,16 +900,18 @@ make_GBI <- function(ValueTable = NULL,
   ## known.remaining dependencies match - check remaining dependencies are appropriately logged (one-sided, because there are dependencies not associated with statistical tests!)
   rds <- dplyr::filter(all_decisions, 
                        .data[["resulting.modification"]] == "tendency logged in known.remaining.dependencies")
-  for (rd in 1:nrow(rds)){
+  for (rd in seq_len(nrow(rds))){
     id <- rds %>% 
       dplyr::slice(rd) %>% 
-      dplyr::select(modification.ID)
+      dplyr::select("modification.ID")
     should_associated <- rds %>% 
       dplyr::slice(rd) %>% 
-      dplyr::select(c(feature.1.for.test,feature.2.for.test)) %>% 
+      dplyr::select(c(.data[["feature.1.for.test"]],
+                      .data[["feature.2.for.test"]])) %>% 
       as.character()
     is_associated <- recode_patterns_full %>% 
-      dplyr::slice(which(grepl(id,recode_patterns_full$known.remaining.dependencies.after.statistical.treatment))) %>% dplyr::select(new.name) %>% unlist %>% as.character
+      dplyr::slice(which(grepl(id,recode_patterns_full$known.remaining.dependencies.after.statistical.treatment))) %>% 
+      dplyr::select("new.name") %>% unlist %>% as.character
     testthat::expect_true(all(is_associated %in% should_associated))
     testthat::expect_true(all(should_associated %in% is_associated))
   }
@@ -1027,11 +1030,11 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
     
     condition_applies_strict <- conditioned_upon_feature %>%
       dplyr::filter(.data[[col_name]] == condition[2]) %>%
-      dplyr::pull(Language_ID)
+      dplyr::pull(.data[["Language_ID"]])
     
     condition_applies_q <- conditioned_upon_feature %>%
       dplyr::filter(.data[[col_name]] == "?") %>%
-      dplyr::pull(Language_ID)
+      dplyr::pull(.data[["Language_ID"]])
     
     # select languages in feature_to_be_conditioned to which condition applies (strict and q)
     conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
@@ -1049,7 +1052,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
     col_name <- names(conditioned_upon_feature)[2]
     condition_applies_strict <- conditioned_upon_feature %>%
       dplyr::filter(.data[[col_name]] == condition[2]) %>%
-      dplyr::pull(Language_ID)
+      dplyr::pull(.data[["Language_ID"]])
     
     condition_applies <- setdiff(conditioned_upon_feature$Language_ID, condition_applies_strict)
     
@@ -1068,12 +1071,12 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
     col_name <- names(conditioned_upon_feature)[2]
     condition_applies_q <- conditioned_upon_feature %>%
       dplyr::filter(.data[[col_name]] == "?") %>%
-      dplyr::pull(Language_ID)
+      dplyr::pull(.data[["Language_ID"]])
     
     condition_applies_desired_states <- conditioned_upon_feature %>%
       dplyr::filter(.data[[col_name]] ==desired_states[1]|
                       .data[[col_name]] ==desired_states[2]  ) %>%
-      dplyr::pull(Language_ID)
+      dplyr::pull(.data[["Language_ID"]])
     
     # if there are more than 2 desired states, add the third
     if(nr_desired_states>2){
@@ -1081,7 +1084,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
       col_name <- names(conditioned_upon_feature)[2]
       condition_applies_desired_states_2 <- conditioned_upon_feature %>%
         dplyr::filter(.data[[col_name]] ==desired_states[3] ) %>%
-        dplyr::pull(Language_ID)
+        dplyr::pull(.data[["Language_ID"]])
       
       condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_2)
     }
@@ -1090,7 +1093,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
       col_name <- names(conditioned_upon_feature)[2]
       condition_applies_desired_states_3 <- conditioned_upon_feature %>%
         dplyr::filter(.data[[col_name]] ==desired_states[4] ) %>%
-        dplyr::pull(Language_ID)
+        dplyr::pull(.data[["Language_ID"]])
       
       condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_3)
     }
@@ -1100,7 +1103,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
       col_name <- names(conditioned_upon_feature)[2]
       condition_applies_desired_states_4 <- conditioned_upon_feature %>%
         dplyr::filter(.data[[col_name]] ==desired_states[5] ) %>%
-        dplyr::pull(Language_ID)
+        dplyr::pull(.data[["Language_ID"]])
       
       condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_4)
     }
@@ -1125,7 +1128,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
     condition_applies_undesired_states <-  conditioned_upon_feature %>%
       dplyr::filter(.data[[col_name]] == undesired_states[1]|
                       .data[[col_name]] == undesired_states[2] ) %>%
-      dplyr::pull(Language_ID)
+      dplyr::pull(.data[["Language_ID"]])
     
     # if there are more than 2 undesired states, add the third
     if(nr_undesired_states>2){
@@ -1134,7 +1137,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
       
       condition_applies_undesired_states_2 <-  conditioned_upon_feature %>%
         dplyr::filter(.data[[col_name]] == undesired_states[3]) %>%
-        dplyr::pull(Language_ID)
+        dplyr::pull(.data[["Language_ID"]])
       
       condition_applies_undesired_states <- c(condition_applies_undesired_states,      condition_applies_undesired_states_2)
     }
@@ -1145,7 +1148,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
       
       condition_applies_undesired_states_3 <-  conditioned_upon_feature %>%
         dplyr::filter(.data[[col_name]] == undesired_states[4]) %>%
-        dplyr::pull(Language_ID)
+        dplyr::pull(.data[["Language_ID"]])
       
       condition_applies_undesired_states <- c(condition_applies_undesired_states,      condition_applies_undesired_states_3)
     } 
@@ -1157,7 +1160,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
       
       condition_applies_undesired_states_4 <-  conditioned_upon_feature %>%
         dplyr::filter(.data[[col_name]] == undesired_states[5]) %>%
-        dplyr::pull(Language_ID)
+        dplyr::pull(.data[["Language_ID"]])
       
       condition_applies_undesired_states <- c(condition_applies_undesired_states, condition_applies_undesired_states_4)
     }
@@ -1252,7 +1255,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
   
   if (recode_mode == "logical_arguments"){
     # recode the data according to prioritised feature
-    for (i in 1:nrow(level_table)){
+    for (i in seq_len(nrow(level_table))){
       original_data[original_data$Language_ID %in% dplyr::filter(original_data,
                                                                  eval(parse(text=level_table$level[i])))$Language_ID,"merged"]<-level_table$new_level[i]
     }
