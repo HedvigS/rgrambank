@@ -48,9 +48,9 @@ varcov.spatial.3D <-
         func.inv <- match.arg(func.inv)
         cov.model <- sapply(cov.model, match.arg, choices = .geoR.cov.models)
         if(only.inv.lower.diag)  inv <- TRUE
-        if(is.null(coords) & is.null(dists.lowertri))
+        if(is.null(coords) && is.null(dists.lowertri))
             stop("one of the arguments, coords or dists.lowertri must be provided")
-        if (!is.null(coords) & !is.null(dists.lowertri))
+        if (!is.null(coords) && !is.null(dists.lowertri))
             stop("only ONE argument, either coords or dists.lowertri must be provided")
         if (!is.null(coords))  n <- nrow(coords)
         if (!is.null(dists.lowertri))
@@ -97,7 +97,7 @@ varcov.spatial.3D <-
             }
         }
         else {
-            if (all(sigmasq < 1e-10) | all(phi < 1e-10)) {
+            if (all(sigmasq < 1e-10) || all(phi < 1e-10)) {
                 varcov <- diag(x = (tausq + sum(sigmasq)), n)
             }
             else {
@@ -110,7 +110,7 @@ varcov.spatial.3D <-
                 diag(varcov) <- tausq + sum(sigmasq)
             }
         }
-        if (inv | det | only.decomposition | sqrt.inv | only.inv.lower.diag) {
+        if (inv || det || only.decomposition || sqrt.inv || only.inv.lower.diag) {
             if (func.inv == "cholesky") {
                 varcov.sqrt <- try(chol(varcov), silent=TRUE)
                 if (inherits(varcov.sqrt, "try-error")) {
@@ -124,7 +124,7 @@ varcov.spatial.3D <-
                     }
                 }
                 else {
-                    if (only.decomposition | inv) remove("varcov")
+                    if (only.decomposition || inv) remove("varcov")
                     if (!only.decomposition) {
                         if (det) cov.logdeth <- sum(log(diag(varcov.sqrt)))
                         if (sqrt.inv) inverse.sqrt <- solve(varcov.sqrt)
@@ -149,7 +149,7 @@ varcov.spatial.3D <-
                     }
                 }
                 else {
-                    if (only.decomposition | inv) remove("varcov")
+                    if (only.decomposition || inv) remove("varcov")
                     if (only.decomposition)
                         varcov.sqrt <- crossprod(t(varcov.svd$u) * sqrt(sqrt(varcov.svd$d)))
                     if (inv) {
@@ -176,16 +176,16 @@ varcov.spatial.3D <-
             if (func.inv == "eigen") {
                 varcov.eig <- try(eigen(varcov, symmetric = TRUE), silent=TRUE)
                 cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), silent=TRUE)
-                if (inherits(cov.logdeth, "try.error") | inherits(varcov.eig, "try-error")) {
+                if (inherits(cov.logdeth, "try.error") || inherits(varcov.eig, "try-error")) {
                     diag(varcov) <- 1.0001 * diag(varcov)
                     varcov.eig <- try(eigen(varcov, symmetric = TRUE), silent=TRUE)
                     cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), silent=TRUE)
-                    if (inherits(cov.logdeth, "try.error") | inherits(varcov.eig, "try-error")) {
+                    if (inherits(cov.logdeth, "try.error") || inherits(varcov.eig, "try-error")) {
                         return(list(crash.parms = c(tausq=tausq, sigmasq=sigmasq, phi=phi, kappa=kappa)))
                     }
                 }
                 else {
-                    if (only.decomposition | inv) remove("varcov")
+                    if (only.decomposition || inv) remove("varcov")
                     if (only.decomposition)
                         varcov.sqrt <- crossprod(t(varcov.eig$vec)* sqrt(sqrt(varcov.eig$val)))
                     if (inv) invcov <- crossprod(t(varcov.eig$vec)/sqrt(varcov.eig$val))
@@ -302,16 +302,16 @@ varcov.spatial.3D <-
             stop(paste(cov.model[i],"correlation function model requires a vector with 2 parameters in the argument kappa"))
         }
         else{
-          if(is.na(kappa[i]) | is.null(kappa[i]))
+          if(is.na(kappa[i]) || is.null(kappa[i]))
             stop("for matern, powered.exponential and cauchy covariance functions the parameter kappa must be provided")
         }
-        if((cov.model[i] == "matern" | cov.model[i] == "powered.exponential" | 
-            cov.model[i] == "cauchy") & length(kappa) != 1*ns)
+        if((cov.model[i] == "matern" || cov.model[i] == "powered.exponential" || 
+            cov.model[i] == "cauchy") && length(kappa) != 1*ns)
           stop("kappa must have 1 parameter for this correlation function")
-        if(cov.model[i] == "matern" & kappa[i] == 0.5) cov.model[i] == "exponential"
+        if(cov.model[i] == "matern" && kappa[i] == 0.5) cov.model[i] == "exponential"
       }      
       if(cov.model[i] == "power")
-        if(any(phi[i] >= 2) | any(phi[i] <= 0))
+        if(any(phi[i] >= 2) || any(phi[i] <= 0))
           stop("for power model the phi parameters must be in the interval ]0,2[")
     }
     if(!is.null(env)){
