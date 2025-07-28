@@ -37,7 +37,7 @@ add_family_name_column <- function(LanguageTable = NULL,
   
 Family_df <- LanguageTable %>% 
   dplyr::filter(!is.na(.data[["Family_ID"]])) %>% 
-  dplyr::distinct(.data[["Family_ID"]]) %>% 
+  dplyr::distinct(dplyr::across(dplyr::all_of(c("Family_ID")))) %>% 
   dplyr::rename("Glottocode" = "Family_ID") %>% 
   dplyr::left_join(dplyr::select(LanguageTable_large, 
                                  "Glottocode", "Name"), 
