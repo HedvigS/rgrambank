@@ -20,7 +20,7 @@ add_isolate_info <- function(LanguageTable = NULL,
     stop("LanguageTable lacks necessary columns and Glottolog_ValueTable_LanguageTable is not defined.")
         }
   
-  lgs_in_input <- LanguageTable$ID
+  lgs_in_input <- LanguageTable[["ID"]]
 
    if(!is.null(Glottolog_ValueTable_LanguageTable)){
     Glottolog_ValueTable_LanguageTable <- Glottolog_ValueTable_LanguageTable %>% 
