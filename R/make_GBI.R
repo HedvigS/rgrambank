@@ -2,6 +2,9 @@
 #'
 #'@note This function is based on Graff, A., Chousou-Polydouri1, N., Inman, D., Skirgård, H., Lischka, M., Zakharko1, T., Barbieri1, C., and Bickel, B., (Accepted). Curating global datasets of structural linguistic features for independence.Scientific Data . Original code can be found here: https://github.com/annagraff/crossling-curated/tree/main/scripts. The function rgrambank::make_GBI has been modified by Hedvig Skirgård to adapt to the rgrambank package and take into account changes between Grambank v1 and v2. The modifications are: turn binarised features (in Grambank v2 and further versions) corresponding multistate, rename variables to avoid loading recode-patterns several times, remove language meta-data, remove lazy loading of variables for dplyr::filter + dplyr::mutate and replace data.table::setDT with base::as.data.frame.
 #' @param ValueTable data-frame. Grambank ValueTable.
+#' @param verbose logical. If TRUE, function reports more information to console while running.
+#' @param recode_patterns_full data-frame of recoding patterns from Graff et al (2025). Can be found at https://github.com/HedvigS/rgrambank/raw/refs/heads/main/example_scripts/fixed/feature-recode-patterns.csv
+#' @param all_decisions data-frame ofata-frame of recoding decisions from Graff et al (2025). Can be found at   https://raw.githubusercontent.com/HedvigS/rgrambank/refs/heads/main/example_scripts/fixed/decisions-log.csv
 #' @references Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence. Scientific Data 12:106 https://doi.org/10.1038/s41597-024-04319-4
 #' @author Original GBI code: Anna Graff, Natalia Chousou-Polydouri, David Inman, Hedvig Skirgård, Marc Lischka, Taras Zakharko, Chiara Barbieri & Balthasar Bickel. Wrapper function: Anna Graff and Hedvig Skirgård.
 #' @export
@@ -20,9 +23,9 @@ make_GBI <- function(ValueTable = NULL,
   # read in original grambank data
   original_feature_matrix <- ValueTable %>% 
     tidyr::pivot_wider(
-      id_cols = Language_ID,
-      names_from = Parameter_ID,
-      values_from = Value
+      id_cols = "Language_ID",
+      names_from = "Parameter_ID",
+      values_from = "Value"
     )
   # replace missing data by ? (--> because these data points are unknown, not "not applicable")
   original_feature_matrix[is.na(original_feature_matrix)] <- "?"
@@ -213,7 +216,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = stats::na.omit(original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))])$Language_ID, 
+      Language_ID = stats::na.omit(original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% .$`original.names`))])[["Language_ID"]], 
       value = new_data,  
       stringsAsFactors=FALSE)  
   })  %>% 
@@ -222,7 +225,7 @@ make_GBI <- function(ValueTable = NULL,
   
   
   # save the recoded data from retained features and the simple recodings as recoded_data for further use
-  recoded_data <- dplyr::full_join(first_set_rec, retained_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(first_set_rec, retained_data, by=c("Language_ID"="Language_ID"))
   
   ## recode group 2 (merge features - recode via logical arguments) ##
   # subset to features that have to be merged via logical arguments
@@ -252,7 +255,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = original_data$Language_ID, 
+      Language_ID = original_data[["Language_ID"]], 
       value = new_data,  
       stringsAsFactors=FALSE)  
     
@@ -262,7 +265,7 @@ make_GBI <- function(ValueTable = NULL,
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(second_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(second_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
   
   ## recode group 3 (merge features - recode via logical arguments - simple conditioning) ##
   # subset to features that have to be recoded via logical arguments if a condition applies
@@ -292,7 +295,7 @@ make_GBI <- function(ValueTable = NULL,
     
     # create table (unconditioned)
     unconditioned <- data.frame(
-      Language_ID = original_data$Language_ID,
+      Language_ID = original_data[["Language_ID"]],
       value = new_data,
       stringsAsFactors=FALSE)
     
@@ -310,7 +313,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = conditioned_data$Language_ID, 
+      Language_ID = conditioned_data[["Language_ID"]],
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
@@ -318,7 +321,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(third_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(third_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
   
   ## recode group 4 (merge features - recode via logical arguments - multiple conditioning) ##
   # subset to features that have to be recoded via logical arguments if several conditions apply
@@ -349,7 +352,7 @@ make_GBI <- function(ValueTable = NULL,
     
     # create table (unconditioned)
     unconditioned <- data.frame(
-      Language_ID = original_data$Language_ID,
+      Language_ID = original_data[["Language_ID"]],
       value = new_data,
       stringsAsFactors=FALSE)
     
@@ -396,14 +399,14 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = conditioned_data$Language_ID, 
+      Language_ID = conditioned_data[["Language_ID"]], 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  %>% 
     tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(fourth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(fourth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
   
   ## recode group 5 (simple conditioning) ##
   # subset to features that have to be conditioned on another feature
@@ -435,7 +438,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = conditioned_data$Language_ID, 
+      Language_ID = conditioned_data[["Language_ID"]], 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
@@ -444,7 +447,7 @@ make_GBI <- function(ValueTable = NULL,
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(fifth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(fifth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
   
   
   ## recode group 6 (multiple conditioning) ## 
@@ -505,7 +508,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = conditioned_data$Language_ID, 
+      Language_ID = conditioned_data[["Language_ID"]], 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
@@ -513,7 +516,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(sixth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(sixth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
   
   
   ## recode group 7 (simple conditioning [conditioned feature]) ##
@@ -547,7 +550,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = conditioned_data$Language_ID, 
+      Language_ID = conditioned_data[["Language_ID"]], 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
@@ -555,7 +558,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(seventh_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(seventh_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
   
   ## recode group 8 (multiple conditioning [conditioned feature]) ## 
   # subset to features that have to be conditioned on several features
@@ -615,7 +618,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = conditioned_data$Language_ID, 
+      Language_ID = conditioned_data[["Language_ID"]], 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
@@ -623,7 +626,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(eighth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(eighth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
   
   
   ## recode group 9 (merge features - recode via logical arguments - simple conditioning [conditioned feature]) ##
@@ -653,7 +656,7 @@ make_GBI <- function(ValueTable = NULL,
     
     # create table (unconditioned)
     unconditioned <- data.frame(
-      Language_ID = original_data$Language_ID,
+      Language_ID = original_data[["Language_ID"]],
       value = new_data,
       stringsAsFactors=FALSE)
     
@@ -671,7 +674,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = conditioned_data$Language_ID, 
+      Language_ID = conditioned_data[["Language_ID"]], 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
     
@@ -679,7 +682,7 @@ make_GBI <- function(ValueTable = NULL,
     tidyr::spread(.data[["feature"]], .data[["value"]])
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(ninth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(ninth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
   
   
   ## recode group 10 (merge features - recode via logical arguments - multiple conditioning [conditioned feature]) ##
@@ -709,7 +712,7 @@ make_GBI <- function(ValueTable = NULL,
     
     # create table (unconditioned)
     unconditioned <- data.frame(
-      Language_ID = original_data$Language_ID,
+      Language_ID = original_data[["Language_ID"]],
       value = new_data,
       stringsAsFactors=FALSE)
     
@@ -756,7 +759,7 @@ make_GBI <- function(ValueTable = NULL,
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
-      Language_ID = conditioned_data$Language_ID, 
+      Language_ID = conditioned_data[["Language_ID"]], 
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  %>% 
@@ -764,7 +767,7 @@ make_GBI <- function(ValueTable = NULL,
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(tenth_set_rec, recoded_data, by=c(Language_ID="Language_ID"))
+  recoded_data <- dplyr::full_join(tenth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
   
   # replace all NA as explicit "NA"
   recoded_data[is.na(recoded_data)]<-"NA"
@@ -927,11 +930,11 @@ make_GBI <- function(ValueTable = NULL,
   # languages.csv
 #  lang_metadata <- LanguageTable
   
-  taxonomy_logical <- data.frame(Language_ID = logical_data$Language_ID)
+  taxonomy_logical <- data.frame(Language_ID = logical_data[["Language_ID"]])
  # taxonomy_logical <- left_join(taxonomy_logical,lang_metadata, by = "Language_ID")
   taxonomy_logical[taxonomy_logical==""] <- NA
   
-  taxonomy_statistical <- data.frame(Language_ID = statistical_data$Language_ID)
+  taxonomy_statistical <- data.frame(Language_ID = statistical_data[["Language_ID"]])
 #  taxonomy_statistical <- left_join(taxonomy_statistical,lang_metadata, by = "Language_ID")
   taxonomy_statistical[taxonomy_statistical==""] <- NA
   
@@ -946,7 +949,7 @@ make_GBI <- function(ValueTable = NULL,
   # values.csv
   logical_long <- tidyr::pivot_longer(
     as.data.frame(logical_data),
-    cols = -Language_ID,
+    cols = -"Language_ID",
     names_to = "new.name",
     values_to = "value"
   )
@@ -954,18 +957,18 @@ make_GBI <- function(ValueTable = NULL,
   logical_long$code_ID <- apply(logical_long,1,function(x) paste(x[2],x[3],sep="-"))
   logical_long <- logical_long %>% 
     dplyr::select(c("value_ID","Language_ID","new.name","value","code_ID"))
-  logical_long$Language_ID <- as.character(logical_long$Language_ID)
+  logical_long[["Language_ID"]] <- as.character(logical_long[["Language_ID"]])
   logical_long$new.name <- as.character(logical_long$new.name)
   
   statistical_long <- tidyr::pivot_longer(
     as.data.frame(statistical_data),
-    cols = -Language_ID,
+    cols = -"Language_ID",
     names_to = "new.name",
     values_to = "value"
   )
   statistical_long$value_ID <- apply(statistical_long,1,function(x) paste(x[2],x[1],sep="-"))
   statistical_long$code_ID <- apply(statistical_long,1,function(x) paste(x[2],x[3],sep="-"))
-  statistical_long$Language_ID <- as.character(statistical_long$Language_ID)
+  statistical_long[["Language_ID"]] <- as.character(statistical_long[["Language_ID"]])
   statistical_long$new.name <- as.character(statistical_long$new.name)
   statistical_long <- statistical_long %>% 
     dplyr::select(c("value_ID","Language_ID","new.name","value","code_ID"))
@@ -981,10 +984,10 @@ make_GBI <- function(ValueTable = NULL,
   modifications <- all_decisions
   
   # cldf quality checks:
-  testthat::expect_true(all(unique(logical_long$Language_ID) %in% taxonomy_logical$Language_ID))
-  testthat::expect_true(all(unique(statistical_long$Language_ID) %in% taxonomy_statistical$Language_ID))
-  testthat::expect_true(all(taxonomy_logical$Language_ID %in% unique(logical_long$Language_ID)))
-  testthat::expect_true(all(taxonomy_statistical$Language_ID %in% unique(statistical_long$Language_ID)))
+  testthat::expect_true(all(unique(logical_long[["Language_ID"]]) %in% taxonomy_logical[["Language_ID"]]))
+  testthat::expect_true(all(unique(statistical_long[["Language_ID"]]) %in% taxonomy_statistical[["Language_ID"]]))
+  testthat::expect_true(all(taxonomy_logical[["Language_ID"]] %in% unique(logical_long[["Language_ID"]])))
+  testthat::expect_true(all(taxonomy_statistical[["Language_ID"]] %in% unique(statistical_long[["Language_ID"]])))
   
   testthat::expect_true(all(unique(logical_long$new.name) %in% parameters$new.name))
   testthat::expect_true(all(unique(statistical_long$new.name) %in% parameters$new.name))
@@ -1057,7 +1060,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
     names(conditioned_data)[2] <- "conditioned_upon_feature"
     
     # the languages, which are "?" to conditioned_upon_feature but specified for feature_to_be_conditioned are recoded into "?"
-    conditioned_data$conditioned_upon_feature[conditioned_data$Language_ID %in% condition_applies_q] <- rep("?")
+    conditioned_data$conditioned_upon_feature[conditioned_data[["Language_ID"]] %in% condition_applies_q] <- rep("?")
     
   } else if (equator == " != "){ ## this applies if the condition in question is negative (" != ")
     # if the condition in question is negative (" != "), we want to keep all languages that do not have the specified state of conditioned_upon_feature
@@ -1068,7 +1071,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
       dplyr::filter(.data[[col_name]] == condition[2]) %>%
       dplyr::pull(.data[["Language_ID"]])
     
-    condition_applies <- setdiff(conditioned_upon_feature$Language_ID, condition_applies_strict)
+    condition_applies <- setdiff(conditioned_upon_feature[["Language_ID"]], condition_applies_strict)
     
     # select languages in feature_to_be_conditioned to which condition applies
     conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
@@ -1128,7 +1131,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
     names(conditioned_data)[2] <- "conditioned_upon_feature"
     
     # the languages, which are "?" to conditioned_upon_feature but specified for feature_to_be_conditioned are recoded into "?"
-    conditioned_data$conditioned_upon_feature[conditioned_data$Language_ID %in% condition_applies_q] <- rep("?")
+    conditioned_data$conditioned_upon_feature[conditioned_data[["Language_ID"]] %in% condition_applies_q] <- rep("?")
     
   } else if (equator == " ! %in%  "){ ## this applies if the condition in the question is multiple (but negative) --> liberal ("! %in% ")
     # if the condition in question is negative multiple (" ! %in%  "), we want to keep all languages that do not have the specified states of conditioned_upon_feature
@@ -1179,7 +1182,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
       condition_applies_undesired_states <- c(condition_applies_undesired_states, condition_applies_undesired_states_4)
     }
     
-    condition_applies <- setdiff(conditioned_upon_feature$Language_ID,condition_applies_undesired_states)
+    condition_applies <- setdiff(conditioned_upon_feature[["Language_ID"]],condition_applies_undesired_states)
     # select languages in feature_to_be_conditioned to which condition applies
     conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
                                       .data[["Language_ID"]] %in% as.character(condition_applies))
@@ -1270,8 +1273,8 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
   if (recode_mode == "logical_arguments"){
     # recode the data according to prioritised feature
     for (i in seq_len(nrow(level_table))){
-      original_data[original_data$Language_ID %in% dplyr::filter(original_data,
-                                                                 eval(parse(text=level_table$level[i])))$Language_ID,"merged"]<-level_table$new_level[i]
+      original_data[original_data[["Language_ID"]] %in% dplyr::filter(original_data,
+                                                                 eval(parse(text=level_table$level[i])))[["Language_ID"]],"merged"]<-level_table$new_level[i]
     }
     # make "other" state become "?" if applicable
     original_data[is.na(original_data)]<-"?"
