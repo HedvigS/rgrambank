@@ -135,7 +135,7 @@ if(merge_dialects == FALSE){
       
         lgs <- ValueTable %>%
             dplyr::filter(!is.na(.data[["Value"]])) %>%
-            dplyr::filter(.data[["Value"]] == "?") %>%
+            dplyr::filter(.data[["Value"]] != "?") %>%
             dplyr::left_join(LanguageTable, by = "Language_ID") %>%
             dplyr::group_by(.data[["Language_ID"]]) %>%
             dplyr::mutate(n = dplyr::n()) %>%
@@ -155,7 +155,7 @@ if(merge_dialects == FALSE){
       # MERGE BY MAKING A FRANKENSTEIN COMBINATION OF ALL DUPLICATE GLOTTOCODES
         ValueTable_grouped <- ValueTable %>%
             dplyr::filter(!is.na(.data[["Value"]])) %>%
-            dplyr::filter(.data[["Value"]] == "?") %>%
+            dplyr::filter(.data[["Value"]] != "?") %>%
             dplyr::left_join(LanguageTable, by = "Language_ID",
                       relationship = "many-to-many") %>%
             dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) %>%
