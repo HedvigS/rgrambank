@@ -26,7 +26,8 @@ make_GBI <- function(ValueTable = NULL,
       id_cols = "Language_ID",
       names_from = "Parameter_ID",
       values_from = "Value"
-    )
+    ) %>%  as.data.frame()
+  
   # replace missing data by ? (--> because these data points are unknown, not "not applicable")
   original_feature_matrix[is.na(original_feature_matrix)] <- "?"
     
@@ -197,7 +198,7 @@ make_GBI <- function(ValueTable = NULL,
   # recode all features that require simple recoding
   first_set_rec <- dplyr::rowwise(first_set) %>% dplyr::do({
   
-         if(verbose == TRUE){ cat("First set, processing ", .$new.name, "\n", sep="")
+         if(verbose == TRUE){ cat("GBI Logical: First set, processing ", .$new.name, "\n", sep="")
          }
     
     # check that the original feature is present in the original feature matrix
@@ -220,12 +221,10 @@ make_GBI <- function(ValueTable = NULL,
       value = new_data,  
       stringsAsFactors=FALSE)  
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
-
-  
+    tidyr::spread(.data[["feature"]], .data[["value"]])  %>%  as.data.frame()
   
   # save the recoded data from retained features and the simple recodings as recoded_data for further use
-  recoded_data <- dplyr::full_join(first_set_rec, retained_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(first_set_rec, retained_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   ## recode group 2 (merge features - recode via logical arguments) ##
   # subset to features that have to be merged via logical arguments
@@ -234,7 +233,7 @@ make_GBI <- function(ValueTable = NULL,
   
   # merge and recode features via logical arguments
   second_set_rec <- dplyr::rowwise(second_set) %>% dplyr::do({
-    if(verbose == TRUE){cat("Second set, processing ", .$new.name, "\n", sep="")}
+    if(verbose == TRUE){cat("GBI Logical: Second set, processing ", .$new.name, "\n", sep="")}
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -260,12 +259,12 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
+    tidyr::spread(.data[["feature"]], .data[["value"]])  %>%  as.data.frame()
   
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(second_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(second_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   ## recode group 3 (merge features - recode via logical arguments - simple conditioning) ##
   # subset to features that have to be recoded via logical arguments if a condition applies
@@ -276,7 +275,7 @@ make_GBI <- function(ValueTable = NULL,
   # merge and recode via logical arguments if a condition applies
   third_set_rec <- dplyr::rowwise(third_set) %>% dplyr::do({
     #. <- third_set[1,]
-    if(verbose == TRUE){cat("Third set, processing ", .$new.name, "\n", sep="")}
+    if(verbose == TRUE){cat("GBI Logical: Third set, processing ", .$new.name, "\n", sep="")}
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -318,10 +317,10 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
+    tidyr::spread(.data[["feature"]], .data[["value"]])  %>%  as.data.frame()
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(third_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(third_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   ## recode group 4 (merge features - recode via logical arguments - multiple conditioning) ##
   # subset to features that have to be recoded via logical arguments if several conditions apply
@@ -332,7 +331,7 @@ make_GBI <- function(ValueTable = NULL,
   
   # merge and recode via logical arguments if a condition applies
   fourth_set_rec <- dplyr::rowwise(fourth_set) %>% dplyr::do({
-    if(verbose == TRUE){ cat("Fourth, processing ", .$new.name, "\n", sep="")}
+    if(verbose == TRUE){ cat("GBI Logical: Fourth, processing ", .$new.name, "\n", sep="")}
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -403,10 +402,10 @@ make_GBI <- function(ValueTable = NULL,
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
+    tidyr::spread(.data[["feature"]], .data[["value"]])  %>%  as.data.frame()
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(fourth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(fourth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   ## recode group 5 (simple conditioning) ##
   # subset to features that have to be conditioned on another feature
@@ -417,7 +416,7 @@ make_GBI <- function(ValueTable = NULL,
   
   # condition feature on another feature
   fifth_set_rec <- dplyr::rowwise(fifth_set) %>% dplyr::do({
-    if(verbose == TRUE){ cat("Fifth, processing ", .$new.name, "\n", sep="") }
+    if(verbose == TRUE){ cat("GBI Logical: Fifth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
     testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -443,11 +442,11 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
+    tidyr::spread(.data[["feature"]], .data[["value"]])  %>%  as.data.frame()
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(fifth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(fifth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   
   ## recode group 6 (multiple conditioning) ## 
@@ -459,7 +458,7 @@ make_GBI <- function(ValueTable = NULL,
   
   # condition on several features
   sixth_set_rec <- dplyr::rowwise(sixth_set) %>% dplyr::do({
-    if(verbose == TRUE){  cat("Sixth, processing ", .$new.name, "\n", sep="") }
+    if(verbose == TRUE){  cat("GBI Logical: Sixth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
     testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -513,10 +512,10 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
+    tidyr::spread(.data[["feature"]], .data[["value"]])  %>%  as.data.frame()
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(sixth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(sixth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   
   ## recode group 7 (simple conditioning [conditioned feature]) ##
@@ -529,7 +528,7 @@ make_GBI <- function(ValueTable = NULL,
   # condition on conditioned feature
   seventh_set_rec <- dplyr::rowwise(seventh_set) %>% dplyr::do({
 
-    if(verbose == TRUE){  cat("Seventh, processing ", .$new.name, "\n", sep="") }
+    if(verbose == TRUE){  cat("GBI Logical: Seventh, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
     testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -555,10 +554,10 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
+    tidyr::spread(.data[["feature"]], .data[["value"]])  %>%  as.data.frame()
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(seventh_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(seventh_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   ## recode group 8 (multiple conditioning [conditioned feature]) ## 
   # subset to features that have to be conditioned on several features
@@ -569,7 +568,7 @@ make_GBI <- function(ValueTable = NULL,
   
   # condition on several features
   eighth_set_rec <- dplyr::rowwise(eighth_set) %>% dplyr::do({
-    if(verbose == TRUE){  cat("Eight, processing ", .$new.name, "\n", sep="") }
+    if(verbose == TRUE){  cat("GBI Logical: Eight, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
     testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -623,10 +622,10 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
+    tidyr::spread(.data[["feature"]], .data[["value"]])  %>%  as.data.frame()
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(eighth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(eighth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   
   ## recode group 9 (merge features - recode via logical arguments - simple conditioning [conditioned feature]) ##
@@ -637,7 +636,7 @@ make_GBI <- function(ValueTable = NULL,
   
   # merge and recode via logical arguments if a condition applies
   ninth_set_rec <- dplyr::rowwise(ninth_set) %>% dplyr::do({
-    if(verbose == TRUE){    cat("Ninth, processing ", .$new.name, "\n", sep="") }
+    if(verbose == TRUE){    cat("GBI Logical: Ninth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -679,10 +678,10 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
+    tidyr::spread(.data[["feature"]], .data[["value"]])  %>%  as.data.frame()
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(ninth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(ninth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   
   ## recode group 10 (merge features - recode via logical arguments - multiple conditioning [conditioned feature]) ##
@@ -692,7 +691,7 @@ make_GBI <- function(ValueTable = NULL,
   
   # merge and recode via logical arguments if a condition applies
   tenth_set_rec <- dplyr::rowwise(tenth_set) %>% dplyr::do({
-    if(verbose == TRUE){    cat("Tenth, processing ", .$new.name, "\n", sep="") }
+    if(verbose == TRUE){    cat("GBI Logical: Tenth, processing ", .$new.name, "\n", sep="") }
     
     # check that the original features are present in the original feature matrix
     original_data <- original_feature_matrix[,c(1,which(names(original_feature_matrix) %in% unlist(strsplit(.$`original.names`,"&"))))]
@@ -763,11 +762,11 @@ make_GBI <- function(ValueTable = NULL,
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  %>% 
-    tidyr::spread(.data[["feature"]], .data[["value"]])
+    tidyr::spread(.data[["feature"]], .data[["value"]]) %>%  as.data.frame()
   
   
   # merge new features with recoded_data for further use
-  recoded_data <- dplyr::full_join(tenth_set_rec, recoded_data, by=c("Language_ID"="Language_ID"))
+  recoded_data <- dplyr::full_join(tenth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) %>% as.data.frame()
   
   # replace all NA as explicit "NA"
   recoded_data[is.na(recoded_data)]<-"NA"
@@ -785,9 +784,10 @@ make_GBI <- function(ValueTable = NULL,
   statistical_layer <- recode_patterns_full %>% dplyr::filter( .data[["design.logical.statistical"]]=="TRUE")
   
   original_data <- recoded_data %>% dplyr::select(c("Language_ID",original_layer$new.name))
+  if(verbose == TRUE){cat("GBI logical: processing decisions.\n", sep="")}
   logical_data <- recoded_data %>% dplyr::select(c("Language_ID",logical_layer$new.name))
+  if(verbose == TRUE){cat("GBI Statistical: processing decisions.\n", sep="")}
   statistical_data <- recoded_data %>% dplyr::select(c("Language_ID",statistical_layer$new.name))
-  
   
   ########## sanity checks ########## 
   ### check all original features that should be in the original_feature filter are in there and vice versa
@@ -808,6 +808,9 @@ make_GBI <- function(ValueTable = NULL,
   testthat::expect_true(all(logical_names_should %in% logical_names_is))
   
   ### statistical dataset: check all original features that should be in the statistical filter are in there and vice versa
+  
+
+  
   statistical_add <- unique(statistical_decisions$resulting.added.features) 
   statistical_remove <- unique(unlist(stringr::str_split(statistical_decisions$resulting.removed.features,", ")))
   # statistical dataset is: a) the features from the final logical dataset, plus b) all statistical additions, minus c) all statistical removals
@@ -827,6 +830,8 @@ make_GBI <- function(ValueTable = NULL,
   # specific modification ID match --> ensure that each modification ID in the features sheet is in the modification sheet, associated via the correct columns and features; and vice versa
   ids <- stats::na.omit(all_decisions$modification.ID)
   for (id in ids){
+    
+
     type <- dplyr::filter(all_decisions, .data[["modification.ID"]] == id)[["modification.type"]]
     if (type == "statistical"){
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
@@ -868,6 +873,7 @@ make_GBI <- function(ValueTable = NULL,
     }
     else if (type %in% c("logical","design-automated","design-manual")){ 
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
+
       should_all <- all_decisions %>% 
         dplyr::filter(.data[["modification.ID"]] == id) %>% 
         dplyr::select(c("relevant.features","resulting.added.features","resulting.removed.features")) %>% 
@@ -951,8 +957,9 @@ make_GBI <- function(ValueTable = NULL,
     as.data.frame(logical_data),
     cols = -"Language_ID",
     names_to = "new.name",
-    values_to = "value"
-  )
+    values_to = "value")  %>%  
+    as.data.frame()
+  
   logical_long$value_ID <- apply(logical_long,1,function(x) paste(x[2],x[1],sep="-"))
   logical_long$code_ID <- apply(logical_long,1,function(x) paste(x[2],x[3],sep="-"))
   logical_long <- logical_long %>% 
@@ -964,8 +971,9 @@ make_GBI <- function(ValueTable = NULL,
     as.data.frame(statistical_data),
     cols = -"Language_ID",
     names_to = "new.name",
-    values_to = "value"
-  )
+    values_to = "value") %>%  
+    as.data.frame()
+  
   statistical_long$value_ID <- apply(statistical_long,1,function(x) paste(x[2],x[1],sep="-"))
   statistical_long$code_ID <- apply(statistical_long,1,function(x) paste(x[2],x[3],sep="-"))
   statistical_long[["Language_ID"]] <- as.character(statistical_long[["Language_ID"]])
@@ -1027,7 +1035,11 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
   "values_statisticalGBI" = statistical_long  %>% as.data.frame(),
   "codes_logicalGBI" = logical_codes  %>% as.data.frame(),
   "codes_statisticalGBI" = statistical_codes  %>% as.data.frame(),
-  "modificationsGBI" = modifications  %>% as.data.frame())
+  "modificationsGBI" = modifications  %>% as.data.frame()
+  )
+  
+  if(verbose == TRUE){cat("GBI finished.\n", sep="")}
+  
   output
 }
 
@@ -1188,6 +1200,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
                                       .data[["Language_ID"]] %in% as.character(condition_applies))
   }
   
+  conditioned_data <- as.data.frame(conditioned_data)
   return(conditioned_data)
 }
 
@@ -1255,7 +1268,7 @@ output <- list(data_for_statsGBI = recoded_data  %>% as.data.frame(),
     data.frame(i = ii, new_level=as.character(value), stringsAsFactors=FALSE)
   }, SIMPLIFY=FALSE))
   
-  level_table <- dplyr::full_join(expected_levels, recoded_levels, by="i")
+  level_table <- dplyr::full_join(expected_levels, recoded_levels, by="i") %>% as.data.frame()
   
   # sanity checks
   testthat::expect_true(all(!is.na(level_table$level)))
