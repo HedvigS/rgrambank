@@ -1,4 +1,4 @@
-remotes::install_github("Hedvigs/rgrambank",   ref = "ipac")
+#remotes::install_github("Hedvigs/rgrambank",   ref = "ipac")
 library(rgrambank)
 library(tidyverse)
 library(reshape2)
@@ -19,8 +19,7 @@ Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(Value
                                                      LanguageTable = GB_rcldf_obj$tables$LanguageTable,
                                                      merge_dialects = T, 
                                                      method = "singular_least_missing_data",
-                                                     replace_missing_language_level_ID = T, 
-                                                     treat_question_mark_as_missing = T) %>% 
+                                                     replace_missing_language_level_ID = T) %>% 
   dplyr::select(-Language_ID) %>% 
   dplyr::rename(Language_ID = Glottocode) 
 
@@ -31,10 +30,10 @@ Grambank_ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = Gra
   dplyr::filter(Value != "NA") %>% 
   dplyr::filter(!is.na(Value))
 
-recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
-all_decisions <- read.csv("fixed/decisions-log.csv")
+recode_patterns <- read.csv("example_scripts/fixed/feature-recode-patterns.csv")
+all_decisions <- read.csv("example_scripts/fixed/decisions-log.csv")
 
-GBI <- make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_full = recode_patterns, all_decisions = all_decisions)
+GBI <- rgrambank::make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_full = recode_patterns, all_decisions = all_decisions)
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
@@ -43,8 +42,17 @@ Glottolog_ValueTable <- glottolog_rcldf_obj$tables$ValueTable
 
 ###densify
 
+source("R/densify_GB.R")
 #checking that it runs for Grambank_ValueTable
-GB_dense <- rgrambank::densify_GB(Grambank_ValueTable = Grambank_ValueTable_binary, Glottolog_ValueTable = Glottolog_ValueTable, limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85))
+GB_dense <- densify_GB(Grambank_ValueTable = Grambank_ValueTable_binary, Glottolog_ValueTable = Glottolog_ValueTable, limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85))
+
+
+GB_dense <- densify_GB(
+  Grambank_ValueTable = Grambank_ValueTable_binary, 
+  Glottolog_ValueTable = Glottolog_ValueTable,
+  limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85),
+  scoring_function = "n_data_points * coding_density"
+)
 
 beep()
 
