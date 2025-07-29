@@ -5,7 +5,6 @@
 #' @param merge_dialects logical. In the case of multiple dialects of the same language, if TRUE they are replaced by the glottocode of their language-parent and all but one is dropped according to the merge method specified, as with other duplicate glottocodes.
 #' @param GlottologLanguageTable data-frame. If merge_dialects is TRUE and LanguageTable does not have the column  "Language_level_ID", then the function will need an additional LanguageTable with the necessary columns and it should be supplied here. Needs to minimally have the columns "Glottocode" and "Language_level_ID". Glottolog-cldf LanguageTable recommended (requires renaming Language_ID -> Language_level_ID). The output of the function "combine_Glottolog_ValueTable_LanguageTable" is ideal.
 #' @param method character vector, choice between "singular_least_missing_data", "combine_random", "singular_random". combine_random = combine all datapoints for all the dialects/duplicates and if there is more than one datapoint for a given feature/word/variable choose uniformly between the values across all entries, singular_random = choose one entry randomly between the dialects/duplicates, singular_least_missing_data = choose the dialect/duplicate which has the least missing values.
-#' @param treat_question_mark_as_missing logical. If TRUE, values which are ? are treated as missing.
 #' @param replace_missing_language_level_ID logical. If TRUE and there is a missing value in the column Language_level ID, the Glottocode value is filled in. If FALSE, it remains missing (highly discouraged). Only relevant if merge_dialects is TRUE.
 #' @author Hedvig Skirgård
 #' @description
@@ -34,8 +33,7 @@ reduce_ValueTable_to_unique_glottocodes <- function(
                               merge_dialects = TRUE,
                               GlottologLanguageTable = NULL,
                               method = c("singular_least_missing_data", "combine_random", "singular_random"),
-                              replace_missing_language_level_ID = TRUE,
-                              treat_question_mark_as_missing = TRUE
+                              replace_missing_language_level_ID = TRUE
                               ) {
 
     if (!(method %in% c("singular_least_missing_data", "combine_random", "singular_random"))) {
@@ -93,10 +91,6 @@ if(multiple_values_per_parameter > 1){
     dplyr::ungroup()
     }
 
-if(treat_question_mark_as_missing == TRUE){
-  ValueTable <- ValueTable %>% 
-    dplyr::mutate(Value = ifelse(.data[["Value"]] == "?", NA, .data[["Value"]]))
-}
 
 ## Check if LanguageTables are able to be used for merging dialects (if merge_dialects == TRUE) and set-up LanguageTable for use later.
 if(merge_dialects == TRUE){
@@ -141,6 +135,7 @@ if(merge_dialects == FALSE){
       
         lgs <- ValueTable %>%
             dplyr::filter(!is.na(.data[["Value"]])) %>%
+            dplyr::filter(.data[["Value"]] == "?") %>%
             dplyr::left_join(LanguageTable, by = "Language_ID") %>%
             dplyr::group_by(.data[["Language_ID"]]) %>%
             dplyr::mutate(n = dplyr::n()) %>%
@@ -160,6 +155,7 @@ if(merge_dialects == FALSE){
       # MERGE BY MAKING A FRANKENSTEIN COMBINATION OF ALL DUPLICATE GLOTTOCODES
         ValueTable_grouped <- ValueTable %>%
             dplyr::filter(!is.na(.data[["Value"]])) %>%
+            dplyr::filter(.data[["Value"]] == "?") %>%
             dplyr::left_join(LanguageTable, by = "Language_ID",
                       relationship = "many-to-many") %>%
             dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) %>%
@@ -200,5 +196,6 @@ if(multiple_values_per_parameter > 1){
 }
 
 levelled_ValueTable
+
 }
 
