@@ -10,8 +10,7 @@ reduce_ValueTable_to_unique_glottocodes(
   merge_dialects = TRUE,
   GlottologLanguageTable = NULL,
   method = c("singular_least_missing_data", "combine_random", "singular_random"),
-  replace_missing_language_level_ID = TRUE,
-  treat_question_mark_as_missing = TRUE
+  replace_missing_language_level_ID = TRUE
 )
 }
 \arguments{
@@ -26,8 +25,6 @@ reduce_ValueTable_to_unique_glottocodes(
 \item{method}{character vector, choice between "singular_least_missing_data", "combine_random", "singular_random". combine_random = combine all datapoints for all the dialects/duplicates and if there is more than one datapoint for a given feature/word/variable choose uniformly between the values across all entries, singular_random = choose one entry randomly between the dialects/duplicates, singular_least_missing_data = choose the dialect/duplicate which has the least missing values.}
 
 \item{replace_missing_language_level_ID}{logical. If TRUE and there is a missing value in the column Language_level ID, the Glottocode value is filled in. If FALSE, it remains missing (highly discouraged). Only relevant if merge_dialects is TRUE.}
-
-\item{treat_question_mark_as_missing}{logical. If TRUE, values which are ? are treated as missing.}
 }
 \value{
 data-frame of ValueTable without duplicates
