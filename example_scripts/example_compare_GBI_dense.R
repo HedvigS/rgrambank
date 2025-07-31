@@ -15,49 +15,53 @@ set.seed(1421)
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
 
-Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(ValueTable = GB_rcldf_obj$tables$ValueTable,
-                                                     LanguageTable = GB_rcldf_obj$tables$LanguageTable,
-                                                     merge_dialects = T, 
-                                                     method = "singular_least_missing_data",
-                                                     replace_missing_language_level_ID = T) %>% 
+Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(
+  ValueTable = GB_rcldf_obj$tables$ValueTable,
+  LanguageTable = GB_rcldf_obj$tables$LanguageTable,
+  merge_dialects = T, 
+  method = "singular_least_missing_data",
+  replace_missing_language_level_ID = T) %>% 
   dplyr::select(-Language_ID) %>% 
   dplyr::rename(Language_ID = Glottocode) 
 
+#densify
+recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
+all_decisions <- read.csv("fixed/decisions-log.csv")
 
+glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
+
+###densify
+source("../R/densify_GB.R")
+#checking that it runs for Grambank_ValueTable
+GB_dense <- densify_GB(
+  Grambank_ValueTable = Grambank_ValueTable, 
+  Glottolog_ValueTable =  glottolog_rcldf_obj$tables$ValueTable,
+  limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85)
+)
+
+beep()
+
+#checking that it runs for binary
 Grambank_ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = Grambank_ValueTable, 
                                                                 keep_multistate = F, keep_native_binary = T) %>% 
   dplyr::filter(Value != "?") %>% 
   dplyr::filter(Value != "NA") %>% 
   dplyr::filter(!is.na(Value))
 
-recode_patterns <- read.csv("example_scripts/fixed/feature-recode-patterns.csv")
-all_decisions <- read.csv("example_scripts/fixed/decisions-log.csv")
-
-GBI <- rgrambank::make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_full = recode_patterns, all_decisions = all_decisions)
-
-# fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
-glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
-
-Glottolog_ValueTable <- glottolog_rcldf_obj$tables$ValueTable 
-
-###densify
-
-source("R/densify_GB.R")
-#checking that it runs for Grambank_ValueTable
-GB_dense <- densify_GB(Grambank_ValueTable = Grambank_ValueTable_binary, Glottolog_ValueTable = Glottolog_ValueTable, limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85))
-
-
 GB_dense <- densify_GB(
   Grambank_ValueTable = Grambank_ValueTable_binary, 
-  Glottolog_ValueTable = Glottolog_ValueTable,
-  limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85),
-  scoring_function = "n_data_points * coding_density"
+  glottolog_rcldf_obj$tables$ValueTable = glottolog_rcldf_obj$tables$ValueTable,
+  limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85)
 )
 
-beep()
+
 
 #checking that it runs for GBI
-GBI_dense <- densify_GB(GBI = GBI, Glottolog_ValueTable = Glottolog_ValueTable)
+# fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
+GBI <- rgrambank::make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_full = recode_patterns, all_decisions = all_decisions)
+
+
+GBI_dense <- densify_GB(GBI = GBI, glottolog_rcldf_obj$tables$ValueTable = glottolog_rcldf_obj$tables$ValueTable)
 
 GB_statistical_multistate_non_numeric_feats <- c("GB995F", "GB332EON", "GB900EO")
 
