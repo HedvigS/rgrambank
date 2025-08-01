@@ -139,18 +139,18 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     
     # retrieve corresponding data from input (to re-establish differences between ? and NA)
-    logical_densified_with_question_mark <- logical %>% 
+    logical_densified_with_question_mark_and_NA <- logical %>% 
       dplyr::filter(.data[["Language_ID"]] %in% logical_densified$Language_ID) %>% 
       dplyr::select("Language_ID", dplyr::all_of(colnames(logical_densified)))
     
-    logical_densified <- logical_densified_with_question_mark %>% 
+    logical_densified <- logical_densified_with_question_mark_and_NA %>% 
       .na_convert()
     
-    statistical_densified_with_question_mark <- statistical %>% 
+    statistical_densified_with_question_mark_and_NA <- statistical %>% 
       dplyr::filter(.data[["Language_ID"]] %in% statistical_densified$Language_ID) %>% 
       dplyr::select("Language_ID", dplyr::all_of(colnames(statistical_densified)))
 
-    statistical_densified <- statistical_densified_with_question_mark %>% 
+    statistical_densified <- statistical_densified_with_question_mark_and_NA %>% 
       .na_convert()
     
   if(verbose == T){
@@ -166,9 +166,9 @@ densify_GB <- function(Grambank_ValueTable = NA,
                " languages and ", 
                .summarize_matrix(statistical_for_pruning)[[2]] - .summarize_matrix(statistical_densified)[[2]], " GBI_statistical features were dropped.\n"))
     
-    output <- list(logical_densified_with_question_mark = logical_densified_with_question_mark, 
+    output <- list(logical_densified_with_question_mark_and_NA = logical_densified_with_question_mark_and_NA, 
                    logical_densified = logical_densified, 
-                   statistical_densified_with_question_mark = statistical_densified_with_question_mark,
+                   statistical_densified_with_question_mark_and_NA = statistical_densified_with_question_mark_and_NA,
                    statistical_densified = statistical_densified)
   
   }
@@ -220,7 +220,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     
     }
-  output <- list(Grambank_ValueTable_densified = Grambank_densified_with_question_mark, 
+  output <- list(Grambank_densified_with_question_mark = Grambank_densified_with_question_mark, 
                  Grambank_densified = Grambank_densified)
   }
 
