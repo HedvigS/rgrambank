@@ -11,11 +11,11 @@ Selection of functions related to the cross-linguistic dataset Grambank. Some fu
 \author{
 \strong{Maintainer}: Hedvig Skirgård \email{hedvig.public@gmail.com} (\href{https://orcid.org/0000-0002-7748-2381}{ORCID})
 
-Authors:
+Other contributors:
 \itemize{
-  \item Sam Passmore
-  \item Enock Appiah Tieku
-  \item Clemens Schmid (\href{https://orcid.org/0000-0003-3448-5715}{ORCID})
+  \item Sam Passmore [contributor]
+  \item Enock Appiah Tieku [reviewer]
+  \item Clemens Schmid (\href{https://orcid.org/0000-0003-3448-5715}{ORCID}) [reviewer, contributor]
 }
 
 }
