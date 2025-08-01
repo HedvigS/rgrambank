@@ -15,6 +15,7 @@ Authors:
 \itemize{
   \item Sam Passmore
   \item Enock Appiah Tieku
+  \item Clemens Schmid (\href{https://orcid.org/0000-0003-3448-5715}{ORCID})
 }
 
 }
