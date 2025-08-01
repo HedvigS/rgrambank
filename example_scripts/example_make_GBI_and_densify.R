@@ -198,8 +198,8 @@ GB_statitical_dense_map <- plot_PCA(plot_title = "GBI - statistical (dense)", Va
 library(beepr)
 beep()
 
-(GB_map + GB_logical_map + GB_statistical_map) / (GB_dense_map  + GB_logical_dense_map  + GB_statitical_dense_map)
+p <- (GB_map + GB_logical_map + GB_statistical_map) / (GB_dense_map  + GB_logical_dense_map  + GB_statitical_dense_map)
 
-ggsave("test.png", width = 35, height = 30, units = "cm")
+ggsave(plot = p, "output/GB_GBI_compare_maps.png", width = 35, height = 30, units = "cm")
 
 
