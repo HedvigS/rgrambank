@@ -25,7 +25,6 @@ Imports:
     tidyr
 Suggests:
     rcldf,
-    Amelia,
     densify
 RoxygenNote: 7.3.2
 Remotes:
