@@ -50,7 +50,6 @@ densify_GB <- function(Grambank_ValueTable = NA,
   # function to summarize matrices
   .summarize_matrix <- function(matrix){
     
-    #  matrix = logical_densified
     matrix <- .na_convert(matrix)
     nfam <- taxonomy_matrix  %>% 
       dplyr::filter(.data[["id"]] %in% matrix$Language_ID) %>% 
@@ -101,6 +100,10 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     # run densify, set seed for reproducibility
     
+    if(verbose == T){
+      cat("\n Densifying GBI logical.\n")}
+    
+    
     logical_log <-
       densify::densify(data = logical_for_pruning,
                        min_variability = min_variability,
@@ -111,6 +114,9 @@ densify_GB <- function(Grambank_ValueTable = NA,
                        limits= limits,
                        density_mean_weights = density_mean_weights)
     
+    if(verbose == T){
+      cat("\n Densifying GBI statistical.\n")}
+  
     statistical_log <-
       densify::densify(data = statistical_for_pruning,
                        min_variability = min_variability,
@@ -137,37 +143,34 @@ densify_GB <- function(Grambank_ValueTable = NA,
       dplyr::filter(.data[["Language_ID"]] %in% logical_densified$Language_ID) %>% 
       dplyr::select("Language_ID", dplyr::all_of(colnames(logical_densified)))
     
+    logical_densified <- logical_densified_with_question_mark %>% 
+      .na_convert()
+    
     statistical_densified_with_question_mark <- statistical %>% 
       dplyr::filter(.data[["Language_ID"]] %in% statistical_densified$Language_ID) %>% 
       dplyr::select("Language_ID", dplyr::all_of(colnames(statistical_densified)))
-  
-  
+
+    statistical_densified <- statistical_densified_with_question_mark %>% 
+      .na_convert()
+    
   if(verbose == T){
     
     cat(paste0("Finished.\n
   Before densifying, GBI_logical had ",   .summarize_matrix(logical_for_pruning)[[4]], " data coverage (counting ? as missing). After densifying, it has ",   .summarize_matrix(logical_densified)[[4]], " data coverage. ", 
                format( .summarize_matrix(logical_for_pruning)[[1]] - .summarize_matrix(logical_densified)[[1]], big.mark=",") ,
                " languages and ", 
-               .summarize_matrix(logical_for_pruning)[[2]] - .summarize_matrix(logical_densified)[[2]], " GBI_logical features were dropped. See plotting window for comparion plots.\n"))
-    
-    
-    Amelia::missmap(.na_convert(logical_for_pruning, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_logical before densifying")
-    Amelia::missmap(.na_convert(logical_densified, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_logical after densifying")
-    
+               .summarize_matrix(logical_for_pruning)[[2]] - .summarize_matrix(logical_densified)[[2]], " GBI_logical features were dropped.\n"))
     
     cat(paste0("Before densifying, GBI_statistical had ",   .summarize_matrix(statistical_for_pruning)[[4]], " data coverage (counting ? as missing). After densifying, it has ",   .summarize_matrix(statistical_densified)[[4]], " data coverage. ", 
                format(    .summarize_matrix(statistical_for_pruning)[[1]] - .summarize_matrix(statistical_densified)[[1]], big.mark=","),
                " languages and ", 
-               .summarize_matrix(statistical_for_pruning)[[2]] - .summarize_matrix(statistical_densified)[[2]], " GBI_statistical features were dropped. See plotting window for comparion plots.\n"))
+               .summarize_matrix(statistical_for_pruning)[[2]] - .summarize_matrix(statistical_densified)[[2]], " GBI_statistical features were dropped.\n"))
     
-    
-    Amelia::missmap(.na_convert(statistical_for_pruning, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_statistical before densifying")
-    Amelia::missmap(.na_convert(statistical_densified, question_mark_to_na = TRUE), main = "Data coverage of \nGBI_statistical after densifying")
-    
-    output <- list(statistical_densified_with_question_mark = statistical_densified_with_question_mark,
-                   logical_densified_with_question_mark = logical_densified_with_question_mark)
-    
-    
+    output <- list(logical_densified_with_question_mark = logical_densified_with_question_mark, 
+                   logical_densified = logical_densified, 
+                   statistical_densified_with_question_mark = statistical_densified_with_question_mark,
+                   statistical_densified = statistical_densified)
+  
   }
 }
 
@@ -176,7 +179,6 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     Grambank_wide <- Grambank_ValueTable %>% 
       dplyr::mutate(Value = as.character(.data[["Value"]])) %>% 
-      dplyr::mutate(Value = ifelse(is.na(.data[["Value"]]), "?", .data[["Value"]])) %>% 
       tidyr::pivot_wider(
         id_cols = "Language_ID",
         names_from ="Parameter_ID",
@@ -185,7 +187,8 @@ densify_GB <- function(Grambank_ValueTable = NA,
     
     Grambank_ValueTable_for_pruning <- .na_convert(Grambank_wide, question_mark_to_na = T)
     
-    
+    if(verbose == T){
+      cat("\n Densifying Grambank_ValueTable.\n")}
     Grambank_ValueTable_log <-
       densify::densify(data = Grambank_ValueTable_for_pruning,
                        min_variability = min_variability,
@@ -204,6 +207,8 @@ densify_GB <- function(Grambank_ValueTable = NA,
       dplyr::filter(.data[["Language_ID"]] %in% Grambank_densified$Language_ID) %>% 
       dplyr::select("Language_ID", dplyr::all_of(colnames(Grambank_densified)))
   
+    Grambank_densified <- Grambank_densified_with_question_mark %>% 
+      .na_convert()
   
   if(verbose == T){
     
@@ -211,17 +216,12 @@ densify_GB <- function(Grambank_ValueTable = NA,
   Before densifying, Grambank had ",   .summarize_matrix(Grambank_ValueTable_for_pruning)[[4]], " data coverage (counting ? as missing). After densifying, it has ",   .summarize_matrix(Grambank_densified)[[4]], " data coverage. ", 
                format( .summarize_matrix(Grambank_ValueTable_for_pruning)[[1]] - .summarize_matrix(Grambank_densified)[[1]], big.mark=",") ,
                " languages and ", 
-               .summarize_matrix(Grambank_ValueTable_for_pruning)[[2]] - .summarize_matrix(Grambank_densified)[[2]], " GBI_logical features were dropped. See plotting window for comparion plots.\n"))
+               .summarize_matrix(Grambank_ValueTable_for_pruning)[[2]] - .summarize_matrix(Grambank_densified)[[2]], " GBI_logical features were dropped.\n"))
     
-    
-    Amelia::missmap(.na_convert(Grambank_ValueTable_for_pruning, question_mark_to_na = TRUE), main = "Data coverage of \nGrambank before densifying")
-    Amelia::missmap(.na_convert(Grambank_densified, question_mark_to_na = TRUE), main = "Data coverage of \nGrambank after densifying")
-    
-    
-
     
     }
-  output <- list(Grambank_ValueTable_densified = Grambank_densified_with_question_mark)
+  output <- list(Grambank_ValueTable_densified = Grambank_densified_with_question_mark, 
+                 Grambank_densified = Grambank_densified)
   }
 
     return(output)  
