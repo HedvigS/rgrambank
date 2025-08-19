@@ -1,10 +1,10 @@
 # This script makes a worldmap with dots for languages coloured by the data-sets first three principal components. To accomplish this, the data-set needs dialects merged, to be made binary, missing data cropped, remaining missing data imputed, PCA, match to RGB and finally plotting.
 
-#remotes::install_github("Hedvigs/rgrambank",   ref = "ipac")
-library(rgrambank)
-
 #install.packages("remotes", version = "2.4.2.1", repos = "http://cran.us.r-project.org")
 library(remotes)
+
+#remotes::install_github("Hedvigs/rgrambank",   ref = "ipac")
+library(rgrambank)
 
 #remotes::install_version("tidyverse", version = "2.0.0", repos = "http://cran.us.r-project.org")
 library(tidyverse)
@@ -21,10 +21,10 @@ library(rcldf)
 #install.packages("mapproj", version = "1.2.1.2.", repos = "http://cran.us.r-project.org")
 library(mapproj)
 
-#devtools::install_github("HedvigS/rgrambank")
-library(rgrambank)
+#install.packages("FactoMineR", version = "2.12", repos = "http://cran.us.r-project.org")
+library(FactoMineR)
 
-#install_github("HedvigS/SH.misc", ref = "3ad2758d63792e1e9216119b4b5bad269a3bf944")
+#remotes::install_github("HedvigS/SH.misc")
 library(SH.misc)
 
 if(!dir.exists("output")){dir.create("output")}
@@ -42,8 +42,7 @@ ValueTable_dialect_reduced <- rgrambank::reduce_ValueTable_to_unique_glottocodes
                                                                       LanguageTable = LanguageTable,
                                                                       merge_dialects = T, 
                                                                       method = "singular_least_missing_data",
-                                                                      replace_missing_language_level_ID = T, 
-                                                                      treat_question_mark_as_missing = T) %>% 
+                                                                      replace_missing_language_level_ID = T) %>% 
   dplyr::select(-Language_ID) %>% 
   dplyr::rename(Language_ID = Glottocode)
 
@@ -64,7 +63,6 @@ ValueTable_cropped <- rgrambank::crop_missing_data(ValueTable = ValueTable_binar
   spread(key = Parameter_ID, value = Value, drop = FALSE) 
   
 set.seed(1421)
-
 
 #imputation
 imputed_data <- ValueTable_cropped %>%
@@ -124,3 +122,44 @@ p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_b
   geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
 
 ggsave(plot = p, filename = "output/plots/PCA_RGB_map_eez.png", width = 10, height = 10)
+
+
+#MCA
+
+MCA <- imputed_data$ximp %>% 
+  as.data.frame() %>% 
+  FactoMineR::MCA(graph = F)
+
+MCA_df  <- MCA$ind$coord %>%
+  as.data.frame() %>% 
+  dplyr::select(1, 2, 3) %>%
+  tibble::rownames_to_column("ID") 
+
+MCA_df$RGB <- rgrambank::match_to_rgb(x = MCA_df [,c("Dim 1","Dim 2","Dim 3")], first_three = T)
+
+# the function rgrambank::basemap_pacific_center outputs a list of two objects, the basemap itself and a combination of the LongLatTable and DataTable with Longitude appropraitely adjusted to match.
+basemap_list  <- rgrambank::basemap_pacific_center(LongLatTable = LongLatTable, DataTable = MCA_df) 
+
+#specifically to plot RGB we can't use mapping = aes() because we want to refer to the values themselves, not have ggplot then map them to colors on its own. Therefore we need to pass it the RGB vector outside of aes().
+map <- basemap_list$basemap +
+  geom_jitter(mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
+
+p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
+  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
+
+ggsave(plot = p, filename = "output/plots/MCA_RGB_map_eez.png", width = 10, height = 10)
+
+df <- GB_PCA$x %>% 
+  as.data.frame() %>% 
+  dplyr::select(PC1, PC2, PC3)   %>%
+  tibble::rownames_to_column("ID") %>% 
+  left_join(MCA_df, by = "ID") %>% 
+  dplyr::select( "PC1"  , "PC2" ,  "PC3" ,  
+                 "MC1" = "Dim 1" ,"MC2" = "Dim 2" ,"MC3" = "Dim 3")
+
+set.seed(3143)
+p <- SH.misc::coloured_SPLOM(df = df, herringbone = T)
+p
+
+ggsave(plot = p, filename = "output/plots/GB_PCA_MCA_SPLOM.png")
+
