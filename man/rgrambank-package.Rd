@@ -16,6 +16,8 @@ Other contributors:
   \item Sam Passmore [contributor]
   \item Enock Appiah Tieku [reviewer]
   \item Clemens Schmid (\href{https://orcid.org/0000-0003-3448-5715}{ORCID}) [reviewer, contributor]
+  \item Taras Zakharko [contributor]
+  \item Anna Graff [contributor]
 }
 
 }
