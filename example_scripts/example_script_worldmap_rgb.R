@@ -151,17 +151,28 @@ p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_b
 
 ggsave(plot = p, filename = "output/plots/MCA_RGB_map_eez.png", width = 10, height = 10)
 
+
+######SPLOM time
+
+theo_scores_table <- rgrambank::make_theo_scores(ValueTable = ValueTable_binary , ParameterTable = ParameterTable, Fusion_option = "count_one_and_half") 
+
 df <- GB_PCA$x %>% 
   as.data.frame() %>% 
   dplyr::select(PC1, PC2, PC3)   %>%
   tibble::rownames_to_column("ID") %>% 
+  full_join(theo_scores_table, by = c("ID" = "Language_ID")) %>% 
   left_join(MCA_df, by = "ID") %>% 
   dplyr::select( "PC1"  , "PC2" ,  "PC3" ,  
-                 "MC1" = "Dim 1" ,"MC2" = "Dim 2" ,"MC3" = "Dim 3")
+                 "MC1" = "Dim 1" ,"MC2" = "Dim 2" ,"MC3" = "Dim 3", 
+                 "Word_Order"      ,     "Flexivity"     ,       "Gender_or_Noun_Class", "Locus_of_Marking"    ,"Fusion"      ,         "Informativity"  ) 
 
-set.seed(3143)
+set.seed(322444)
 p <- SH.misc::coloured_SPLOM(df = df, herringbone = T)
 p
 
-ggsave(plot = p, filename = "output/plots/GB_PCA_MCA_SPLOM.png")
+ggsave(plot = p, filename = "output/plots/GB_PCA_MCA_SPLOM_plus_theo.png", height = 14, width =14)
+
+
+
+
 
