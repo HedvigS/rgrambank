@@ -5,7 +5,7 @@ library(reshape2)
 library(missForest)
 library(patchwork)
 library(testthat)
-#remotes::install_github("annagraff/densify",  ref = "scoring-nse-fixes") 
+#remotes::install_github("annagraff/densify") 
 library(densify)
 library(beepr)
 
