@@ -119,7 +119,8 @@ map <- basemap_list$basemap +
 ggsave(plot = map, filename = "output/plots/PCA_RGB_map.png", width = 10, height = 10)
 
 p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
-  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
+  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2) +
+  ggtitle("Grambank v1: first three PCA mapped to RGB")
 
 ggsave(plot = p, filename = "output/plots/PCA_RGB_map_eez.png", width = 10, height = 10)
 
@@ -145,7 +146,8 @@ map <- basemap_list$basemap +
   geom_jitter(mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
 
 p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
-  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
+  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2) +
+  ggtitle("Grambank v1: first three MCA mapped to RGB")
 
 ggsave(plot = p, filename = "output/plots/MCA_RGB_map_eez.png", width = 10, height = 10)
 
