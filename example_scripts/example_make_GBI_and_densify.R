@@ -24,8 +24,9 @@ Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(
   dplyr::rename(Language_ID = Glottocode) 
 
 #densify
-recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
-all_decisions <- read.csv("fixed/decisions-log.csv")
+recode_patterns <- read.csv("https://raw.githubusercontent.com/annagraff/crossling-curated/0e8695e176044f268b7d8c1ac012061b7bf1b343/scripts/GBI/feature-recode-patterns.csv")
+all_decisions <- read.csv("https://raw.githubusercontent.com/annagraff/crossling-curated/0e8695e176044f268b7d8c1ac012061b7bf1b343/scripts/GBI/decisions-log.csv")
+
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
