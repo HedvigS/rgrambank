@@ -7,16 +7,6 @@
 #' @param rename_tips_to_glottocodes logical. If TRUE, the tip-labels of the output tree are renamed to the corresponding Glottocodes. If FALSE, the original tip-labels are retained.
 #' @return tree without tips with duplicate Glottocodes, optionally all but one dialect is dropped as well.
 #' @author Hedvig Skirgård
-#' @importFrom dplyr distinct
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
-#' @importFrom dplyr rename
-#' @importFrom dplyr group_by
-#' @importFrom dplyr slice_sample
-#' @importFrom ape Ntip
-#' @importFrom ape keep.tip
-#' @importFrom dplyr left_join
-#' @importFrom dplyr full_join
 #' @export
 
 drop_duplicate_glottocode_tips <- function(tree = NULL,
@@ -55,8 +45,8 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
     }
     
       GlottologLanguageTable <- GlottologLanguageTable %>%
-      dplyr::distinct(Glottocode, Language_level_ID)
-    
+      dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode", "Language_level_ID")))) 
+
     TaxonTable <- TaxonTable %>% 
       dplyr::full_join(GlottologLanguageTable, by = "Glottocode") %>%         
       dplyr::mutate(Language_level_ID = ifelse(is.na(.data[["Language_level_ID"]]) | 
@@ -68,8 +58,8 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
   # Still in the merge_dialect == TRUE if loop
   # Replacing the col glottocode with Language_level_ID merges dialects for the rest of the duplicate pruning
   TaxonTable <- TaxonTable %>%
-    dplyr::select(-Glottocode) %>% 
-    dplyr::select(taxon, Glottocode = Language_level_ID)
+    dplyr::select(-"Glottocode") %>% 
+    dplyr::select("taxon", "Glottocode" = "Language_level_ID")
   }
 
 
@@ -78,8 +68,8 @@ to_keep <- tree$tip.label %>%
               as.data.frame() %>%
     dplyr::rename(taxon = ".") %>%
     dplyr::left_join(TaxonTable, by = "taxon") %>% 
-    dplyr::group_by(Glottocode) %>%
-    dplyr::mutate(n = n()) %>% 
+    dplyr::group_by(.data[["Glottocode"]]) %>%
+    dplyr::mutate(n = dplyr::n()) %>% 
     dplyr::slice_sample(n = 1)
 
 tree <- ape::keep.tip(tree, tip = to_keep$taxon)

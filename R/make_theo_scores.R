@@ -2,9 +2,8 @@
 #'
 #' @param ValueTable data-frame, long format, of Grambank values. If not already binarised, make_binary_ValueTable() will be applied.
 #' @param ParameterTable data-frame of Grambank ParameterTable. . If not already binarised, make_binary_ParameterTable will be applied.
-#' @param missing_cut_off numeric value between 0 and 1 representing cut-off for how much coverage each language should have, for each feature set. For each set of features for the theoretical scores, if a language falls under the threshold, it is not considered for the theoretical score (but may be considered for other sets). 0.75 means that languages with 75% of feature values non-missing for that set of features are included, less than 75% coverage are dropped.
+#' @param missing_cut_off numeric value between 0 and 1 representing cut-off for how much coverage each language should have, for each feature set. For each set of features for the theoretical scores, if a language falls under the threshold, it is not considered for the theoretical score (but may be considered for other sets). 0.75 means that languages with 75\% of feature values non-missing for that set of features are included, less than 75\% coverage are dropped.
 #' @param Fusion_option Character vector: "count_zero_half_and_one", "count_one_only" or "count_one_and_half". The features in the ParameterTable are assigned Fusion weights of 0 (pertains to free-marking), 1 (pertains to bound marking) and half (could be bound, affixal or other). Users can choose approach in how these contribute to the fusion score. If you choose "count_zero_half_and_one" then features assigned as 0 will be reversed, i.e. free-marking with contribute negatively to the fusion-score. Default is "count_one_and_half".
-#' @importFrom dplyr select mutate group_by summarise filter
 #' @author Hedvig Skirgård and Hannah Haynie and Olena Shcherbakova
 #' @return A data-frame with theoretical scores per language.
 #' @export
@@ -31,7 +30,7 @@ if(!"GB203b" %in% ParameterTable$ID){
 
     #read in sheet with scores for whether a feature denotes fusion
     ParameterTable <- ParameterTable %>%
-        dplyr::select(Parameter_ID = ID, Fusion = Boundness, Informativity, Locus_of_Marking, Word_Order, Gender_or_Noun_Class, Flexivity) %>%
+        dplyr::select("Parameter_ID" = "ID", "Fusion" = "Boundness", "Informativity", "Locus_of_Marking", "Word_Order", "Gender_or_Noun_Class", "Flexivity") %>%
         dplyr::mutate(Fusion = as.numeric(.data[["Fusion"]])) %>%
         dplyr::mutate(Gender_or_Noun_Class = as.numeric(.data[["Gender_or_Noun_Class"]])) %>%
         dplyr::mutate(Flexivity = as.numeric(.data[["Flexivity"]])) %>%
@@ -53,11 +52,11 @@ if(!"GB203b" %in% ParameterTable$ID){
         sum(ParameterTable$Fusion == 0.5, na.rm = T) 
     }
     
-    n_informativity_feats <- length(ParameterTable$Informativity %>% na.omit())
-    n_gender_NC_feats <- length(ParameterTable$Gender_or_Noun_Class %>% na.omit())
-    n_flexivity_feats <- length(ParameterTable$Flexivity %>% na.omit())
-    n_locus_marking_feats <- length(ParameterTable$Locus_of_Marking %>% na.omit())
-    n_word_order_feats <- length(ParameterTable$Word_Order %>% na.omit())
+    n_informativity_feats <- length(ParameterTable$Informativity %>% stats::na.omit())
+    n_gender_NC_feats <- length(ParameterTable$Gender_or_Noun_Class %>% stats::na.omit())
+    n_flexivity_feats <- length(ParameterTable$Flexivity %>% stats::na.omit())
+    n_locus_marking_feats <- length(ParameterTable$Locus_of_Marking %>% stats::na.omit())
+    n_word_order_feats <- length(ParameterTable$Word_Order %>% stats::na.omit())
     
     if(any(n_fusion_feats == 0, 
         n_informativity_feats == 0, 
@@ -72,7 +71,7 @@ if(!"GB203b" %in% ParameterTable$ID){
     ValueTable <- ValueTable %>%
         dplyr::inner_join(ParameterTable , by = "Parameter_ID", relationship = "many-to-many") %>%
         dplyr::filter(!is.na(.data[["Value"]])) %>%
-        dplyr::filter(Value != "?") %>%
+        dplyr::filter(.data[["Value"]] != "?") %>%
         dplyr::mutate(Value = as.numeric(.data[["Value"]]))  #makes it possible to sum, mean etc
 
     #fusion counts
@@ -97,18 +96,18 @@ if(!"GB203b" %in% ParameterTable$ID){
           dplyr::group_by(.data[["Language_ID"]]) %>%
           dplyr::mutate(n = dplyr::n()) %>%
           dplyr::filter(.data[["n"]] >= n_fusion_feats * missing_cut_off) %>% 
-          dplyr::rename(Value_weighted = Value)
+          dplyr::rename("Value_weighted" = "Value")
         }
           
     if(Fusion_option == "count_zero_half_and_one") {
       Fusion_df <- ValueTable %>%
-        dplyr::filter(!is.na(Fusion)) %>%
+        dplyr::filter(!is.na(.data[["Fusion"]])) %>%
         dplyr::group_by(.data[["Language_ID"]]) %>%
         dplyr::mutate(n = dplyr::n()) %>%
         dplyr::filter(.data[["n"]] >= n_fusion_feats * missing_cut_off) %>% 
         dplyr::mutate(Value_weighted = ifelse(.data[["Fusion"]] == 0.5 & .data[["Value"]] == 1, 
                                               yes = 0.5, no = .data[["Value"]])) %>%  # replacing all instances of 1 for a feature that is weighted to 0.5 bound morph points to 0.5 
-        dplyr::mutate(value_weighted = if_else(.data[["Fusion"]] == 0, 
+        dplyr::mutate(value_weighted = dplyr::if_else(.data[["Fusion"]] == 0, 
                                                yes = abs(.data[["value"]]-1), 
                                                no = .data[["value_weighted"]])) # reversing the values of the features that refer to free-standing markers 
     }
@@ -119,7 +118,7 @@ if(!"GB203b" %in% ParameterTable$ID){
 
     ##Flexivity scores
     lg_df_for_flex_count <- ValueTable  %>%
-        dplyr::filter(!is.na(Flexivity)) %>%
+        dplyr::filter(!is.na(.data[["Flexivity"]])) %>%
         dplyr::group_by(.data[["Language_ID"]]) %>%
         dplyr::mutate(n = dplyr::n()) %>%
         dplyr::filter(.data[["n"]] >= n_flexivity_feats * missing_cut_off) %>%

@@ -5,19 +5,13 @@
 #' @param merge_dialects logical. In the case of multiple dialects of the same language, if TRUE they are replaced by the glottocode of their language-parent and all but one is dropped according to the merge method specified, as with other duplicate glottocodes.
 #' @param GlottologLanguageTable data-frame. If merge_dialects is TRUE and LanguageTable does not have the column  "Language_level_ID", then the function will need an additional LanguageTable with the necessary columns and it should be supplied here. Needs to minimally have the columns "Glottocode" and "Language_level_ID". Glottolog-cldf LanguageTable recommended (requires renaming Language_ID -> Language_level_ID). The output of the function "combine_Glottolog_ValueTable_LanguageTable" is ideal.
 #' @param method character vector, choice between "singular_least_missing_data", "combine_random", "singular_random". combine_random = combine all datapoints for all the dialects/duplicates and if there is more than one datapoint for a given feature/word/variable choose uniformly between the values across all entries, singular_random = choose one entry randomly between the dialects/duplicates, singular_least_missing_data = choose the dialect/duplicate which has the least missing values.
-#' @param treat_question_mark_as_missing logical. If TRUE, values which are ? are treated as missing.
 #' @param replace_missing_language_level_ID logical. If TRUE and there is a missing value in the column Language_level ID, the Glottocode value is filled in. If FALSE, it remains missing (highly discouraged). Only relevant if merge_dialects is TRUE.
 #' @author Hedvig Skirgård
 #' @description
 #' This function takes a CLDF ValueTable and reduces it down to only entries with unique Glottocodes. If there are dialects of the same language, merge_dialects can be set to TRUE and then they are also treated as duplicates and reduced in the same manner as method specifies.
-#' @importFrom dplyr select distinct filter arrange ungroup n full_join left_join inner_join group_by slice_sample
-#' @importFrom readr read_tsv
-#' @importFrom tidyr unnest
-#' @importFrom stringr str_splir
 #' @note
 #'  treat_question_mark_as_missing is set to TRUE by default, that means that '?' values are turned into NA.
 #' @return data-frame of ValueTable without duplicates
-#' @export
 #'
 
 # ValueTable <- readr::read_csv("https://github.com/cldf-datasets/apics/raw/master/cldf/values.csv")
@@ -32,14 +26,14 @@
 # method = "singular_least_missing_data"
 # merge_dialects = FALSE
 
+#' @export
 reduce_ValueTable_to_unique_glottocodes <- function(
                               ValueTable = NULL,
                               LanguageTable = NULL,
                               merge_dialects = TRUE,
                               GlottologLanguageTable = NULL,
                               method = c("singular_least_missing_data", "combine_random", "singular_random"),
-                              replace_missing_language_level_ID = TRUE,
-                              treat_question_mark_as_missing = TRUE
+                              replace_missing_language_level_ID = TRUE
                               ) {
 
     if (!(method %in% c("singular_least_missing_data", "combine_random", "singular_random"))) {
@@ -97,17 +91,13 @@ if(multiple_values_per_parameter > 1){
     dplyr::ungroup()
     }
 
-if(treat_question_mark_as_missing == TRUE){
-  ValueTable <- ValueTable %>% 
-    dplyr::mutate(Value = ifelse(.data[["Value"]] == "?", NA, Value))
-}
 
 ## Check if LanguageTables are able to be used for merging dialects (if merge_dialects == TRUE) and set-up LanguageTable for use later.
 if(merge_dialects == TRUE){
 
   if(!"Language_level_ID" %in% colnames(LanguageTable)){
     GlottologLanguageTable <- GlottologLanguageTable %>%
-      dplyr::distinct(Glottocode, Language_level_ID)
+      dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode", "Language_level_ID"))))
       
     LanguageTable <- LanguageTable %>% 
       dplyr::full_join(GlottologLanguageTable, by = "Glottocode")
@@ -128,14 +118,14 @@ if(replace_missing_language_level_ID == TRUE){
 # Still in the merge_dialect == TRUE if loop
     # Replacing the col glottocode with Language_level_ID merges dialects for the rest of the duplicate pruning
         LanguageTable <- LanguageTable %>%
-        dplyr::select(-Glottocode) %>% 
-        dplyr::select(Language_ID = ID, Glottocode = Language_level_ID)
+        dplyr::select(-"Glottocode") %>% 
+        dplyr::select("Language_ID" = "ID", "Glottocode" = "Language_level_ID")
 
 }
 
 if(merge_dialects == FALSE){
     LanguageTable <- LanguageTable %>%
-        dplyr::select(Language_ID = ID, Glottocode)
+        dplyr::select("Language_ID" = "ID", "Glottocode")
 
     }
 
@@ -145,13 +135,14 @@ if(merge_dialects == FALSE){
       
         lgs <- ValueTable %>%
             dplyr::filter(!is.na(.data[["Value"]])) %>%
+            dplyr::filter(.data[["Value"]] != "?") %>%
             dplyr::left_join(LanguageTable, by = "Language_ID") %>%
             dplyr::group_by(.data[["Language_ID"]]) %>%
             dplyr::mutate(n = dplyr::n()) %>%
-            dplyr::arrange(desc(n)) %>%
+            dplyr::arrange(dplyr::desc(.data[["n"]])) %>%
             dplyr::ungroup() %>%
-            dplyr::distinct(Glottocode, .keep_all = T) %>%
-            dplyr::distinct(Language_ID)
+            dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode"))), .keep_all = T) %>%
+            dplyr::distinct(dplyr::across(dplyr::all_of(c("Language_ID"))))
 
         levelled_ValueTable <- ValueTable %>% 
           dplyr::inner_join(lgs, by = "Language_ID") %>% 
@@ -164,6 +155,7 @@ if(merge_dialects == FALSE){
       # MERGE BY MAKING A FRANKENSTEIN COMBINATION OF ALL DUPLICATE GLOTTOCODES
         ValueTable_grouped <- ValueTable %>%
             dplyr::filter(!is.na(.data[["Value"]])) %>%
+            dplyr::filter(.data[["Value"]] != "?") %>%
             dplyr::left_join(LanguageTable, by = "Language_ID",
                       relationship = "many-to-many") %>%
             dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) %>%
@@ -181,7 +173,7 @@ if(merge_dialects == FALSE){
         levelled_ValueTable <- ValueTable_grouped %>% 
             dplyr::filter(.data[["n"]] == 1) %>%
           suppressMessages( dplyr::full_join(ValueTable_long_n_greater_than_1)) %>%
-            dplyr::select(-n) 
+            dplyr::select(-"n") 
 
     # MERGE BY PICKING DIALECTS WHOLLY AT RANDOM
     } 
@@ -191,7 +183,7 @@ if(merge_dialects == FALSE){
             dplyr::group_by(.data[["Glottocode"]]) %>%
             dplyr::slice_sample(n = 1) %>%
         dplyr::ungroup() %>% 
-        dplyr::distinct(Language_ID, .keep_all = T) 
+        dplyr::distinct(dplyr::across(dplyr::all_of(c("Language_ID"))), .keep_all = T) 
       
     levelled_ValueTable <- ValueTable %>% 
       dplyr::inner_join(lgs, by = "Language_ID") 
@@ -204,5 +196,6 @@ if(multiple_values_per_parameter > 1){
 }
 
 levelled_ValueTable
+
 }
 

@@ -5,8 +5,6 @@
 #' @param cols = character vector. If first_three is FALSE, provide the names of the three relevant columns here
 #' @return A vector of the same length and order as x, with HEX-codes for RGB values.
 #' @author Hedvig Skirgård and Damián Blasi
-#' @importFrom dplyr select 
-#' @importFrom dplyr all_of
 #' 
 #' @export
 
@@ -15,8 +13,8 @@ match_to_rgb <- function(x = NULL,
                          cols = NULL){
 
   
-  if(first_three == FALSE & is.null(cols)){
-    stop("first_three is set to FALSE but no columns were provided.")
+  if(first_three == FALSE && is.null(cols)){
+    stop("first_three is set to FALSE but no specific column names were provided.")
     }
   
   x <- x %>% 
@@ -27,7 +25,11 @@ match_to_rgb <- function(x = NULL,
   }
   
   if(first_three == TRUE){
-    cols = colnames(x[,1:3])
+    if(length(colnames(x) ) >= 3){
+        cols = colnames(x[,1:3])}else{
+          stop("There are not three columns in input data.")
+          
+        }
   }else{
     cols <- cols  
     }

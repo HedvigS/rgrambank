@@ -1,11 +1,8 @@
 #' Makes a version of the Grambank ParameterTable with information on binarised features
 #' @param ParameterTable data-frame, long format. ParameterTable from cldf.
 #' @param keep_multi_state_features logical. If TRUE, rows with the multistate version of the features remain, if FALSE only binary or binarised features remain in the ParameterTable.
+#' @param keep_native_binary logical vector. If ParameterTable already contains binary features, should these be kept? If so, the function just feeds back the same ParameterTable that it received. This is mainly useful for backwards compatability (applying scripts meant for Grambank version 1 to version 2).
 #' @author Hedvig Skirgård
-#' @importFrom dplyr full_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
 #' @return data-frame of ParameterTable with added rows for binarised version of multi-state features
 #' @export
 
@@ -25,7 +22,7 @@ make_binary_ParameterTable<- function(ParameterTable,
     "GB193a","GB193b",
     "GB203a", "GB203b")
   
-  if(keep_native_binary == TRUE & all(  binarised_feats %in% ParameterTable$ID)){
+  if(keep_native_binary == TRUE && all(  binarised_feats %in% ParameterTable[["ID"]])){
 
     ParameterTable_new <- ParameterTable
     
@@ -118,12 +115,12 @@ ParameterTable_new <-     ParameterTable_new %>%
 }
   
 # there can be two binary rows for the same feature, e.g. GB024a. This removes that issue
-    if(any(duplicated(ParameterTable_new$ID))
+    if(any(duplicated(ParameterTable_new[["ID"]]))
      ){
     ParameterTable_new <- ParameterTable_new %>% 
-      group_by(ID) %>%
-      filter(!(n() > 1 & Binary_Multistate == "Binarised")) %>%
-      ungroup()
+      dplyr::group_by(.data[["ID"]]) %>%
+      dplyr::filter(!(dplyr::n() > 1 & .data[["Binary_Multistate"]] == "Binarised")) %>%
+      dplyr::ungroup()
     
   }
   

@@ -1,0 +1,5 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^example_scripts$
+^rgrambank\.pdf$

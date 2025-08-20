@@ -1,12 +1,11 @@
-#remotes::install_github("Hedvigs/rgrambank")
+#remotes::install_github("Hedvigs/rgrambank",   ref = "ipac")
 library(rgrambank)
 library(tidyverse)
 library(reshape2)
 library(missForest)
 library(patchwork)
-library(Amelia)
 library(testthat)
-#remotes::install_github("annagraff/densify")
+#remotes::install_github("annagraff/densify") 
 library(densify)
 library(beepr)
 
@@ -15,68 +14,75 @@ set.seed(1421)
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
 
-Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(ValueTable = GB_rcldf_obj$tables$ValueTable,
-                                                     LanguageTable = GB_rcldf_obj$tables$LanguageTable,
-                                                     merge_dialects = T, 
-                                                     method = "singular_least_missing_data",
-                                                     replace_missing_language_level_ID = T, 
-                                                     treat_question_mark_as_missing = T) %>% 
+Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(
+  ValueTable = GB_rcldf_obj$tables$ValueTable,
+  LanguageTable = GB_rcldf_obj$tables$LanguageTable,
+  merge_dialects = T, 
+  method = "singular_least_missing_data",
+  replace_missing_language_level_ID = T) %>% 
   dplyr::select(-Language_ID) %>% 
   dplyr::rename(Language_ID = Glottocode) 
 
-
-Grambank_ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = Grambank_ValueTable, 
-                                                                keep_multistate = F, keep_binary_binary = T) %>% 
-  dplyr::filter(Value != "?") %>% 
-  dplyr::filter(Value != "NA") %>% 
-  dplyr::filter(!is.na(Value))
-
+#densify
 recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
 all_decisions <- read.csv("fixed/decisions-log.csv")
 
-GBI <- make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_full = recode_patterns, all_decisions = all_decisions)
-
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
-
-Glottolog_ValueTable <- glottolog_rcldf_obj$tables$ValueTable 
 
 ###densify
-
 #checking that it runs for Grambank_ValueTable
-GB_dense <- rgrambank::densify_GB(Grambank_ValueTable = Grambank_ValueTable_binary, Glottolog_ValueTable = Glottolog_ValueTable, limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85))
+GB_dense <- rgrambank::densify_GB(
+  Grambank_ValueTable = Grambank_ValueTable, 
+  Glottolog_ValueTable =  glottolog_rcldf_obj$tables$ValueTable,
+  limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85)
+)
 
-beep()
+#checking that it runs for binary
+Grambank_ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = Grambank_ValueTable, 
+                                                                keep_multistate = F, keep_native_binary = T) 
+
+GB_dense_binary <- rgrambank::densify_GB(
+  Grambank_ValueTable = Grambank_ValueTable_binary, 
+  Glottolog_ValueTable   = glottolog_rcldf_obj$tables$ValueTable,
+  limits = list(min_prop_rows = 0.85, min_prop_cols = 0.85)
+)
 
 #checking that it runs for GBI
-GBI_dense <- densify_GB(GBI = GBI, Glottolog_ValueTable = Glottolog_ValueTable)
+GBI <- rgrambank::make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_full = recode_patterns, all_decisions = all_decisions)
 
+GBI_dense <- rgrambank::densify_GB(GBI = GBI, Glottolog_ValueTable = glottolog_rcldf_obj$tables$ValueTable,
+                        limits = list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA))
+
+
+beepr::beep(3)
+
+#making each long and 
 GB_statistical_multistate_non_numeric_feats <- c("GB995F", "GB332EON", "GB900EO")
 
-GB_dense_long <- GB_dense$Grambank_densified_with_question_mark %>% 
+GB_dense_long <- GB_dense$Grambank_densified   %>% 
   reshape2::melt(id.vars = "Language_ID") %>% 
   dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
+  filter(!is.na(Value))
+
+GB_dense_long_binary <- GB_dense_binary$Grambank_densified   %>% 
+  reshape2::melt(id.vars = "Language_ID") %>% 
+  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
+  filter(!is.na(Value))
+
+GBI_logical <- GBI$values_logicalGBI %>%
+  dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) %>% 
   filter(Value != "?") %>% 
   filter(Value != "NA") %>% 
   filter(!is.na(Value))
 
-GBI_logical <- GBI$logicalGBI %>% 
+GBI_logical_dense <- GBI_dense$logical_densified %>% 
   reshape2::melt(id.vars = "Language_ID") %>% 
   dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
-  filter(Value != "?") %>% 
-  filter(Value != "NA") %>% 
   filter(!is.na(Value))
 
-GBI_logical_dense <- GBI_dense$logical_densified_with_question_mark %>% 
-  reshape2::melt(id.vars = "Language_ID") %>% 
-  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
-  filter(Value != "?") %>% 
-  filter(Value != "NA") %>% 
-  filter(!is.na(Value))
-
-GBI_statistical <- GBI$statisticalGBI %>% 
-  reshape2::melt(id.vars = "Language_ID") %>% 
-  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
+GBI_statistical <- GBI$values_statisticalGBI %>% 
+  dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) %>% 
   dplyr::filter(!(Parameter_ID %in% GB_statistical_multistate_non_numeric_feats)) %>% 
   mutate(Value = ifelse(Parameter_ID == "GB800EO" & Value == "bound", "1", Value)) %>% 
   mutate(Value = ifelse(Parameter_ID == "GB800EO" & Value == "non-bound", "0", Value)) %>% 
@@ -84,28 +90,20 @@ GBI_statistical <- GBI$statisticalGBI %>%
   filter(Value != "NA") %>% 
   filter(!is.na(Value))
 
-GBI_statistical_dense <- GBI_dense$statistical_densified_with_question_mark %>% 
+GBI_statistical_dense <- GBI_dense$statistical_densified %>% 
   reshape2::melt(id.vars = "Language_ID") %>% 
   dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
   dplyr::filter(!(Parameter_ID %in% GB_statistical_multistate_non_numeric_feats)) %>% 
   mutate(Value = ifelse(Parameter_ID == "GB800EO" & Value == "bound", "1", Value)) %>% 
   mutate(Value = ifelse(Parameter_ID == "GB800EO" & Value == "non-bound", "0", Value)) %>% 
-  filter(Value != "?") %>% 
-  filter(Value != "NA") %>% 
   filter(!is.na(Value))
-
-
-# fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
-glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
 
 LongLatTable <- glottolog_rcldf_obj$tables$LanguageTable %>% 
   dplyr::select(ID = Glottocode, Longitude, Latitude)
 
 #prep data for rgrambank::basemap_pacific_center function
 
-
-
-plot_PCA <- function(plot_title = "", ValueTable, 
+plot_PCA <- function(plot_title = "", ValueTable, ParameterTable,
                      LongLatTable = LongLatTable, 
                      crop = TRUE){
   
@@ -117,10 +115,9 @@ ValueTable <- ValueTable %>%
     filter(!is.na(Value))
   
 if(crop == T){
-  ValueTable <- rgrambank::crop_missing_data(ValueTable = ValueTable, 
+  ValueTable <- rgrambank::crop_missing_data(ValueTable = ValueTable, ParameterTable = ParameterTable,
                                                      cut_off_parameters  = 0.7538462, 
-                                                     cut_off_languages = 0.7538462,
-                                                     turn_question_mark_into_NA = T) 
+                                                     cut_off_languages = 0.7538462) 
     
 }
 
@@ -184,29 +181,25 @@ PCA <- df_for_PCA %>%
 map  
 }
 
-datasets <- c(Grambank_ValueTable_binary, GB_dense_long, GBI_logical, GBI_logical_dense, GBI_statistical , GBI_statistical_dense)
+datasets <- c(Grambank_ValueTable, GB_dense_long, GBI_logical, GBI_logical_dense, GBI_statistical , GBI_statistical_dense)
 
+GB_map <- plot_PCA(plot_title = "Grambank v1 (cropped)", ValueTable = Grambank_ValueTable_binary, LongLatTable = LongLatTable, crop = T, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
 
+GB_dense_map <- plot_PCA(plot_title = "Grambank v1 (dense)", ValueTable = GB_dense_long, LongLatTable = LongLatTable, crop = F, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
 
-beep()
+GB_logical_map <- plot_PCA(plot_title = "GBI - logical (cropped)", ValueTable = GBI_logical, LongLatTable = LongLatTable, crop = T, ParameterTable = GBI$parameters_logicalGBI)
 
-GB_map <- plot_PCA(plot_title = "Grambank v1 (cropped)", ValueTable = Grambank_ValueTable_binary, LongLatTable = LongLatTable, crop = T)
+GB_logical_dense_map <- plot_PCA(plot_title = "GBI - logical (dense)" , ValueTable = GBI_logical_dense, LongLatTable = LongLatTable, crop = F, ParameterTable = GBI$parameters_logicalGBI)
 
-GB_dense_map <- plot_PCA(plot_title = "Grambank v1 (dense)", ValueTable = GB_dense_long, LongLatTable = LongLatTable, crop = F)
+GB_statistical_map <- plot_PCA(plot_title = "GBI - statistical (cropped)", ValueTable = GBI_statistical, LongLatTable = LongLatTable, crop = T, ParameterTable = GBI$parameters_statisticalGBI)
 
-GB_logical_map <- plot_PCA(plot_title = "GBI - logical (cropped)", ValueTable = GBI_logical, LongLatTable = LongLatTable, crop = T)
-
-GB_logical_dense_map <- plot_PCA(plot_title = "GBI - logical (dense)" , ValueTable = GBI_logical_dense, LongLatTable = LongLatTable, crop = F)
-
-GB_statistical_map <- plot_PCA(plot_title = "GBI - statistical (cropped)", ValueTable = GBI_statistical, LongLatTable = LongLatTable, crop = T)
-
-GB_statitical_dense_map <- plot_PCA(plot_title = "GBI - statistical (dense)", ValueTable = GBI_statistical_dense, LongLatTable = LongLatTable, crop = F)
+GB_statitical_dense_map <- plot_PCA(plot_title = "GBI - statistical (dense)", ValueTable = GBI_statistical_dense, LongLatTable = LongLatTable, crop = F, ParameterTable = GBI$parameters_statisticalGBI)
 
 library(beepr)
 beep()
 
-(GB_map + GB_logical_map + GB_statistical_map) / (GB_dense_map  + GB_logical_dense_map  + GB_statitical_dense_map)
+p <- (GB_map + GB_logical_map + GB_statistical_map) / (GB_dense_map  + GB_logical_dense_map  + GB_statitical_dense_map)
 
-ggsave("test.png", width = 35, height = 30, units = "cm")
+ggsave(plot = p, "output/GB_GBI_compare_maps.png", width = 35, height = 30, units = "cm")
 
 

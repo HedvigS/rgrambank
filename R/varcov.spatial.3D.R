@@ -1,6 +1,8 @@
 #This script contains the code from the package geoR for the particular funciton varcov.spatial. It was not possible to load the package itself due to problems with XQuartz from xquartz.macosforge.org no longer part of  OS X, making it cumbersome for many mac-users to run the code. We are grateful to the creators of the package (Paulo J. Ribeiro Jr, Peter J. Diggle, Ole Christensen, Martin Schlather, Roger Bivand and Brian Ripley) for their labour acknowledge that this is their funciton.
 # ' Computes Covariance Matrix and Related Results. Adjusted function from geoR which computes earth distances better. The functions in the package files for geoR are in the script named "geoR/R/corcov.R".
 
+#' Builds the covariance matrix for a set of spatial locations
+#'
 #' @description
 #' This function builds the covariance matrix for a set of spatial locations, given the covariance parameters. According to the input options other results related to the covariance matrix (such as decompositions, determinants, inverse. etc) can also be returned.
 #' This function is an updated version of geoR::varcov.spatial. The adjustment concerns when the function is given coordinates. The old function used 2D euclidean distances (stats::dist()), which is not appropriate for earth. The updated function uses fields::rdst.earth() instead.
@@ -13,20 +15,18 @@
 #' @param inv if TRUE the inverse of covariance matrix is returned. Defaults to FALSE.
 #' @param det if TRUE the  logarithmic of the square root of the determinant of the covariance matrix is returned. Defaults to FALSE.
 #' @param func.inv algorithm used for the decomposition and inversion of the covariance matrix. Options are "chol" for Cholesky decomposition, "svd" for singular value decomposition and "eigen" for eigenvalues/eigenvectors decomposition. Defaults to "chol".
-#' @param scaledlogical indicating whether the covariance matrix should be scaled. If TRUE the partial sill parameter σ^2 is set to 1. Defaults to FALSE.
+#' @param scaled logical indicating whether the covariance matrix should be scaled. If TRUE the partial sill parameter σ^2 is set to 1. Defaults to FALSE.
 #' @param only.decomposition logical. If TRUE only the square root of the covariance matrix is returned. Defaults to FALSE.
 #' @param sqrt.inv if TRUE the square root of the inverse of  covariance matrix is returned. Defaults to FALSE.
 #' @param try.another.decomposition logical. If TRUE and the argument func.inv is one of "cholesky", "svd" or "solve", the matrix decomposition or inversion is tested and, if it fails, the argument func.inv is re-set to "eigen".
-#' @param only.inv.lower.diaglogical. If TRUE only the lower triangle and the diagonal of the inverse of the covariance matrix are returned. Defaults to FALSE.
+#' @param only.inv.lower.diag logical. If TRUE only the lower triangle and the diagonal of the inverse of the covariance matrix are returned. Defaults to FALSE.
 #' @param \dots Only for internal usage.
-#' @importFrom fields rdist.earth
 #' @details
 #' The elements of the covariance matrix are computed by the function cov.spatial. Typically this is an auxiliary function called by other functions in the geoR package.
 #'
 #' @author Original function: Paulo J. Ribeiro Jr. and Peter J. Diggle. Updated function in this script (correcting stat:dist() -> fields::rdist.earth()): Hedvig Skirgård and Sam Passmore.
 #' @note The differences between this function and the function in geoR (version 1.9-4) are as follows: when the user has not supplied the dists.lowertri-argument but has supplied coords, distances are calculated between the longitude latitude points using fields::rdist.earth instead of stats::dist. To make the scale more comparable to that of stats::dist, the distances are all divded by 100. Minor changes: the functions varcov.spatial and matern are now preceeded by a ".", making them hidden (as they are not to be used directly by the user of varcov.spatial.3D).
 #' 
-
 #' @returns The result is always list of the same kind as geoR::varcov.spatial. The components will vary according to the input options. The possible components are:
 #' varcov the covariance matrix.
 #'  sqrt.varcov a square root of the covariance matrix.
@@ -36,7 +36,6 @@
 #'  sqrt.inverse a square root of the inverse of covariance matrix.
 #' log.det.to.half the logarithmic of the square root of the determinant of the covariance matrix.
 #' @export
-
 varcov.spatial.3D <-
     function(coords = NULL, dists.lowertri = NULL, cov.model = "matern",
              kappa = 0.5, nugget = 0, cov.pars = stop("no cov.pars argument"),
@@ -49,9 +48,9 @@ varcov.spatial.3D <-
         func.inv <- match.arg(func.inv)
         cov.model <- sapply(cov.model, match.arg, choices = .geoR.cov.models)
         if(only.inv.lower.diag)  inv <- TRUE
-        if(is.null(coords) & is.null(dists.lowertri))
+        if(is.null(coords) && is.null(dists.lowertri))
             stop("one of the arguments, coords or dists.lowertri must be provided")
-        if (!is.null(coords) & !is.null(dists.lowertri))
+        if (!is.null(coords) && !is.null(dists.lowertri))
             stop("only ONE argument, either coords or dists.lowertri must be provided")
         if (!is.null(coords))  n <- nrow(coords)
         if (!is.null(dists.lowertri))
@@ -76,7 +75,7 @@ varcov.spatial.3D <-
 
             rdist.earth_dists[upper.tri(rdist.earth_dists, diag = TRUE)] <- NA
 
-            dists.lowertri <- as.vector(rdist.earth_dists) %>% na.omit()}
+            dists.lowertri <- as.vector(rdist.earth_dists) %>% stats::na.omit()}
 
         if (round(1e+12 * min(dists.lowertri)) == 0)
             warning("Two or more pairs of data at coincident (or very close) locations. \nThis may cause crashes in some matrices operations.\n")
@@ -98,7 +97,7 @@ varcov.spatial.3D <-
             }
         }
         else {
-            if (all(sigmasq < 1e-10) | all(phi < 1e-10)) {
+            if (all(sigmasq < 1e-10) || all(phi < 1e-10)) {
                 varcov <- diag(x = (tausq + sum(sigmasq)), n)
             }
             else {
@@ -111,7 +110,7 @@ varcov.spatial.3D <-
                 diag(varcov) <- tausq + sum(sigmasq)
             }
         }
-        if (inv | det | only.decomposition | sqrt.inv | only.inv.lower.diag) {
+        if (inv || det || only.decomposition || sqrt.inv || only.inv.lower.diag) {
             if (func.inv == "cholesky") {
                 varcov.sqrt <- try(chol(varcov), silent=TRUE)
                 if (inherits(varcov.sqrt, "try-error")) {
@@ -125,7 +124,7 @@ varcov.spatial.3D <-
                     }
                 }
                 else {
-                    if (only.decomposition | inv) remove("varcov")
+                    if (only.decomposition || inv) remove("varcov")
                     if (!only.decomposition) {
                         if (det) cov.logdeth <- sum(log(diag(varcov.sqrt)))
                         if (sqrt.inv) inverse.sqrt <- solve(varcov.sqrt)
@@ -150,7 +149,7 @@ varcov.spatial.3D <-
                     }
                 }
                 else {
-                    if (only.decomposition | inv) remove("varcov")
+                    if (only.decomposition || inv) remove("varcov")
                     if (only.decomposition)
                         varcov.sqrt <- crossprod(t(varcov.svd$u) * sqrt(sqrt(varcov.svd$d)))
                     if (inv) {
@@ -177,16 +176,16 @@ varcov.spatial.3D <-
             if (func.inv == "eigen") {
                 varcov.eig <- try(eigen(varcov, symmetric = TRUE), silent=TRUE)
                 cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), silent=TRUE)
-                if (inherits(cov.logdeth, "try.error") | inherits(varcov.eig, "try-error")) {
+                if (inherits(cov.logdeth, "try-error") || inherits(varcov.eig, "try-error")) {
                     diag(varcov) <- 1.0001 * diag(varcov)
                     varcov.eig <- try(eigen(varcov, symmetric = TRUE), silent=TRUE)
                     cov.logdeth <- try(sum(log(sqrt(varcov.eig$val))), silent=TRUE)
-                    if (inherits(cov.logdeth, "try.error") | inherits(varcov.eig, "try-error")) {
+                    if (inherits(cov.logdeth, "try-error") || inherits(varcov.eig, "try-error")) {
                         return(list(crash.parms = c(tausq=tausq, sigmasq=sigmasq, phi=phi, kappa=kappa)))
                     }
                 }
                 else {
-                    if (only.decomposition | inv) remove("varcov")
+                    if (only.decomposition || inv) remove("varcov")
                     if (only.decomposition)
                         varcov.sqrt <- crossprod(t(varcov.eig$vec)* sqrt(sqrt(varcov.eig$val)))
                     if (inv) invcov <- crossprod(t(varcov.eig$vec)/sqrt(varcov.eig$val))
@@ -228,11 +227,7 @@ varcov.spatial.3D <-
         return(result)
     }
 
-
-
-
-
-
+#### helper functions ####
 
 ########################
 
@@ -307,16 +302,16 @@ varcov.spatial.3D <-
             stop(paste(cov.model[i],"correlation function model requires a vector with 2 parameters in the argument kappa"))
         }
         else{
-          if(is.na(kappa[i]) | is.null(kappa[i]))
+          if(is.na(kappa[i]) || is.null(kappa[i]))
             stop("for matern, powered.exponential and cauchy covariance functions the parameter kappa must be provided")
         }
-        if((cov.model[i] == "matern" | cov.model[i] == "powered.exponential" | 
-            cov.model[i] == "cauchy") & length(kappa) != 1*ns)
+        if((cov.model[i] == "matern" || cov.model[i] == "powered.exponential" || 
+            cov.model[i] == "cauchy") && length(kappa) != 1*ns)
           stop("kappa must have 1 parameter for this correlation function")
-        if(cov.model[i] == "matern" & kappa[i] == 0.5) cov.model[i] == "exponential"
+        if(cov.model[i] == "matern" && kappa[i] == 0.5) cov.model[i] == "exponential"
       }      
       if(cov.model[i] == "power")
-        if(any(phi[i] >= 2) | any(phi[i] <= 0))
+        if(any(phi[i] >= 2) || any(phi[i] <= 0))
           stop("for power model the phi parameters must be in the interval ]0,2[")
     }
     if(!is.null(env)){

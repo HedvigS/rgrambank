@@ -7,11 +7,6 @@
 #' @return Data-frame with desired modifications.
 #' @note If Glottolog_ValueTable_LanguageTable is used, then the following columns are overwritten (if they exists) in LanguageTable: level (changed to "Level"), Family_ID and "Is_Isolate". If the LanguageTable is generated using information from a different version of Glottolog than Glottolog_ValueTable_LanguageTable, mismatches can happen in at least the following columns: lineage, subclassification and classification. For example, in Grambank v1 fuyu1242 appears as a member of the family goli1242, but in Glottolog v5 this language is instead treated as an isolate.
 #' @author Hedvig Skirgård
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr mutate
-#' @importFrom dplyr any_of
-#' @importFrom dplyr full_join
 #' @export
 
 add_isolate_info <- function(LanguageTable = NULL,
@@ -20,20 +15,20 @@ add_isolate_info <- function(LanguageTable = NULL,
                              set_isolates_Family_ID_as_themselves = TRUE
         ){
   
-  if(!all(c("Is_Isolate", "Level", "Family_ID")   %in% colnames(LanguageTable)) &
+  if(!all(c("Is_Isolate", "Level", "Family_ID")   %in% colnames(LanguageTable)) &&
      is.null(Glottolog_ValueTable_LanguageTable)){
     stop("LanguageTable lacks necessary columns and Glottolog_ValueTable_LanguageTable is not defined.")
         }
   
-  lgs_in_input <- LanguageTable$ID
+  lgs_in_input <- LanguageTable[["ID"]]
 
    if(!is.null(Glottolog_ValueTable_LanguageTable)){
     Glottolog_ValueTable_LanguageTable <- Glottolog_ValueTable_LanguageTable %>% 
-      dplyr::select(Family_ID, Level, Glottocode, Language_level_ID, Is_Isolate)
+      dplyr::select("Family_ID", "Level", "Glottocode", "Language_level_ID", "Is_Isolate")
     
     LanguageTable <- LanguageTable %>% 
       dplyr::select(-dplyr::any_of(c("Family_ID", "level", "Level", "Language_level_ID", "Language_ID"))) %>% 
-      full_join(Glottolog_ValueTable_LanguageTable, by = "Glottocode")
+      dplyr::full_join(Glottolog_ValueTable_LanguageTable, by = "Glottocode")
     }
   
     if(mark_isolate_dialects_as_isolates == TRUE){

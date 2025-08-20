@@ -6,9 +6,6 @@
 #' @return Data-frame with information from Glottolog's LanguageTable and ValueTabled joined
 #' @note All information in the ValueTable besides Parameter_ID, Language_ID and Value are disregarded. For example, for glottolog-cldf, "Comment" and "Source" are dropped. If Is_Glottolog is TRUE, then the column called "Language_ID" in LanguageTable is renamed to "Language_level_ID" to reduce confusion with foreign keys in other tables. In the resulting data-frame, the column "ID" in LanguageTable is represented in "Language_ID".
 #' @return A data-frame that combines information from glottolog-cldf ValueTable and LanguageTable. See note for details on modifications.
-#' @importFrom dplyr rename
-#' @importFrom dplyr full_join
-#' @importFrom reshape2 dcast
 #' @author Hedvig Skirgård
 #' @export
 
@@ -19,14 +16,18 @@ combine_ValueTable_LanguageTable <- function(
   
 if( Is_Glottolog == TRUE){
   LanguageTable <- LanguageTable %>% 
-    dplyr::rename(Language_level_ID = Language_ID)
+    dplyr::rename("Language_level_ID" = "Language_ID")
   }
   
   ValueTable_wide <- ValueTable %>% 
-    reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value")
+    tidyr::pivot_wider(
+      id_cols = "Language_ID",
+      names_from = "Parameter_ID",
+      values_from = "Value"
+    )
   
 joined <- LanguageTable %>% 
-    dplyr::rename(Language_ID = ID) %>% 
+    dplyr::rename("Language_ID" = "ID") %>% 
     dplyr::full_join(ValueTable_wide, by = "Language_ID") 
     
 joined

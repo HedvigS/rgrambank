@@ -5,18 +5,6 @@
 #' @note DataTable is good to include because it will ensure that the records are matched and that the shifted Longitudes are used (necessary for making the plot pacific-centered).
 #' @return A list, first object is a ggplot2 layer of a Pacific-centered worldmap and the second object is a combination of LongLatTable and DataTable, with Longitude adjusted to match the map.
 #' @author Hedvig Skirgård
-#' @importFrom dplyr select
-#' @importFrom dplyr left_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr if_else
-#' @importFrom ggplot2 map_data
-#' @importFrom ggplot2 geom_polygon
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 element_rect
-#' @importFrom ggplot2 coord_map
-#' @importFrom ggplot2 expand_limits
-#' @importFrom ggplot2 ggplot
 #' @export
 
 basemap_pacific_center <- function(LongLatTable = NULL, 
@@ -37,7 +25,7 @@ if(!all(DataTable$ID %in% LongLatTable$ID)){
 
   
   LongLatTable <- LongLatTable %>% 
-    dplyr::select(ID, Longitude, Latitude) %>% 
+    dplyr::select("ID", "Longitude", "Latitude") %>% 
     dplyr::mutate(Longitude = dplyr::if_else(.data[["Longitude"]] <= -25, 
                                       true = .data[["Longitude"]] + 360, 
                                       false = .data[["Longitude"]])) #shifting the longlat of the dataframe to match the pacific centered map
@@ -51,10 +39,10 @@ lakes <- ggplot2::map_data("lakes", wrap=c(-25,335), col="white", border="gray",
 
 #Basemap
 basemap <- ggplot2::ggplot(Table) +
-  ggplot2::geom_polygon(data=world, ggplot2::aes(x=long, y=lat, group=group),
+  ggplot2::geom_polygon(data=world, ggplot2::aes(x=.data[["long"]], y=.data[["lat"]], group=.data[["group"]]),
                colour="gray87",
                fill="gray87", linewidth = 0.5) +
-  ggplot2::geom_polygon(data=lakes, ggplot2::aes(x=long, y=lat, group=group),
+  ggplot2::geom_polygon(data=lakes, ggplot2::aes(x=.data[["long"]], y=.data[["lat"]], group=.data[["group"]]),
                colour="gray87",
                fill="white", linewidth = 0.3) +
   ggplot2::theme(
