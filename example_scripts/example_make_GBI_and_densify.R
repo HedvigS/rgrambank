@@ -9,7 +9,7 @@ library(testthat)
 library(densify)
 library(beepr)
 
-set.seed(1421)
+set.seed(1111)
 
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
@@ -17,15 +17,16 @@ GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/gr
 Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(
   ValueTable = GB_rcldf_obj$tables$ValueTable,
   LanguageTable = GB_rcldf_obj$tables$LanguageTable,
-  merge_dialects = T, 
+  merge_dialects = F, 
   method = "singular_least_missing_data",
   replace_missing_language_level_ID = T) %>% 
   dplyr::select(-Language_ID) %>% 
   dplyr::rename(Language_ID = Glottocode) 
 
 #densify
-recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
-all_decisions <- read.csv("fixed/decisions-log.csv")
+recode_patterns <- read.csv("https://raw.githubusercontent.com/annagraff/crossling-curated/0e8695e176044f268b7d8c1ac012061b7bf1b343/scripts/GBI/feature-recode-patterns.csv")
+all_decisions <- read.csv("https://raw.githubusercontent.com/annagraff/crossling-curated/0e8695e176044f268b7d8c1ac012061b7bf1b343/scripts/GBI/decisions-log.csv")
+
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
