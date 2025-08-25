@@ -17,7 +17,7 @@ GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/gr
 Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(
   ValueTable = GB_rcldf_obj$tables$ValueTable,
   LanguageTable = GB_rcldf_obj$tables$LanguageTable,
-  merge_dialects = T, 
+  merge_dialects = F, 
   method = "singular_least_missing_data",
   replace_missing_language_level_ID = T) %>% 
   dplyr::select(-Language_ID) %>% 
