@@ -9,7 +9,7 @@ library(testthat)
 library(densify)
 library(beepr)
 
-set.seed(1421)
+set.seed(1111)
 
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
