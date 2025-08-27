@@ -1,0 +1,10 @@
+bibentry(
+  bibtype  = "Manual",
+  title    = "rgrambank: Assorted functions for handling language data, in particular
+Grambank and other CLDF-datasets",
+  author   = "Hedvig Skirgård AND Sam Passmore AND Appiah Tieku, Enock AND Stephen Mann AND Clemens Schmid AND Taras Zakharko AND Anna Graff",
+  year     = "2025",
+  url = "https://github.com/HedvigS/rgrambank",
+  note = "R package version 1.1.0",
+  doi      = "10.5281/zenodo.7740139")
+)
