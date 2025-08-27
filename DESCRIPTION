@@ -6,6 +6,7 @@ Authors@R: c(
           person(given = "Hedvig",      family = "Skirgård",  role = c("aut", "cre"), email = "hedvig.public@gmail.com", comment = c(ORCID = "0000-0002-7748-2381")), 
           person(given = "Sam",        family = "Passmore",  role = c("ctb")),
           person(given = "Enock",      family = "Appiah Tieku",      role = c("rev")),
+          person(given = "Stephen",      family = "Mann",      role = c("rev")),
           person(given = "Clemens",    family = "Schmid",  role = c("rev", "ctb"), comment = c(ORCID = "0000-0003-3448-5715")),
           person(given = "Taras",        family = "Zakharko",  role = c("ctb")),
           person(given = "Anna",        family = "Graff",  role = c("ctb"))
