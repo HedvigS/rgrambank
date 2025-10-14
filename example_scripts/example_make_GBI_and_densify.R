@@ -5,6 +5,7 @@ library(reshape2)
 library(missForest)
 library(patchwork)
 library(testthat)
+library(cluster)
 #remotes::install_github("annagraff/densify") 
 library(densify)
 library(beepr)
@@ -58,8 +59,9 @@ GBI_dense <- rgrambank::densify_GB(GBI = GBI, Glottolog_ValueTable = glottolog_r
 
 beepr::beep(3)
 
-#making each long and 
-GB_statistical_multistate_non_numeric_feats <- c("GB995F", "GB332EON", "GB900EO")
+#making each long 
+#GB_statistical_multistate_non_numeric_feats <- c("GB995F", "GB332EON", "GB900EO")
+#GB800EO
 
 GB_dense_long <- GB_dense$Grambank_densified   %>% 
   reshape2::melt(id.vars = "Language_ID") %>% 
@@ -73,60 +75,44 @@ GB_dense_long_binary <- GB_dense_binary$Grambank_densified   %>%
 
 GBI_logical <- GBI$values_logicalGBI %>%
   dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) %>% 
-  filter(Value != "?") %>% 
-  filter(Value != "NA") %>% 
-  filter(!is.na(Value))
+  dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
 
-GBI_logical_dense <- GBI_dense$logical_densified %>% 
+GBI_logical_dense <- GBI_dense$logical_densified_with_question_mark_and_NA %>% 
   reshape2::melt(id.vars = "Language_ID") %>% 
   dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
-  filter(!is.na(Value))
+  dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
 
 GBI_statistical <- GBI$values_statisticalGBI %>% 
   dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) %>% 
-  dplyr::filter(!(Parameter_ID %in% GB_statistical_multistate_non_numeric_feats)) %>% 
-  mutate(Value = ifelse(Parameter_ID == "GB800EO" & Value == "bound", "1", Value)) %>% 
-  mutate(Value = ifelse(Parameter_ID == "GB800EO" & Value == "non-bound", "0", Value)) %>% 
-  filter(Value != "?") %>% 
-  filter(Value != "NA") %>% 
-  filter(!is.na(Value))
+  dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
 
-GBI_statistical_dense <- GBI_dense$statistical_densified %>% 
+GBI_statistical_dense <- GBI_dense$statistical_densified_with_question_mark_and_NA %>% 
   reshape2::melt(id.vars = "Language_ID") %>% 
-  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
-  dplyr::filter(!(Parameter_ID %in% GB_statistical_multistate_non_numeric_feats)) %>% 
-  mutate(Value = ifelse(Parameter_ID == "GB800EO" & Value == "bound", "1", Value)) %>% 
-  mutate(Value = ifelse(Parameter_ID == "GB800EO" & Value == "non-bound", "0", Value)) %>% 
-  filter(!is.na(Value))
+  dplyr::select(Language_ID, Parameter_ID = variable, Value = value)%>% 
+  dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
 
 LongLatTable <- glottolog_rcldf_obj$tables$LanguageTable %>% 
   dplyr::select(ID = Glottocode, Longitude, Latitude)
 
 #prep data for rgrambank::basemap_pacific_center function
 
-plot_PCA <- function(plot_title = "", ValueTable, ParameterTable,
+plot_MDS <- function(plot_title = "", ValueTable, ParameterTable,
                      LongLatTable = LongLatTable, 
                      crop = TRUE){
   
-#  ValueTable <- GBI_statistical
-  
-ValueTable <- ValueTable %>% 
-  filter(Value != "?") %>% 
-    filter(Value != "NA") %>% 
-    filter(!is.na(Value))
+#  ValueTable <- GBI_statistical_dense
   
 if(crop == T){
   ValueTable <- rgrambank::crop_missing_data(ValueTable = ValueTable, ParameterTable = ParameterTable,
                                                      cut_off_parameters  = 0.7538462, 
                                                      cut_off_languages = 0.7538462) 
-    
 }
 
   #crop such that features with lots of missing data and languages are removed
 ValueTable_prepped <- ValueTable %>% 
     mutate(Value = as.character(Value)) %>%
     dplyr::select(Language_ID, Parameter_ID, Value) %>%  
-    dcast(Language_ID ~ Parameter_ID, value.var = "Value") 
+    reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value") 
 
 percent_missing <-   paste0(  
 round(100 * (  
@@ -137,7 +123,6 @@ round(100 * (
 nlgs <- ValueTable_prepped %>% nrow()
 nfeats <- ncol(ValueTable_prepped) -1
 
-plot_title <- paste0(plot_title, ".\n nlgs = ", nlgs, ", nfeats = ", nfeats, ",\n imputed missing data = ", percent_missing)
 
   #imputation
   imputed_data <- ValueTable_prepped %>%
@@ -149,27 +134,27 @@ plot_title <- paste0(plot_title, ".\n nlgs = ", nlgs, ", nfeats = ", nfeats, ",\
   
   cat(paste0("The imputation OOB error is ", round(imputed_data$OOBerror, 2), ".\n"))
   
-  # do Pricinpal Components Analysis on imputed dataset
-  df_for_PCA <- imputed_data$ximp %>% 
-    as.data.frame() %>%
-    mutate_all(as.character) %>% 
-    rownames_to_column("Language_ID") %>% 
-    reshape2::melt(id.vars = "Language_ID")  %>% 
-    mutate(value = as.numeric(value)) %>% 
-    reshape2::dcast(Language_ID ~ variable, value.var = "value") %>% 
-    column_to_rownames("Language_ID") %>% 
-    as.matrix()
-      
-PCA <- df_for_PCA %>% 
-     stats::prcomp(scale = T) 
-  
+imputed_df <-     imputed_data$ximp %>% 
+  mutate( across(where(is.factor), ~ factor(na_if(as.character(.x), "NA"))), across(where(is.character), ~ na_if(.x, "NA")) )
+
+Not_applicable <- imputed_df %>%  is.na() %>% sum()
+
+All <- ncol(imputed_df) * nrow(imputed_df)
+
+plot_title <- paste0(plot_title, ".\n nlgs = ", nlgs, ", nfeats = ", nfeats, ",\n imputed missing data = ", percent_missing,",\n not applicable left = ",round((Not_applicable / All) * 100, digits = 0))
+
+dists <- cluster::daisy(x = imputed_df, metric = "gower")
+
+mds <- cmdscale(dists , k = 3)
+
+    
   ###Map first 3 PCA components to RGB
-  RGB_vec <- PCA$x %>% 
+  RGB_vec <- mds %>% 
     as.data.frame() %>% 
-    dplyr::select(PC1, PC2, PC3) %>% 
+    dplyr::select(V1, V2, V3) %>% 
     rgrambank::match_to_rgb(first_three = T)
   
-  DataTable <-   data.frame(ID = rownames(PCA$x), 
+  DataTable <-   data.frame(ID = rownames(mds), 
                             RGB = RGB_vec) 
   
   # the function rgrambank::basemap_pacific_center outputs a list of two objects, the basemap itself and a combination of the LongLatTable and DataTable with Longitude appropraitely adjusted to match.
@@ -184,17 +169,17 @@ map
 
 datasets <- c(Grambank_ValueTable, GB_dense_long, GBI_logical, GBI_logical_dense, GBI_statistical , GBI_statistical_dense)
 
-GB_map <- plot_PCA(plot_title = "Grambank v1 (cropped)", ValueTable = Grambank_ValueTable_binary, LongLatTable = LongLatTable, crop = T, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
+GB_map <- plot_MDS(plot_title = "Grambank v1 (cropped)", ValueTable = Grambank_ValueTable_binary, LongLatTable = LongLatTable, crop = T, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
 
-GB_dense_map <- plot_PCA(plot_title = "Grambank v1 (dense)", ValueTable = GB_dense_long, LongLatTable = LongLatTable, crop = F, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
+GB_dense_map <- plot_MDS(plot_title = "Grambank v1 (dense)", ValueTable = GB_dense_long, LongLatTable = LongLatTable, crop = F, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
 
-GB_logical_map <- plot_PCA(plot_title = "GBI - logical (cropped)", ValueTable = GBI_logical, LongLatTable = LongLatTable, crop = T, ParameterTable = GBI$parameters_logicalGBI)
+GB_logical_map <- plot_MDS(plot_title = "GBI - logical (cropped)", ValueTable = GBI_logical, LongLatTable = LongLatTable, crop = T, ParameterTable = GBI$parameters_logicalGBI)
 
-GB_logical_dense_map <- plot_PCA(plot_title = "GBI - logical (dense)" , ValueTable = GBI_logical_dense, LongLatTable = LongLatTable, crop = F, ParameterTable = GBI$parameters_logicalGBI)
+GB_logical_dense_map <- plot_MDS(plot_title = "GBI - logical (dense)" , ValueTable = GBI_logical_dense, LongLatTable = LongLatTable, crop = F, ParameterTable = GBI$parameters_logicalGBI)
 
-GB_statistical_map <- plot_PCA(plot_title = "GBI - statistical (cropped)", ValueTable = GBI_statistical, LongLatTable = LongLatTable, crop = T, ParameterTable = GBI$parameters_statisticalGBI)
+GB_statistical_map <- plot_MDS(plot_title = "GBI - statistical (cropped)", ValueTable = GBI_statistical, LongLatTable = LongLatTable, crop = T, ParameterTable = GBI$parameters_statisticalGBI)
 
-GB_statitical_dense_map <- plot_PCA(plot_title = "GBI - statistical (dense)", ValueTable = GBI_statistical_dense, LongLatTable = LongLatTable, crop = F, ParameterTable = GBI$parameters_statisticalGBI)
+GB_statitical_dense_map <- plot_MDS(plot_title = "GBI - statistical (dense)", ValueTable = GBI_statistical_dense, LongLatTable = LongLatTable, crop = F, ParameterTable = GBI$parameters_statisticalGBI)
 
 library(beepr)
 beep()
