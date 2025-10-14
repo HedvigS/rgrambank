@@ -8,9 +8,7 @@
 #' @export
 
 basemap_pacific_center <- function(LongLatTable = NULL, 
-                                   DataTable = NULL, 
-                                   ylim = c(-56,80),
-                                   xlim = c(-180, 180)){
+                                   DataTable = NULL){
 
 
 if(!all(c("Longitude", "ID", "Latitude") %in% colnames(LongLatTable))){
@@ -35,15 +33,9 @@ if(!all(DataTable$ID %in% LongLatTable$ID)){
 Table <- DataTable %>% 
   dplyr::left_join(LongLatTable, by = "ID")
 
-world <- ggplot2::map_data('world', wrap=c(-25,335), margin=T)
+world <- ggplot2::map_data('world', wrap=c(-25,335), ylim=c(-56,80), margin=T)
 
-lakes <- ggplot2::map_data("lakes", wrap=c(-25,335), col="white", border="gray", margin=T)
-
-#subset to limits
-world <- subset(world, long > xlim[1] & long < xlim[2] &
-                       lat  > ylim[1] & lat  < ylim[2])
-lakes <- subset(lakes, long > xlim[1] & long < xlim[2] &
-                       lat  > ylim[1] & lat  < ylim[2])
+lakes <- ggplot2::map_data("lakes", wrap=c(-25,335), col="white", border="gray", ylim=c(-55,65), margin=T)
 
 #Basemap
 basemap <- ggplot2::ggplot(Table) +
