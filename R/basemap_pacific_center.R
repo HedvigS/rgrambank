@@ -8,7 +8,11 @@
 #' @export
 
 basemap_pacific_center <- function(LongLatTable = NULL, 
-                                   DataTable = NULL){
+                                   DataTable = NULL, 
+                                   ylim =c(-54,75), 
+                                   xlim = c(-180, 180),
+                                   land_color = "gray87", 
+                                   water_color = "white"){
 
 
 if(!all(c("Longitude", "ID", "Latitude") %in% colnames(LongLatTable))){
@@ -33,18 +37,20 @@ if(!all(DataTable$ID %in% LongLatTable$ID)){
 Table <- DataTable %>% 
   dplyr::left_join(LongLatTable, by = "ID")
 
-world <- ggplot2::map_data('world', wrap=c(-25,335), ylim=c(-56,80), margin=T)
+if(all(ylim == c(-54,75) & xlim == c(-180, 180)) == TRUE){
 
-lakes <- ggplot2::map_data("lakes", wrap=c(-25,335), col="white", border="gray", ylim=c(-55,65), margin=T)
+  #IF WE ARE PLOTTING THE WHOLE WORLD WE CAN USE THE VANDERGRINTEN
+world <- ggplot2::map_data('world', wrap=c(-25,335), margin=T)
+lakes <- ggplot2::map_data("lakes", wrap=c(-25,335), col=water_color, border=land_color, margin=T)
 
 #Basemap
 basemap <- ggplot2::ggplot(Table) +
   ggplot2::geom_polygon(data=world, ggplot2::aes(x=.data[["long"]], y=.data[["lat"]], group=.data[["group"]]),
-               colour="gray87",
-               fill="gray87", linewidth = 0.5) +
+               colour=land_color,
+               fill=land_color, linewidth = 0.5) +
   ggplot2::geom_polygon(data=lakes, ggplot2::aes(x=.data[["long"]], y=.data[["lat"]], group=.data[["group"]]),
-               colour="gray87",
-               fill="white", linewidth = 0.3) +
+               colour=land_color,
+               fill=water_color, linewidth = 0.3) +
   ggplot2::theme(
     legend.position = "None",
     # all of these lines are just removing default things like grid lines, axes etc
@@ -54,13 +60,46 @@ basemap <- ggplot2::ggplot(Table) +
     axis.title.y = ggplot2::element_blank(),
     axis.line = ggplot2::element_blank(),
     panel.border = ggplot2::element_rect(colour = "black", fill = NA),
-    panel.background = ggplot2::element_rect(fill = "white"),
+    panel.background = ggplot2::element_rect(fill = water_color),
     axis.text.x = ggplot2::element_blank(),
     axis.text.y = ggplot2::element_blank(),
     axis.ticks = ggplot2::element_blank()
   ) +
-  ggplot2::coord_map(projection = "vandergrinten", ylim=c(-55,73)) +
-  ggplot2::expand_limits(x = Table$Longitude, y = Table$Latitude)
+  ggplot2::coord_map(projection = "vandergrinten", ylim= ylim) +  
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0))
+
+}else{
+  
+  world <- ggplot2::map_data('world', margin=T)
+  lakes <- ggplot2::map_data("lakes", col=water_color, border=land_color, margin=T)
+  
+  #Basemap
+  basemap <- ggplot2::ggplot(Table) +
+    ggplot2::geom_polygon(data=world, ggplot2::aes(x=.data[["long"]], y=.data[["lat"]], group=.data[["group"]]),
+                          colour=land_color,
+                          fill=land_color, linewidth = 0.5) +
+    ggplot2::geom_polygon(data=lakes, ggplot2::aes(x=.data[["long"]], y=.data[["lat"]], group=.data[["group"]]),
+                          colour=land_color,
+                          fill=water_color, linewidth = 0.3) +
+    ggplot2::theme(
+      legend.position = "None",
+      # all of these lines are just removing default things like grid lines, axes etc
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
+      axis.title.x = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_blank(),
+      axis.line = ggplot2::element_blank(),
+      panel.border = ggplot2::element_rect(colour = "black", fill = NA),
+      panel.background = ggplot2::element_rect(fill = water_color),
+      axis.text.x = ggplot2::element_blank(),
+      axis.text.y = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank()
+    ) +
+    coord_equal(xlim = xlim, ylim = ylim) +
+    scale_x_continuous(expand = c(0,0)) +
+    scale_y_continuous(expand = c(0,0))
+  }
 
 list(basemap = basemap, MapTable = Table)
 
