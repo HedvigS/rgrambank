@@ -35,7 +35,7 @@ GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/gr
 
 ValueTable <- GB_rcldf_obj$tables$ValueTable
 LanguageTable <- GB_rcldf_obj$tables$LanguageTable
-ParameterTable <- GB_rcldf_obj$tables$ParameterTable
+ParameterTable <- GB_rcldf_obj$tables$ParameterTable %>% rgrambank::make_binary_ParameterTable()
 
 #remove duplicate glottocodes and merge dialects
 ValueTable_dialect_reduced <- rgrambank::reduce_ValueTable_to_unique_glottocodes(ValueTable = ValueTable,
@@ -146,10 +146,10 @@ map <- basemap_list$basemap +
   geom_jitter(mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
 
 p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
-  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2) +
-  ggtitle("Grambank v1: first three MCA mapped to RGB")
+  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, fill = basemap_list$MapTable$RGB, size = 2, alpha = 0.65, shape = 21, width= 2) +
+  ggtitle("  Grambank v1: first three MCA mapped to RGB")
 
-ggsave(plot = p, filename = "output/plots/MCA_RGB_map_eez.png", width = 10, height = 10)
+ggsave(plot = p, filename = "output/plots/MCA_RGB_map_eez.pdf", dpi = 400, units = "cm", height = 20, width = 30 )
 
 
 ######SPLOM time
