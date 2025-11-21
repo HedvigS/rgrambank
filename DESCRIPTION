@@ -17,19 +17,19 @@ License: Apache License (>= 2)
 Depends: 
     R (>= 4.3.0)
 Imports:
-    ape,
-    dplyr,
-    fields,
-    ggplot2,
-    grDevices,
-    magrittr,
-    rlang,
-    stringr,
-    testthat,
-    tidyr
+    ape (>= 5.8-1),
+    dplyr(>= 1.13.4),
+    fields (>= 17.1),
+    ggplot2 (>= 4.0.1),
+    grDevices (>= 4.5.2),
+    magrittr (>= 2.0.4), 
+    rlang (>= 1.1.6),
+    stringr (>= 15.1),
+    testthat (>= 3.2.2),
+    tidyr (>= 1.3.1)
 Suggests:
-    rcldf,
-    densify
+    rcldf (>= 14.0),
+    densify (>= 0.0.0.9000)
 RoxygenNote: 7.3.2
 Remotes:
     github::annagraff/densify,
