@@ -18,7 +18,7 @@ Depends:
     R (>= 4.3.0)
 Imports:
     ape (>= 5.8-1),
-    dplyr(>= 1.13.4),
+    dplyr(>= 1.1.4),
     fields (>= 17.1),
     ggplot2 (>= 4.0.1),
     grDevices (>= 4.5.2),
