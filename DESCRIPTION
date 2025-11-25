@@ -21,7 +21,6 @@ Imports:
     dplyr(>= 1.1.4),
     fields (>= 17.1),
     ggplot2 (>= 4.0.1),
-    grDevices (>= 4.5.2),
     magrittr (>= 2.0.4), 
     rlang (>= 1.1.6),
     stringr (>= 1.5.1),
