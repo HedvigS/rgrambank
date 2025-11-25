@@ -5,6 +5,8 @@
 #' @note DataTable is good to include because it will ensure that the records are matched and that the shifted Longitudes are used (necessary for making the plot pacific-centered).
 #' @param ylim limits on latitude. If set to other than c(-54,75), the map projection will be rectangular instead of vandergrinten
 #' @param xlim limites on longitude. If set to other than c(-180, 180)), the map projection will be rectangular instead of vandergrinten
+#' @param land_color character string, defaults to land_color = "gray87",
+#' @param water_color character string, defaults to "white"
 #' @return A list, first object is a ggplot2 layer of a Pacific-centered worldmap and the second object is a combination of LongLatTable and DataTable, with Longitude adjusted to match the map.
 #' @author Hedvig Skirgård
 #' @export
