@@ -15,7 +15,7 @@ make_theo_scores <- function(ValueTable,
 
   #we need the parameter and value table to be binarised, so we check if it is by looking for the existence of a known binarised feature
 if(!"GB203b" %in% ValueTable$Parameter_ID){
-        ValueTable <- ValueTable %>% make_binary_ValueTable
+        ValueTable <- ValueTable %>% make_binary_ValueTable()
 }
 
 if(!"GB203b" %in% ParameterTable$ID){
