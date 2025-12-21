@@ -11,13 +11,15 @@ Selection of functions related to the cross-linguistic dataset Grambank. Some fu
 \author{
 \strong{Maintainer}: Hedvig Skirgård \email{hedvig.public@gmail.com} (\href{https://orcid.org/0000-0002-7748-2381}{ORCID})
 
-Other contributors:
+Authors:
 \itemize{
   \item Sam Passmore [contributor]
   \item Enock Appiah Tieku [reviewer]
+  \item Stephen Mann [reviewer]
   \item Clemens Schmid (\href{https://orcid.org/0000-0003-3448-5715}{ORCID}) [reviewer, contributor]
   \item Taras Zakharko [contributor]
   \item Anna Graff [contributor]
+  \item Angela Chira [contributor]
 }
 
 }
