@@ -76,13 +76,15 @@ make_binary_ValueTable <- function(ValueTable = NULL,
     ValueTable <- .gb_recode(ValueTable, 'GB203', 'GB203b', .binarise_GBXXX_to_GBXXXb_with_zero)
 
     if (keep_native_binary == TRUE) {
+      
+      cols_to_join_for <- colnames(ValueTable)
         ValueTable <- ValueTable %>%
             dplyr::anti_join(
                 dplyr::select(ValueTable_native_binary, "Language_ID", "Parameter_ID"),
                      by = c("Language_ID", "Parameter_ID")) %>%
             dplyr::full_join(
                 ValueTable_native_binary,
-                by = c("ID", "Language_ID", "Parameter_ID", "Value", "Code_ID", "Comment", "Source", "Source_comment", "Coders"))
+                by = cols_to_join_for)
 
     }
     if (keep_multistate == FALSE) {
