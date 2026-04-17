@@ -169,9 +169,9 @@ map
 
 datasets <- c(Grambank_ValueTable, GB_dense_long, GBI_logical, GBI_logical_dense, GBI_statistical , GBI_statistical_dense)
 
-GB_map <- plot_MDS(plot_title = "Grambank v1 (cropped)", ValueTable = Grambank_ValueTable_binary, LongLatTable = LongLatTable, crop = T, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
+GB_map <- plot_MDS(plot_title = "Grambank (cropped)", ValueTable = Grambank_ValueTable_binary, LongLatTable = LongLatTable, crop = T, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
 
-GB_dense_map <- plot_MDS(plot_title = "Grambank v1 (dense)", ValueTable = GB_dense_long, LongLatTable = LongLatTable, crop = F, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
+GB_dense_map <- plot_MDS(plot_title = "Grambank (dense)", ValueTable = GB_dense_long, LongLatTable = LongLatTable, crop = F, ParameterTable = GB_rcldf_obj$tables$ParameterTable)
 
 GB_logical_map <- plot_MDS(plot_title = "GBI - logical (cropped)", ValueTable = GBI_logical, LongLatTable = LongLatTable, crop = T, ParameterTable = GBI$parameters_logicalGBI)
 
