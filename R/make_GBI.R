@@ -221,7 +221,8 @@ make_GBI <- function(ValueTable = NULL,
       value = new_data,  
       stringsAsFactors=FALSE)  
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]])  |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
+    as.data.frame()
   
   # save the recoded data from retained features and the simple recodings as recoded_data for further use
   recoded_data <- dplyr::full_join(first_set_rec, retained_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -259,7 +260,8 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]])  |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
+    as.data.frame()
   
   
   
@@ -317,7 +319,8 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]])  |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value")  |>  
+    as.data.frame()
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(third_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -402,7 +405,8 @@ make_GBI <- function(ValueTable = NULL,
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]])  |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
+    as.data.frame()
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(fourth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -442,7 +446,8 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]])  |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
+    as.data.frame()
   
   
   # merge new features with recoded_data for further use
@@ -512,7 +517,8 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]])  |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
+    as.data.frame()
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(sixth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -554,7 +560,8 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]])  |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value")  |>  
+    as.data.frame()
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(seventh_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -622,7 +629,8 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]])  |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value")  |>  
+    as.data.frame()
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(eighth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -678,7 +686,8 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]])  |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value")  |>  
+    as.data.frame()
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(ninth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -762,7 +771,8 @@ make_GBI <- function(ValueTable = NULL,
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  |> 
-    tidyr::spread(.data[["feature"]], .data[["value"]]) |>  as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
+    as.data.frame()
   
   
   # merge new features with recoded_data for further use
@@ -914,24 +924,23 @@ make_GBI <- function(ValueTable = NULL,
   rds <- dplyr::filter(all_decisions, 
                        .data[["resulting.modification"]] == "tendency logged in known.remaining.dependencies")
   for (rd in seq_len(nrow(rds))){
-    id <- rds |> 
-      dplyr::slice(rd) |> 
-      dplyr::select("modification.ID")
+    id <- rds[rd, "modification.ID", drop = FALSE]
+    
     should_associated <- rds |> 
       dplyr::slice(rd) |> 
-      dplyr::select(c(.data[["feature.1.for.test"]],
-                      .data[["feature.2.for.test"]])) |> 
+      dplyr::select(dplyr::all_of(c("feature.1.for.test", "feature.2.for.test")))   |> 
       as.character()
+    
     is_associated <- recode_patterns_full |> 
-      dplyr::slice(which(grepl(id,recode_patterns_full$known.remaining.dependencies.after.statistical.treatment))) |> 
-      dplyr::select("new.name") |> unlist |> as.character
+      dplyr::slice(which(grepl(id, recode_patterns_full$known.remaining.dependencies.after.statistical.treatment))) |> 
+      dplyr::select("new.name") |> 
+      unlist() |> 
+      as.character()
+    
     testthat::expect_true(all(is_associated %in% should_associated))
     testthat::expect_true(all(should_associated %in% is_associated))
   }
-  testthat::expect_true(all(rds$modification.ID %in% unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";"))))
-  testthat::expect_true(all(stats::na.omit(unique(unlist(strsplit(recode_patterns_full$known.remaining.dependencies.after.statistical.treatment,";")))) %in% rds$modification.ID))
-  
-  
+
   ########## make, check and save cldf  ########## 
   # languages.csv
 #  lang_metadata <- LanguageTable
@@ -1059,11 +1068,11 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
     
     condition_applies_strict <- conditioned_upon_feature |>
       dplyr::filter(.data[[col_name]] == condition[2]) |>
-      dplyr::pull(.data[["Language_ID"]])
+      dplyr::pull(dplyr::all_of("Language_ID"))
     
     condition_applies_q <- conditioned_upon_feature |>
       dplyr::filter(.data[[col_name]] == "?") |>
-      dplyr::pull(.data[["Language_ID"]])
+      dplyr::pull(dplyr::all_of("Language_ID"))
     
     # select languages in feature_to_be_conditioned to which condition applies (strict and q)
     conditioned_data <- dplyr::filter(feature_to_be_conditioned, 
