@@ -18,8 +18,8 @@ crop_missing_data <- function(ValueTable,
                               verbose = TRUE){
 
   #removing datapoints that are ? or NA
-    ValueTable <- ValueTable %>%
-        dplyr::filter(.data[["Value"]] != "?") %>% 
+    ValueTable <- ValueTable |>
+        dplyr::filter(.data[["Value"]] != "?") |> 
         dplyr::filter(!is.na(.data[["Value"]]))
     
   n_lgs <- length(unique(ValueTable$Language_ID))
@@ -27,7 +27,7 @@ crop_missing_data <- function(ValueTable,
   
   if(verbose == TRUE){
     theoretical_max_data_points <- n_lgs * n_feats
-    n_data_points <- ValueTable %>% nrow()
+    n_data_points <- ValueTable |> nrow()
 
     coverage_before_cropping <- n_data_points / theoretical_max_data_points
 
@@ -40,14 +40,14 @@ crop_missing_data <- function(ValueTable,
                " features.\n"))
 }
 
-ValueTable_cropped <- ValueTable %>%
-    dplyr::filter(!is.na(.data[["Value"]])) %>%
-    dplyr::group_by(.data[["Language_ID"]]) %>%
-    dplyr::mutate(Parameters_filled_for_language = dplyr::n()) %>%
-    dplyr::ungroup() %>% 
-    dplyr::group_by(.data[["Parameter_ID"]]) %>%
-    dplyr::mutate(Languages_filled_for_parameter = dplyr::n()) %>%
-    dplyr::filter(.data[["Languages_filled_for_parameter"]] >= n_lgs*cut_off_parameters) %>%
+ValueTable_cropped <- ValueTable |>
+    dplyr::filter(!is.na(.data[["Value"]])) |>
+    dplyr::group_by(.data[["Language_ID"]]) |>
+    dplyr::mutate(Parameters_filled_for_language = dplyr::n()) |>
+    dplyr::ungroup() |> 
+    dplyr::group_by(.data[["Parameter_ID"]]) |>
+    dplyr::mutate(Languages_filled_for_parameter = dplyr::n()) |>
+    dplyr::filter(.data[["Languages_filled_for_parameter"]] >= n_lgs*cut_off_parameters) |>
     dplyr::filter(.data[["Parameters_filled_for_language"]] >= n_feats*cut_off_languages)
 
 n_lgs_cropped <- length(unique(ValueTable_cropped$Language_ID))
@@ -56,7 +56,7 @@ n_feats_cropped <- length(unique(ValueTable_cropped$Parameter_ID))
 if(verbose == TRUE){
 
     theoretical_max_data_points_cropped <- n_lgs_cropped * n_feats_cropped
-    n_data_points_cropped <- ValueTable_cropped %>% nrow()
+    n_data_points_cropped <- ValueTable_cropped |> nrow()
 
     coverage_after_cropping <- n_data_points_cropped / theoretical_max_data_points_cropped
 

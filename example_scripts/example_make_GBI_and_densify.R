@@ -20,8 +20,8 @@ Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(
   LanguageTable = GB_rcldf_obj$tables$LanguageTable,
   merge_dialects = F, 
   method = "singular_least_missing_data",
-  replace_missing_language_level_ID = T) %>% 
-  dplyr::select(-Language_ID) %>% 
+  replace_missing_language_level_ID = T) |> 
+  dplyr::select(-Language_ID) |> 
   dplyr::rename(Language_ID = Glottocode) 
 
 #densify
@@ -63,35 +63,35 @@ beepr::beep(3)
 #GB_statistical_multistate_non_numeric_feats <- c("GB995F", "GB332EON", "GB900EO")
 #GB800EO
 
-GB_dense_long <- GB_dense$Grambank_densified   %>% 
-  reshape2::melt(id.vars = "Language_ID") %>% 
-  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
+GB_dense_long <- GB_dense$Grambank_densified   |> 
+  reshape2::melt(id.vars = "Language_ID") |> 
+  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) |> 
   filter(!is.na(Value))
 
-GB_dense_long_binary <- GB_dense_binary$Grambank_densified   %>% 
-  reshape2::melt(id.vars = "Language_ID") %>% 
-  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
+GB_dense_long_binary <- GB_dense_binary$Grambank_densified   |> 
+  reshape2::melt(id.vars = "Language_ID") |> 
+  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) |> 
   filter(!is.na(Value))
 
-GBI_logical <- GBI$values_logicalGBI %>%
-  dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) %>% 
+GBI_logical <- GBI$values_logicalGBI |>
+  dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) |> 
   dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
 
-GBI_logical_dense <- GBI_dense$logical_densified_with_question_mark_and_NA %>% 
-  reshape2::melt(id.vars = "Language_ID") %>% 
-  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) %>% 
+GBI_logical_dense <- GBI_dense$logical_densified_with_question_mark_and_NA |> 
+  reshape2::melt(id.vars = "Language_ID") |> 
+  dplyr::select(Language_ID, Parameter_ID = variable, Value = value) |> 
   dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
 
-GBI_statistical <- GBI$values_statisticalGBI %>% 
-  dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) %>% 
+GBI_statistical <- GBI$values_statisticalGBI |> 
+  dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) |> 
   dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
 
-GBI_statistical_dense <- GBI_dense$statistical_densified_with_question_mark_and_NA %>% 
-  reshape2::melt(id.vars = "Language_ID") %>% 
-  dplyr::select(Language_ID, Parameter_ID = variable, Value = value)%>% 
+GBI_statistical_dense <- GBI_dense$statistical_densified_with_question_mark_and_NA |> 
+  reshape2::melt(id.vars = "Language_ID") |> 
+  dplyr::select(Language_ID, Parameter_ID = variable, Value = value)|> 
   dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
 
-LongLatTable <- glottolog_rcldf_obj$tables$LanguageTable %>% 
+LongLatTable <- glottolog_rcldf_obj$tables$LanguageTable |> 
   dplyr::select(ID = Glottocode, Longitude, Latitude)
 
 #prep data for rgrambank::basemap_pacific_center function
@@ -109,9 +109,9 @@ if(crop == T){
 }
 
   #crop such that features with lots of missing data and languages are removed
-ValueTable_prepped <- ValueTable %>% 
-    mutate(Value = as.character(Value)) %>%
-    dplyr::select(Language_ID, Parameter_ID, Value) %>%  
+ValueTable_prepped <- ValueTable |> 
+    mutate(Value = as.character(Value)) |>
+    dplyr::select(Language_ID, Parameter_ID, Value) |>  
     reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value") 
 
 percent_missing <-   paste0(  
@@ -120,24 +120,24 @@ round(100 * (
     (  sum(is.na(ValueTable_prepped[,2:ncol(ValueTable_prepped)])) +   sum(!is.na(ValueTable_prepped[,2:ncol(ValueTable_prepped)])) ) 
   ),digits = 2), "%")
     
-nlgs <- ValueTable_prepped %>% nrow()
+nlgs <- ValueTable_prepped |> nrow()
 nfeats <- ncol(ValueTable_prepped) -1
 
 
   #imputation
-  imputed_data <- ValueTable_prepped %>%
-    column_to_rownames("Language_ID") %>% 
-    as.matrix() %>%
-    data.frame() %>%
-    mutate_all(as.factor) %>% 
+  imputed_data <- ValueTable_prepped |>
+    column_to_rownames("Language_ID") |> 
+    as.matrix() |>
+    data.frame() |>
+    mutate_all(as.factor) |> 
     missForest::missForest() 
   
   cat(paste0("The imputation OOB error is ", round(imputed_data$OOBerror, 2), ".\n"))
   
-imputed_df <-     imputed_data$ximp %>% 
+imputed_df <-     imputed_data$ximp |> 
   mutate( across(where(is.factor), ~ factor(na_if(as.character(.x), "NA"))), across(where(is.character), ~ na_if(.x, "NA")) )
 
-Not_applicable <- imputed_df %>%  is.na() %>% sum()
+Not_applicable <- imputed_df |>  is.na() |> sum()
 
 All <- ncol(imputed_df) * nrow(imputed_df)
 
@@ -149,9 +149,9 @@ mds <- cmdscale(dists , k = 3)
 
     
   ###Map first 3 PCA components to RGB
-  RGB_vec <- mds %>% 
-    as.data.frame() %>% 
-    dplyr::select(V1, V2, V3) %>% 
+  RGB_vec <- mds |> 
+    as.data.frame() |> 
+    dplyr::select(V1, V2, V3) |> 
     rgrambank::match_to_rgb(first_three = T)
   
   DataTable <-   data.frame(ID = rownames(mds), 

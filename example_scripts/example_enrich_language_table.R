@@ -18,8 +18,8 @@ GB_rcldf_obj_v1 <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
 
-LanguageTable <- GB_rcldf_obj_v1$tables$LanguageTable %>% 
-  dplyr::rename(Family_ID = Family_level_ID) %>% 
+LanguageTable <- GB_rcldf_obj_v1$tables$LanguageTable |> 
+  dplyr::rename(Family_ID = Family_level_ID) |> 
   dplyr::select(-Family_name)
 
 Glottolog_LanguageTable <- glottolog_rcldf_obj$tables$LanguageTable

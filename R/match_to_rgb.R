@@ -17,7 +17,7 @@ match_to_rgb <- function(x = NULL,
     stop("first_three is set to FALSE but no specific column names were provided.")
     }
   
-  x <- x %>% 
+  x <- x |> 
     as.data.frame()
 
     if(  !all(cols %in% colnames(x))){
@@ -34,11 +34,11 @@ match_to_rgb <- function(x = NULL,
     cols <- cols  
     }
   
-RGB <- x %>% 
-  dplyr::select(dplyr::all_of(cols) ) %>%
-  base::sweep(2, apply(., 2, function(x){ 2 * max(abs(x)) }), "/") %>%
-  base::sweep(2, 0.5, "+") %>%
-  grDevices::rgb(alpha = 1)
-
+  RGB <- x |> 
+    dplyr::select(dplyr::all_of(cols)) |>
+    (\(data) base::sweep(data, 2, apply(data, 2, function(x){ 2 * max(abs(x)) }), "/"))() |>
+    base::sweep(2, 0.5, "+") |>
+    grDevices::rgb(alpha = 1)
+  
 RGB
 }

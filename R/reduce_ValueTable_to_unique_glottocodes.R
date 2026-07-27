@@ -64,11 +64,11 @@ reduce_ValueTable_to_unique_glottocodes <- function(
     stop("Invalid table format - LanguageTable needs to have columns ID and Glottocode.")
   }
 
-multiple_values_per_parameter <- ValueTable %>%
-        dplyr::distinct() %>%
-        dplyr::group_by(.data[["Language_ID"]], .data[["Parameter_ID"]]) %>%
-        dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-        dplyr::filter(.data[["n"]] > 1) %>%
+multiple_values_per_parameter <- ValueTable |>
+        dplyr::distinct() |>
+        dplyr::group_by(.data[["Language_ID"]], .data[["Parameter_ID"]]) |>
+        dplyr::summarise(n = dplyr::n(), .groups = "drop") |>
+        dplyr::filter(.data[["n"]] > 1) |>
     nrow()
 
 #in cases like with APiCS there could be more than one value for the same language and parameter to represent distributions of values.
@@ -79,15 +79,15 @@ if(multiple_values_per_parameter > 1){
     }
 
     message("Found more than one Value per Language_ID and Parameter_ID. Collapsing, will unnest at the end. May take a little big longer.")
-    ValueTable  <-   ValueTable %>%
-        dplyr::group_by(.data[["Language_ID"]], .data[["Parameter_ID"]]) %>%
+    ValueTable  <-   ValueTable |>
+        dplyr::group_by(.data[["Language_ID"]], .data[["Parameter_ID"]]) |>
         dplyr::mutate(Value = stringr::str_split(paste0(  .data[["Value"]], collapse = ";"), pattern = ";"),
                       Frequency = stringr::str_split(paste0(.data[["Frequency"]], collapse = ";"), pattern = ";"),
                       ID = stringr::str_split(paste0(.data[["ID"]], collapse = ";"), pattern = ";"),
                       Code_ID = stringr::str_split(paste0(.data[["Code_ID"]], collapse = ";"), pattern = ";"),
                       Confidence = stringr::str_split(paste0(.data[["Confidence"]], collapse = ";"), pattern = ";"),
-                      Example_ID = stringr::str_split(paste0(.data[["Example_ID"]], collapse = ";"), pattern = ";")) %>%
-    dplyr::distinct() %>%
+                      Example_ID = stringr::str_split(paste0(.data[["Example_ID"]], collapse = ";"), pattern = ";")) |>
+    dplyr::distinct() |>
     dplyr::ungroup()
     }
 
@@ -96,10 +96,10 @@ if(multiple_values_per_parameter > 1){
 if(merge_dialects == TRUE){
 
   if(!"Language_level_ID" %in% colnames(LanguageTable)){
-    GlottologLanguageTable <- GlottologLanguageTable %>%
+    GlottologLanguageTable <- GlottologLanguageTable |>
       dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode", "Language_level_ID"))))
       
-    LanguageTable <- LanguageTable %>% 
+    LanguageTable <- LanguageTable |> 
       dplyr::full_join(GlottologLanguageTable, by = "Glottocode")
   }
 
@@ -107,7 +107,7 @@ if(replace_missing_language_level_ID == TRUE){
     # if there is a missing language level ID, which it can be in some datasets where only
     # dialects get language level IDs and languages and families don't, then replace those
     # with the content in the Glottocode column.
-    LanguageTable   <- LanguageTable %>%
+    LanguageTable   <- LanguageTable |>
         dplyr::mutate(Language_level_ID = ifelse(
             is.na(.data[["Language_level_ID"]]) | .data[["Language_level_ID"]] == "", 
             yes = .data[["Glottocode"]], 
@@ -117,14 +117,14 @@ if(replace_missing_language_level_ID == TRUE){
 
 # Still in the merge_dialect == TRUE if loop
     # Replacing the col glottocode with Language_level_ID merges dialects for the rest of the duplicate pruning
-        LanguageTable <- LanguageTable %>%
-        dplyr::select(-"Glottocode") %>% 
+        LanguageTable <- LanguageTable |>
+        dplyr::select(-"Glottocode") |> 
         dplyr::select("Language_ID" = "ID", "Glottocode" = "Language_level_ID")
 
 }
 
 if(merge_dialects == FALSE){
-    LanguageTable <- LanguageTable %>%
+    LanguageTable <- LanguageTable |>
         dplyr::select("Language_ID" = "ID", "Glottocode")
 
     }
@@ -133,19 +133,19 @@ if(merge_dialects == FALSE){
       
       ## PICK THE ONE ENTRY WHEN DUPLICATE GLOTTOCODES THAT HAS THE LEAST MISSING DATA
       
-        lgs <- ValueTable %>%
-            dplyr::filter(!is.na(.data[["Value"]])) %>%
-            dplyr::filter(.data[["Value"]] != "?") %>%
-            dplyr::left_join(LanguageTable, by = "Language_ID") %>%
-            dplyr::group_by(.data[["Language_ID"]]) %>%
-            dplyr::mutate(n = dplyr::n()) %>%
-            dplyr::arrange(dplyr::desc(.data[["n"]])) %>%
-            dplyr::ungroup() %>%
-            dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode"))), .keep_all = T) %>%
+        lgs <- ValueTable |>
+            dplyr::filter(!is.na(.data[["Value"]])) |>
+            dplyr::filter(.data[["Value"]] != "?") |>
+            dplyr::left_join(LanguageTable, by = "Language_ID") |>
+            dplyr::group_by(.data[["Language_ID"]]) |>
+            dplyr::mutate(n = dplyr::n()) |>
+            dplyr::arrange(dplyr::desc(.data[["n"]])) |>
+            dplyr::ungroup() |>
+            dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode"))), .keep_all = T) |>
             dplyr::distinct(dplyr::across(dplyr::all_of(c("Language_ID"))))
 
-        levelled_ValueTable <- ValueTable %>% 
-          dplyr::inner_join(lgs, by = "Language_ID") %>% 
+        levelled_ValueTable <- ValueTable |> 
+          dplyr::inner_join(lgs, by = "Language_ID") |> 
           dplyr::left_join(LanguageTable, by = "Language_ID") 
           
 
@@ -153,45 +153,45 @@ if(merge_dialects == FALSE){
 
     if (method == "combine_random") {
       # MERGE BY MAKING A FRANKENSTEIN COMBINATION OF ALL DUPLICATE GLOTTOCODES
-        ValueTable_grouped <- ValueTable %>%
-            dplyr::filter(!is.na(.data[["Value"]])) %>%
-            dplyr::filter(.data[["Value"]] != "?") %>%
+        ValueTable_grouped <- ValueTable |>
+            dplyr::filter(!is.na(.data[["Value"]])) |>
+            dplyr::filter(.data[["Value"]] != "?") |>
             dplyr::left_join(LanguageTable, by = "Language_ID",
-                      relationship = "many-to-many") %>%
-            dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) %>%
-            dplyr::mutate(n = dplyr::n()) %>%
+                      relationship = "many-to-many") |>
+            dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) |>
+            dplyr::mutate(n = dplyr::n()) |>
             dplyr::ungroup() 
 
         # it's faster if we do slice_sample (choose randomly) only on those that have more than 1
         # value per language rather than on all duplicate rows.
-        ValueTable_long_n_greater_than_1 <- ValueTable_grouped %>%
-            dplyr::filter(.data[["n"]] > 1) %>%
-            dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) %>% 
-            dplyr::slice_sample(n = 1) %>%
+        ValueTable_long_n_greater_than_1 <- ValueTable_grouped |>
+            dplyr::filter(.data[["n"]] > 1) |>
+            dplyr::group_by(.data[["Glottocode"]], .data[["Parameter_ID"]]) |> 
+            dplyr::slice_sample(n = 1) |>
             dplyr::ungroup()
 
-        levelled_ValueTable <- ValueTable_grouped %>% 
-            dplyr::filter(.data[["n"]] == 1) %>%
-          suppressMessages( dplyr::full_join(ValueTable_long_n_greater_than_1)) %>%
+        levelled_ValueTable <- ValueTable_grouped |> 
+            dplyr::filter(.data[["n"]] == 1) |>
+          suppressMessages( dplyr::full_join(ValueTable_long_n_greater_than_1)) |>
             dplyr::select(-"n") 
 
     # MERGE BY PICKING DIALECTS WHOLLY AT RANDOM
     } 
 
     if (method == "singular_random") {
-      lgs  <- LanguageTable %>%
-            dplyr::group_by(.data[["Glottocode"]]) %>%
-            dplyr::slice_sample(n = 1) %>%
-        dplyr::ungroup() %>% 
+      lgs  <- LanguageTable |>
+            dplyr::group_by(.data[["Glottocode"]]) |>
+            dplyr::slice_sample(n = 1) |>
+        dplyr::ungroup() |> 
         dplyr::distinct(dplyr::across(dplyr::all_of(c("Language_ID"))), .keep_all = T) 
       
-    levelled_ValueTable <- ValueTable %>% 
+    levelled_ValueTable <- ValueTable |> 
       dplyr::inner_join(lgs, by = "Language_ID") 
 
     } 
 
 if(multiple_values_per_parameter > 1){
-    levelled_ValueTable <-     levelled_ValueTable %>%
+    levelled_ValueTable <-     levelled_ValueTable |>
     tidyr::unnest(cols = c("Value", "Frequency", "ID", "Code_ID", "Confidence", "Example_ID"))
 }
 

@@ -21,16 +21,16 @@ library(rgrambank)
 
 glottolog_cldf_object <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
 
-coords <- glottolog_cldf_object$tables$LanguageTable %>% 
+coords <- glottolog_cldf_object$tables$LanguageTable |> 
   filter(ID == "fiji1242" |
            ID == "bisl1239"|
-           ID == "samo1305") %>% 
-  column_to_rownames("ID") %>% 
-  dplyr::select(Longitude, Latitude) %>% 
+           ID == "samo1305") |> 
+  column_to_rownames("ID") |> 
+  dplyr::select(Longitude, Latitude) |> 
   as.matrix()
 
 #illustrating the differences in base::dist and fields::rdist.earth with just plain distance calculations, without vcvs as in varcov.spatial
-dists_2D <- stats::dist(coords) %>% as.matrix() 
+dists_2D <- stats::dist(coords) |> as.matrix() 
 dists_3D <- fields::rdist.earth(x1 = coords, x2 = coords, miles = F) 
 
 # we would expect the distance between fiji1242 and bisl1239 to be similar to that of fiji1242 and samo1305. See the following tumblr post for visual illustration of why: https://hedvigsr.tumblr.com/post/730257310587453440/dont-use-statsdist-for-geographic-distances-it

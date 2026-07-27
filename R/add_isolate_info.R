@@ -23,16 +23,16 @@ add_isolate_info <- function(LanguageTable = NULL,
   lgs_in_input <- LanguageTable[["ID"]]
 
    if(!is.null(Glottolog_ValueTable_LanguageTable)){
-    Glottolog_ValueTable_LanguageTable <- Glottolog_ValueTable_LanguageTable %>% 
+    Glottolog_ValueTable_LanguageTable <- Glottolog_ValueTable_LanguageTable |> 
       dplyr::select("Family_ID", "Level", "Glottocode", "Language_level_ID", "Is_Isolate")
     
-    LanguageTable <- LanguageTable %>% 
-      dplyr::select(-dplyr::any_of(c("Family_ID", "level", "Level", "Language_level_ID", "Language_ID"))) %>% 
+    LanguageTable <- LanguageTable |> 
+      dplyr::select(-dplyr::any_of(c("Family_ID", "level", "Level", "Language_level_ID", "Language_ID"))) |> 
       dplyr::full_join(Glottolog_ValueTable_LanguageTable, by = "Glottocode")
     }
   
     if(mark_isolate_dialects_as_isolates == TRUE){
-        LanguageTable <- LanguageTable %>% 
+        LanguageTable <- LanguageTable |> 
             dplyr::mutate(Is_Isolate = ifelse(.data[["Family_ID"]] == .data[["Language_level_ID"]] & 
                                                 .data[["Level"]] == "dialect",
                                            TRUE, .data[["Is_Isolate"]])) 
@@ -40,13 +40,13 @@ add_isolate_info <- function(LanguageTable = NULL,
     }
 
     if(set_isolates_Family_ID_as_themselves == TRUE){
-          LanguageTable <- LanguageTable %>%
+          LanguageTable <- LanguageTable |>
             dplyr::mutate(Family_ID = ifelse(is.na(.data[["Family_ID"]])|
                                                .data[["Family_ID"]] == "" & .data[["Level"]] == "language",
                                              yes = .data[["Glottocode"]], no = .data[["Family_ID"]])) 
     }
 
-LanguageTable %>% 
+LanguageTable |> 
   dplyr::filter(.data[["ID"]] %in% lgs_in_input) 
 }
 

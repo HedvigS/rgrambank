@@ -37,7 +37,7 @@ ParameterTable <- rgrambank::make_binary_ParameterTable(GB_rcldf_obj$tables$Para
 theo_scores_table_cookbook <- rgrambank::make_theo_scores(ValueTable = ValueTable , 
                         ParameterTable =  ParameterTable)
 
-theo_scores_table_cookbook %>% 
+theo_scores_table_cookbook |> 
   write_tsv("output/Grambank_theo_scores.tsv", quote = "all")
 
 #In order to compare to the grambank-analysed, we need the theo scores. I have copied the data over exactly as they are based on Grambank v1.0.3 and the following scripts:
@@ -55,9 +55,9 @@ colnames(theo_scores_table_grambank_analysed)[2:7] <- paste0(colnames(theo_score
 
 joined <- inner_join(theo_scores_table_cookbook, theo_scores_table_grambank_analysed, by = join_by(Language_ID))
 
-p <- joined %>% 
-  filter(!is.na(Fusion_cookbook)) %>% 
-  filter(!is.na(`Fusion_grambank-analysed`)) %>% 
+p <- joined |> 
+  filter(!is.na(Fusion_cookbook)) |> 
+  filter(!is.na(`Fusion_grambank-analysed`)) |> 
   ggplot(aes(x = Fusion_cookbook, y = `Fusion_grambank-analysed`)) +
   geom_point(color = "#FF689F") +
   theme_classic() +
@@ -67,9 +67,9 @@ p <- joined %>%
 
 ggsave(plot = p, filename = "output/theo_scores_table_cookbook_theo_scores_table_grambank_analysed_theo_score_fusion.png", height = 3, width = 3)
 
-p <- joined %>% 
-  filter(!is.na(Informativity_cookbook)) %>% 
-  filter(!is.na(`Informativity_grambank-analysed`)) %>%
+p <- joined |> 
+  filter(!is.na(Informativity_cookbook)) |> 
+  filter(!is.na(`Informativity_grambank-analysed`)) |>
   ggplot(mapping = aes(x = Informativity_cookbook, 
                        y = `Informativity_grambank-analysed`)) +
   geom_point(color = "steelblue2") +

@@ -25,7 +25,7 @@ add_family_name_column <- function(LanguageTable = NULL,
   lgs_in_input <- LanguageTable[["ID"]]
   
     if(!is.null(Glottolog_ValueTable_LanguageTable)){
-        Glottolog_ValueTable_LanguageTable <- Glottolog_ValueTable_LanguageTable %>%
+        Glottolog_ValueTable_LanguageTable <- Glottolog_ValueTable_LanguageTable |>
             dplyr::select("Name", "Glottocode")
         
         LanguageTable_large <- dplyr::full_join( LanguageTable,  Glottolog_ValueTable_LanguageTable, 
@@ -35,26 +35,26 @@ add_family_name_column <- function(LanguageTable = NULL,
       LanguageTable_large <- LanguageTable
       }
   
-Family_df <- LanguageTable %>% 
-  dplyr::filter(!is.na(.data[["Family_ID"]])) %>% 
-  dplyr::distinct(dplyr::across(dplyr::all_of(c("Family_ID")))) %>% 
-  dplyr::rename("Glottocode" = "Family_ID") %>% 
+Family_df <- LanguageTable |> 
+  dplyr::filter(!is.na(.data[["Family_ID"]])) |> 
+  dplyr::distinct(dplyr::across(dplyr::all_of(c("Family_ID")))) |> 
+  dplyr::rename("Glottocode" = "Family_ID") |> 
   dplyr::left_join(dplyr::select(LanguageTable_large, 
                                  "Glottocode", "Name"), 
-                   by = "Glottocode") %>% 
+                   by = "Glottocode") |> 
   dplyr::rename("Family_name" = "Name", "Family_ID" = "Glottocode") 
 
-LanguageTable <- LanguageTable %>% 
+LanguageTable <- LanguageTable |> 
   dplyr::left_join(Family_df,
-            by = "Family_ID", relationship = "many-to-many") %>% 
+            by = "Family_ID", relationship = "many-to-many") |> 
   dplyr::filter(.data[["ID"]] %in% lgs_in_input)
   
 
     if(NA %in% LanguageTable[["Family_name"]] && verbose == TRUE){
 
         {warning(paste0("There was no Family_name found for the following entries. It could be because they are isolates and Family_ID was empty.\n",
-                LanguageTable %>%
-                    dplyr::filter(is.na(.data[["Family_name"]])) %>%
+                LanguageTable |>
+                    dplyr::filter(is.na(.data[["Family_name"]])) |>
                     dplyr::select("Name"))
                 )}
     }

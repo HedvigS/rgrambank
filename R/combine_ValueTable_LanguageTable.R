@@ -15,19 +15,19 @@ combine_ValueTable_LanguageTable <- function(
     Is_Glottolog = FALSE){
   
 if( Is_Glottolog == TRUE){
-  LanguageTable <- LanguageTable %>% 
+  LanguageTable <- LanguageTable |> 
     dplyr::rename("Language_level_ID" = "Language_ID")
   }
   
-  ValueTable_wide <- ValueTable %>% 
+  ValueTable_wide <- ValueTable |> 
     tidyr::pivot_wider(
       id_cols = "Language_ID",
       names_from = "Parameter_ID",
       values_from = "Value"
     )
   
-joined <- LanguageTable %>% 
-    dplyr::rename("Language_ID" = "ID") %>% 
+joined <- LanguageTable |> 
+    dplyr::rename("Language_ID" = "ID") |> 
     dplyr::full_join(ValueTable_wide, by = "Language_ID") 
     
 joined

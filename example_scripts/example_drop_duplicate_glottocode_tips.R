@@ -34,12 +34,12 @@ tree <- ape::read.nexus("fixed/global-language-tree-MCC-labelled.tree")
 cat(paste("The original tree has ", ape::Ntip(tree), " tips.\n"))
 
 TaxonTable <- data.frame(taxon= tree$tip.label,
-                            Glottocode = tree$tip.label %>% substr(1, 8)) 
+                            Glottocode = tree$tip.label |> substr(1, 8)) 
 
 # fetching Glottolog v5.0 from Zenodo using rcldf (requires internet)
 glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/glottolog/glottolog-cldf-v5.0.zip", load_bib = F)
 
-GlottologLanguageTable <- glottolog_rcldf_obj$tables$LanguageTable %>% 
+GlottologLanguageTable <- glottolog_rcldf_obj$tables$LanguageTable |> 
   dplyr::select(Glottocode, Language_level_ID = Language_ID)
 
 #pruning

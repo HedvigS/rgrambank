@@ -24,7 +24,7 @@ if(any(!tree$tip.label %in% TaxonTable$taxon)){
   stop("There are tips in the tree that cannot be matched to an entry in TaxonTable.")
   }
 
-if(tree$tip.label %>% unique() %>% length() != ape::Ntip(tree)){
+if(tree$tip.label |> unique() |> length() != ape::Ntip(tree)){
   stop("Tip-labels are not unique. Tips can be matched to duplicate Glottocodes, but the tip-labels need to be unique within the tree.")
   }
 
@@ -44,11 +44,11 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
       
     }
     
-      GlottologLanguageTable <- GlottologLanguageTable %>%
+      GlottologLanguageTable <- GlottologLanguageTable |>
       dplyr::distinct(dplyr::across(dplyr::all_of(c("Glottocode", "Language_level_ID")))) 
 
-    TaxonTable <- TaxonTable %>% 
-      dplyr::full_join(GlottologLanguageTable, by = "Glottocode") %>%         
+    TaxonTable <- TaxonTable |> 
+      dplyr::full_join(GlottologLanguageTable, by = "Glottocode") |>         
       dplyr::mutate(Language_level_ID = ifelse(is.na(.data[["Language_level_ID"]]) | 
                                                  .data[["Language_level_ID"]] == "", 
                                                yes = .data[["Glottocode"]], 
@@ -57,28 +57,28 @@ if((!"Language_level_ID" %in% colnames(GlottologLanguageTable)) ){
   
   # Still in the merge_dialect == TRUE if loop
   # Replacing the col glottocode with Language_level_ID merges dialects for the rest of the duplicate pruning
-  TaxonTable <- TaxonTable %>%
-    dplyr::select(-"Glottocode") %>% 
+  TaxonTable <- TaxonTable |>
+    dplyr::select(-"Glottocode") |> 
     dplyr::select("taxon", "Glottocode" = "Language_level_ID")
   }
 
 
 #keeping just one tip per unique glottocode tip label in the entire tree. Anytime where there are duplicate tip labels, only one tip is kept. Selection is random.
-to_keep <- tree$tip.label %>%
-              as.data.frame() %>%
-    dplyr::rename(taxon = ".") %>%
-    dplyr::left_join(TaxonTable, by = "taxon") %>% 
-    dplyr::group_by(.data[["Glottocode"]]) %>%
-    dplyr::mutate(n = dplyr::n()) %>% 
+to_keep <- tree$tip.label |>
+              as.data.frame() |>
+    dplyr::rename(taxon = ".") |>
+    dplyr::left_join(TaxonTable, by = "taxon") |> 
+    dplyr::group_by(.data[["Glottocode"]]) |>
+    dplyr::mutate(n = dplyr::n()) |> 
     dplyr::slice_sample(n = 1)
 
 tree <- ape::keep.tip(tree, tip = to_keep$taxon)
 
 if(rename_tips_to_glottocodes == TRUE){
 
-tip_df <- tree$tip.label %>%
-  as.data.frame() %>%
-  dplyr::rename(taxon = ".") %>%
+tip_df <- tree$tip.label |>
+  as.data.frame() |>
+  dplyr::rename(taxon = ".") |>
   dplyr::left_join(TaxonTable, by = "taxon") 
 
 tree$tip.label <- tip_df$Glottocode

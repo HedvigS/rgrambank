@@ -35,15 +35,15 @@ GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/gr
 
 ValueTable <- GB_rcldf_obj$tables$ValueTable
 LanguageTable <- GB_rcldf_obj$tables$LanguageTable
-ParameterTable <- GB_rcldf_obj$tables$ParameterTable %>% rgrambank::make_binary_ParameterTable()
+ParameterTable <- GB_rcldf_obj$tables$ParameterTable |> rgrambank::make_binary_ParameterTable()
 
 #remove duplicate glottocodes and merge dialects
 ValueTable_dialect_reduced <- rgrambank::reduce_ValueTable_to_unique_glottocodes(ValueTable = ValueTable,
                                                                       LanguageTable = LanguageTable,
                                                                       merge_dialects = T, 
                                                                       method = "singular_least_missing_data",
-                                                                      replace_missing_language_level_ID = T) %>% 
-  dplyr::select(-Language_ID) %>% 
+                                                                      replace_missing_language_level_ID = T) |> 
+  dplyr::select(-Language_ID) |> 
   dplyr::rename(Language_ID = Glottocode)
 
 #make Grambank ValueTable binary
@@ -56,44 +56,44 @@ ValueTable_binary <- rgrambank::make_binary_ValueTable(ValueTable = ValueTable_d
 ValueTable_cropped <- rgrambank::crop_missing_data(ValueTable = ValueTable_binary, 
                                         cut_off_parameters  = 0.7538462, 
                                         cut_off_languages = 0.7538462, 
-                                        ParameterTable = ParameterTable) %>% 
-  mutate(Value = str_replace_all(Value, "0", "0 - absent")) %>%
-  mutate(Value = str_replace_all(Value, "1", "1 - present")) %>% 
-  dplyr::select(Language_ID, Parameter_ID, Value) %>%
+                                        ParameterTable = ParameterTable) |> 
+  mutate(Value = str_replace_all(Value, "0", "0 - absent")) |>
+  mutate(Value = str_replace_all(Value, "1", "1 - present")) |> 
+  dplyr::select(Language_ID, Parameter_ID, Value) |>
   spread(key = Parameter_ID, value = Value, drop = FALSE) 
   
 set.seed(1421)
 
 #imputation
-imputed_data <- ValueTable_cropped %>%
-  column_to_rownames("Language_ID") %>% 
-  as.matrix() %>%
-  data.frame() %>%
-  mutate_all(as.factor) %>% 
+imputed_data <- ValueTable_cropped |>
+  column_to_rownames("Language_ID") |> 
+  as.matrix() |>
+  data.frame() |>
+  mutate_all(as.factor) |> 
   missForest::missForest() 
 
 cat(paste0("The imputation OOB error is ", round(imputed_data$OOBerror, 2), ".\n"))
 
 
 # do Pricinpal Components Analysis on imputed dataset
-GB_PCA <- imputed_data$ximp %>% 
-  as.data.frame() %>% 
-  rownames_to_column("Language_ID") %>% 
-  reshape2::melt(id = "Language_ID")  %>% 
-  mutate_all(as.character) %>% 
-  mutate(value =  str_replace_all(value, "0 - absent", "0")) %>%
-  mutate(value =  str_replace_all(value,  "1 - present", "1")) %>%
-  mutate(value = as.numeric(value)) %>%  
-  dplyr::select(Language_ID, Parameter_ID = variable, value) %>%
-  spread(key = Parameter_ID, value = value, drop = FALSE) %>% 
-  column_to_rownames("Language_ID") %>% 
-  as.matrix() %>% 
+GB_PCA <- imputed_data$ximp |> 
+  as.data.frame() |> 
+  rownames_to_column("Language_ID") |> 
+  reshape2::melt(id = "Language_ID")  |> 
+  mutate_all(as.character) |> 
+  mutate(value =  str_replace_all(value, "0 - absent", "0")) |>
+  mutate(value =  str_replace_all(value,  "1 - present", "1")) |>
+  mutate(value = as.numeric(value)) |>  
+  dplyr::select(Language_ID, Parameter_ID = variable, value) |>
+  spread(key = Parameter_ID, value = value, drop = FALSE) |> 
+  column_to_rownames("Language_ID") |> 
+  as.matrix() |> 
   stats::prcomp(scale = T) 
 
 ###Map first 3 PCA components to RGB
-RGB_vec <- GB_PCA$x %>% 
-  as.data.frame() %>% 
-  dplyr::select(PC1, PC2, PC3) %>% 
+RGB_vec <- GB_PCA$x |> 
+  as.data.frame() |> 
+  dplyr::select(PC1, PC2, PC3) |> 
   rgrambank::match_to_rgb(first_three = T)
 
 # there are records in the data now that don't have long/lat details in the LanguageTable, because they were dialects which were emrged. Therefore, we need long/lat data from glottolog
@@ -103,7 +103,7 @@ glottolog_rcldf_obj <- rcldf::cldf("https://zenodo.org/records/10804582/files/gl
 
 #prep data for rgrambank::basemap_pacific_center function
 
-LongLatTable <- glottolog_rcldf_obj$tables$LanguageTable %>% 
+LongLatTable <- glottolog_rcldf_obj$tables$LanguageTable |> 
   dplyr::select(ID = Glottocode, Longitude, Latitude)
 
 DataTable <-   data.frame(ID = rownames(GB_PCA$x), 
@@ -127,13 +127,13 @@ ggsave(plot = p, filename = "output/plots/PCA_RGB_map_eez.png", width = 10, heig
 
 #MCA
 
-MCA <- imputed_data$ximp %>% 
-  as.data.frame() %>% 
+MCA <- imputed_data$ximp |> 
+  as.data.frame() |> 
   FactoMineR::MCA(graph = F)
 
-MCA_df  <- MCA$ind$coord %>%
-  as.data.frame() %>% 
-  dplyr::select(1, 2, 3) %>%
+MCA_df  <- MCA$ind$coord |>
+  as.data.frame() |> 
+  dplyr::select(1, 2, 3) |>
   tibble::rownames_to_column("ID") 
 
 MCA_df$RGB <- rgrambank::match_to_rgb(x = MCA_df [,c("Dim 1","Dim 2","Dim 3")], first_three = T)
@@ -156,12 +156,12 @@ ggsave(plot = p, filename = "output/plots/MCA_RGB_map_eez.pdf", dpi = 400, units
 
 theo_scores_table <- rgrambank::make_theo_scores(ValueTable = ValueTable_binary , ParameterTable = ParameterTable, Fusion_option = "count_one_and_half") 
 
-df <- GB_PCA$x %>% 
-  as.data.frame() %>% 
-  dplyr::select(PC1, PC2, PC3)   %>%
-  tibble::rownames_to_column("ID") %>% 
-  full_join(theo_scores_table, by = c("ID" = "Language_ID")) %>% 
-  left_join(MCA_df, by = "ID") %>% 
+df <- GB_PCA$x |> 
+  as.data.frame() |> 
+  dplyr::select(PC1, PC2, PC3)   |>
+  tibble::rownames_to_column("ID") |> 
+  full_join(theo_scores_table, by = c("ID" = "Language_ID")) |> 
+  left_join(MCA_df, by = "ID") |> 
   dplyr::select( "PC1"  , "PC2" ,  "PC3" ,  
                  "MC1" = "Dim 1" ,"MC2" = "Dim 2" ,"MC3" = "Dim 3", 
                  "Word_Order"      ,     "Flexivity"     ,       "Gender_or_Noun_Class", "Locus_of_Marking"    ,"Fusion"      ,         "Informativity"  ) 

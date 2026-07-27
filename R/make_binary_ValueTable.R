@@ -48,16 +48,16 @@ make_binary_ValueTable <- function(ValueTable = NULL,
         stop("There is no native binary coding at all.")
       }
         
-    ValueTable <- ValueTable %>%
+    ValueTable <- ValueTable |>
             dplyr::filter(!(.data[["Parameter_ID"]] %in% .multistate_parameters))
 
     } else {
 
     if (keep_native_binary == FALSE) {
-        ValueTable <- ValueTable %>%
+        ValueTable <- ValueTable |>
             dplyr::filter(!(.data[["Parameter_ID"]] %in% .binary_parameters))
     } else {
-        ValueTable_native_binary <- ValueTable %>%
+        ValueTable_native_binary <- ValueTable |>
             dplyr::filter(.data[["Parameter_ID"]] %in% .binary_parameters)
     }
 
@@ -78,17 +78,17 @@ make_binary_ValueTable <- function(ValueTable = NULL,
     if (keep_native_binary == TRUE) {
       
       cols_to_join_for <- colnames(ValueTable)
-        ValueTable <- ValueTable %>%
+        ValueTable <- ValueTable |>
             dplyr::anti_join(
                 dplyr::select(ValueTable_native_binary, "Language_ID", "Parameter_ID"),
-                     by = c("Language_ID", "Parameter_ID")) %>%
+                     by = c("Language_ID", "Parameter_ID")) |>
             dplyr::full_join(
                 ValueTable_native_binary,
                 by = cols_to_join_for)
 
     }
     if (keep_multistate == FALSE) {
-        ValueTable <- ValueTable %>%
+        ValueTable <- ValueTable |>
             dplyr::filter(!(.data[["Parameter_ID"]] %in% .multistate_parameters))
         }
     }
@@ -135,12 +135,12 @@ ValueTable
 
 
 .gb_recode <- function(ValueTable, oldvariable, newvariable, func) {
-  ValueTable %>% dplyr::filter(.data[["Parameter_ID"]] == oldvariable) %>%
+  ValueTable |> dplyr::filter(.data[["Parameter_ID"]] == oldvariable) |>
     dplyr::mutate(
       ID = paste0(newvariable, "-", .data[["Language_ID"]]),
       Parameter_ID=newvariable,
       Value=func(.data[["Value"]])
-    ) %>%
-    dplyr::mutate(Code_ID = paste0(.data[["Parameter_ID"]], "-", .data[["Value"]])) %>%
+    ) |>
+    dplyr::mutate(Code_ID = paste0(.data[["Parameter_ID"]], "-", .data[["Value"]])) |>
     rbind(ValueTable)
 }

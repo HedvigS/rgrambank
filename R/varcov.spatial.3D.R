@@ -75,7 +75,7 @@ varcov.spatial.3D <-
 
             rdist.earth_dists[upper.tri(rdist.earth_dists, diag = TRUE)] <- NA
 
-            dists.lowertri <- as.vector(rdist.earth_dists) %>% stats::na.omit()}
+            dists.lowertri <- as.vector(rdist.earth_dists) |> stats::na.omit()}
 
         if (round(1e+12 * min(dists.lowertri)) == 0)
             warning("Two or more pairs of data at coincident (or very close) locations. \nThis may cause crashes in some matrices operations.\n")

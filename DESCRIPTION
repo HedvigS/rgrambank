@@ -21,7 +21,6 @@ Imports:
     dplyr(>= 1.1.4),
     fields (>= 17.1),
     ggplot2 (>= 4.0.1),
-    magrittr (>= 2.0.4), 
     rlang (>= 1.1.6),
     stringr (>= 1.5.1),
     testthat (>= 3.2.2),
@@ -33,3 +32,4 @@ RoxygenNote: 7.3.2
 Remotes:
     github::annagraff/densify,
     github::SimonGreenhill/rcldf
+Config/testthat/edition: 3
