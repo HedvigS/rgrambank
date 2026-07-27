@@ -12,12 +12,12 @@ make_GBI <- function(ValueTable = NULL,
                      verbose = TRUE,
                      recode_patterns_full = NULL, 
                      all_decisions = NULL
-                            # LanguageTable = NULL
-    ){
+                     # LanguageTable = NULL
+){
   
-#  ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
-#  LanguageTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/languages.csv", sep = ",") 
-
+  #  ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
+  #  LanguageTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/languages.csv", sep = ",") 
+  
   
   ########## load and prepare data ########## 
   # read in original grambank data
@@ -30,27 +30,27 @@ make_GBI <- function(ValueTable = NULL,
   
   # replace missing data by ? (--> because these data points are unknown, not "not applicable")
   original_feature_matrix[is.na(original_feature_matrix)] <- "?"
-    
+  
   # Grambank v2 contains binarised features of the old multistate features from GB v1 (read more here: https://github.com/grambank/grambank/wiki/Binarised-features). The crossling-curated workflow currently calls for the mulistate features only, which is why the binarised will be turned "back" into the multistate.
   
   if("GB024a" %in% colnames(original_feature_matrix)){
-
-  
-  #GB024	What is the order of numeral and noun in the NP?
-  #GB024a	Is the order of the numeral and noun Num-N?
-  #GB024b	Is the order of the numeral and noun N-Num?
- 
+    
+    
+    #GB024	What is the order of numeral and noun in the NP?
+    #GB024a	Is the order of the numeral and noun Num-N?
+    #GB024b	Is the order of the numeral and noun N-Num?
+    
     original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024 == "?" &   
-                                            original_feature_matrix$GB024a == "1" & 
-                                            original_feature_matrix$GB024b == "0|?", 
-                                              "1",
-                                          original_feature_matrix$GB024)
-
+                                              original_feature_matrix$GB024a == "1" & 
+                                              original_feature_matrix$GB024b == "0|?", 
+                                            "1",
+                                            original_feature_matrix$GB024)
+    
     original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024 == "?" &   
-                                            original_feature_matrix$GB024a == "0|?"  &
-                                            original_feature_matrix$GB024b == "1" , 
+                                              original_feature_matrix$GB024a == "0|?"  &
+                                              original_feature_matrix$GB024b == "1" , 
                                             "2",
-                                          original_feature_matrix$GB024)
+                                            original_feature_matrix$GB024)
     
     original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024 == "?" &   
                                               original_feature_matrix$GB024a == "1" &
@@ -100,7 +100,7 @@ make_GBI <- function(ValueTable = NULL,
     #GB130a	Is the pragmatically unmarked order of S and V in intransitive clauses S-V?
     #GB130b	Is the pragmatically unmarked order of S and V in intransitive clauses V-S?
     
-
+    
     original_feature_matrix$GB130 <- ifelse(original_feature_matrix$GB130 == "?" &   
                                               original_feature_matrix$GB130a == "1" &
                                               original_feature_matrix$GB130b == "0|?", "1",
@@ -115,7 +115,7 @@ make_GBI <- function(ValueTable = NULL,
                                               original_feature_matrix$GB130a == "1" &
                                               original_feature_matrix$GB130b == "1" , "3",
                                             original_feature_matrix$GB130)
-
+    
     #GB193	What is the order of adnominal property word and noun?
     #GB193a	Is the order of the adnominal property word (ANM) and noun ANM-N?
     #GB193b	Is the order of the adnominal property word (ANM) and noun N-ANM?
@@ -186,7 +186,7 @@ make_GBI <- function(ValueTable = NULL,
   
   recode_patterns <- dplyr::filter(recode_patterns_full, 
                                    .data[["recode.operation.type"]] != "include without modification")
-
+  
   ## recode group 1 (simple recode) ##
   # subset to features requiring simple recoding only
   first_set <- dplyr::filter(  recode_patterns, 
@@ -197,9 +197,9 @@ make_GBI <- function(ValueTable = NULL,
   
   # recode all features that require simple recoding
   first_set_rec <- dplyr::rowwise(first_set) |> dplyr::do({
-  
-         if(verbose == TRUE){ cat("GBI Logical: First set, processing ", .$new.name, "\n", sep="")
-         }
+    
+    if(verbose == TRUE){ cat("GBI Logical: First set, processing ", .$new.name, "\n", sep="")
+    }
     
     # check that the original feature is present in the original feature matrix
     testthat::expect_true(.$`original.names` %in% names(original_feature_matrix)[-1])
@@ -212,7 +212,7 @@ make_GBI <- function(ValueTable = NULL,
     
     # recode (single feature)
     new_data <- .implement_recode(original_data, expected_states, recoding_groups, recoded_states, 
-                                 nvar="single", recode_mode="simple")
+                                  nvar="single", recode_mode="simple")
     
     # prepare output as data frame
     data.frame(
@@ -221,8 +221,9 @@ make_GBI <- function(ValueTable = NULL,
       value = new_data,  
       stringsAsFactors=FALSE)  
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE) |>  
+    as.data.frame() |>
+    .check_no_listcols("first_set_rec")
   
   # save the recoded data from retained features and the simple recodings as recoded_data for further use
   recoded_data <- dplyr::full_join(first_set_rec, retained_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -250,7 +251,7 @@ make_GBI <- function(ValueTable = NULL,
     
     # recode (multiple features)
     new_data <- .implement_recode(original_data, expected_states, recoding_groups, recoded_states, 
-                                 nvar="multiple", recode_mode="logical_arguments")
+                                  nvar="multiple", recode_mode="logical_arguments")
     
     # prepare output as data frame
     data.frame(
@@ -260,8 +261,9 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE) |>  
+    as.data.frame() |>
+    .check_no_listcols("second_set_rec")
   
   
   
@@ -308,9 +310,9 @@ make_GBI <- function(ValueTable = NULL,
     
     # apply condition
     conditioned_data <- .implement_conditioning(unconditioned, 
-                                               condition=condition_and_equator[[1]], 
-                                               equator=condition_and_equator[[2]], 
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator[[1]], 
+                                                equator=condition_and_equator[[2]], 
+                                                recoded_data = recoded_data)
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
@@ -319,8 +321,9 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value")  |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE)  |>  
+    as.data.frame() |>
+    .check_no_listcols("third_set_rec")
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(third_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -350,7 +353,7 @@ make_GBI <- function(ValueTable = NULL,
     
     # recode (multiple features)
     new_data <- .implement_recode(original_data, expected_states, recoding_groups, recoded_states, 
-                                 nvar="multiple", recode_mode="logical_arguments")
+                                  nvar="multiple", recode_mode="logical_arguments")
     
     # create table (unconditioned)
     unconditioned <- data.frame(
@@ -366,26 +369,26 @@ make_GBI <- function(ValueTable = NULL,
     condition_statement_1 <- conditions[1]
     condition_and_equator_1 <- .extract_condition_and_equator(condition_statement_1)
     conditioned_data <- .implement_conditioning(unconditioned, 
-                                               condition=condition_and_equator_1[[1]], 
-                                               equator=condition_and_equator_1[[2]], 
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator_1[[1]], 
+                                                equator=condition_and_equator_1[[2]], 
+                                                recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 2, apply condition 2
     condition_statement_2 <- conditions[2]
     condition_and_equator_2 <- .extract_condition_and_equator(condition_statement_2)
     conditioned_data <- .implement_conditioning(conditioned_data, 
-                                               condition=condition_and_equator_2[[1]], 
-                                               equator=condition_and_equator_2[[2]], 
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator_2[[1]], 
+                                                equator=condition_and_equator_2[[2]], 
+                                                recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 3, apply condition 3, if there are more than 2 conditions
     if (nr_conditions>2){
       condition_statement_3 <- conditions[3]
       condition_and_equator_3 <- .extract_condition_and_equator(condition_statement_3)
       conditioned_data <- .implement_conditioning(conditioned_data, 
-                                                 condition=condition_and_equator_3[[1]], 
-                                                 equator=condition_and_equator_3[[2]],
-                                                 recoded_data = recoded_data)
+                                                  condition=condition_and_equator_3[[1]], 
+                                                  equator=condition_and_equator_3[[2]],
+                                                  recoded_data = recoded_data)
     }
     
     # determine and extract conditions and equators for condition 4, apply condition 4, if there are more than 3 conditions
@@ -393,9 +396,9 @@ make_GBI <- function(ValueTable = NULL,
       condition_statement_4 <- conditions[4]
       condition_and_equator_4 <- .extract_condition_and_equator(condition_statement_4)
       conditioned_data <- .implement_conditioning(conditioned_data, 
-                                                 condition=condition_and_equator_4[[1]], 
-                                                 equator=condition_and_equator_4[[2]],
-                                                 recoded_data = recoded_data)
+                                                  condition=condition_and_equator_4[[1]], 
+                                                  equator=condition_and_equator_4[[2]],
+                                                  recoded_data = recoded_data)
     }
     
     # prepare output as data frame
@@ -405,8 +408,9 @@ make_GBI <- function(ValueTable = NULL,
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE) |>  
+    as.data.frame() |>
+    .check_no_listcols("fourth_set_rec")
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(fourth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -446,8 +450,9 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE) |>  
+    as.data.frame() |>
+    .check_no_listcols("fifth_set_rec")
   
   
   # merge new features with recoded_data for further use
@@ -477,26 +482,26 @@ make_GBI <- function(ValueTable = NULL,
     condition_statement_1 <- conditions[1]
     condition_and_equator_1 <- .extract_condition_and_equator(condition_statement_1)
     conditioned_data <- .implement_conditioning(feature_to_be_conditioned, 
-                                               condition=condition_and_equator_1[[1]], 
-                                               equator=condition_and_equator_1[[2]],
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator_1[[1]], 
+                                                equator=condition_and_equator_1[[2]],
+                                                recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 2, apply condition 2
     condition_statement_2 <- conditions[2]
     condition_and_equator_2 <- .extract_condition_and_equator(condition_statement_2)
     conditioned_data <- .implement_conditioning(conditioned_data, 
-                                               condition=condition_and_equator_2[[1]], 
-                                               equator=condition_and_equator_2[[2]],
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator_2[[1]], 
+                                                equator=condition_and_equator_2[[2]],
+                                                recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 3, apply condition 3, if there are more than 2 conditions
     if (nr_conditions>2){
       condition_statement_3 <- conditions[3]
       condition_and_equator_3 <- .extract_condition_and_equator(condition_statement_3)
       conditioned_data <- .implement_conditioning(conditioned_data, 
-                                                 condition=condition_and_equator_3[[1]], 
-                                                 equator=condition_and_equator_3[[2]],
-                                                 recoded_data = recoded_data)
+                                                  condition=condition_and_equator_3[[1]], 
+                                                  equator=condition_and_equator_3[[2]],
+                                                  recoded_data = recoded_data)
     }
     
     # determine and extract conditions and equators for condition 4, apply condition 4, if there are more than 3 conditions
@@ -504,9 +509,9 @@ make_GBI <- function(ValueTable = NULL,
       condition_statement_4 <- conditions[4]
       condition_and_equator_4 <- .extract_condition_and_equator(condition_statement_4)
       conditioned_data <- .implement_conditioning(conditioned_data, 
-                                                 condition=condition_and_equator_4[[1]], 
-                                                 equator=condition_and_equator_4[[2]],
-                                                 recoded_data = recoded_data)
+                                                  condition=condition_and_equator_4[[1]], 
+                                                  equator=condition_and_equator_4[[2]],
+                                                  recoded_data = recoded_data)
     }
     
     # prepare output as data frame
@@ -517,8 +522,9 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE) |>  
+    as.data.frame() |>
+    .check_no_listcols("sixth_set_rec")
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(sixth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -533,7 +539,7 @@ make_GBI <- function(ValueTable = NULL,
   
   # condition on conditioned feature
   seventh_set_rec <- dplyr::rowwise(seventh_set) |> dplyr::do({
-
+    
     if(verbose == TRUE){  cat("GBI Logical: Seventh, processing ", .$new.name, "\n", sep="") }
     
     # check that the original feature is present in the original data
@@ -560,8 +566,9 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value")  |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE)  |>  
+    as.data.frame() |>
+    .check_no_listcols("seventh_set_rec")
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(seventh_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -589,26 +596,26 @@ make_GBI <- function(ValueTable = NULL,
     condition_statement_1 <- conditions[1]
     condition_and_equator_1 <- .extract_condition_and_equator(condition_statement_1)
     conditioned_data <- .implement_conditioning(feature_to_be_conditioned, 
-                                               condition=condition_and_equator_1[[1]], 
-                                               equator=condition_and_equator_1[[2]],
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator_1[[1]], 
+                                                equator=condition_and_equator_1[[2]],
+                                                recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 2, apply condition 2
     condition_statement_2 <- conditions[2]
     condition_and_equator_2 <- .extract_condition_and_equator(condition_statement_2)
     conditioned_data <- .implement_conditioning(conditioned_data, 
-                                               condition=condition_and_equator_2[[1]], 
-                                               equator=condition_and_equator_2[[2]],
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator_2[[1]], 
+                                                equator=condition_and_equator_2[[2]],
+                                                recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 3, apply condition 3, if there are more than 2 conditions
     if (nr_conditions>2){
       condition_statement_3 <- conditions[3]
       condition_and_equator_3 <- .extract_condition_and_equator(condition_statement_3)
       conditioned_data <- .implement_conditioning(conditioned_data, 
-                                                 condition=condition_and_equator_3[[1]], 
-                                                 equator=condition_and_equator_3[[2]],
-                                                 recoded_data = recoded_data)
+                                                  condition=condition_and_equator_3[[1]], 
+                                                  equator=condition_and_equator_3[[2]],
+                                                  recoded_data = recoded_data)
     }
     
     # determine and extract conditions and equators for condition 4, apply condition 4, if there are more than 3 conditions
@@ -616,9 +623,9 @@ make_GBI <- function(ValueTable = NULL,
       condition_statement_4 <- conditions[4]
       condition_and_equator_4 <- .extract_condition_and_equator(condition_statement_4)
       conditioned_data <- .implement_conditioning(conditioned_data, 
-                                                 condition=condition_and_equator_4[[1]], 
-                                                 equator=condition_and_equator_4[[2]],
-                                                 recoded_data = recoded_data)
+                                                  condition=condition_and_equator_4[[1]], 
+                                                  equator=condition_and_equator_4[[2]],
+                                                  recoded_data = recoded_data)
     }
     
     # prepare output as data frame
@@ -629,8 +636,9 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value")  |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE)  |>  
+    as.data.frame() |>
+    .check_no_listcols("eighth_set_rec")
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(eighth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -675,9 +683,9 @@ make_GBI <- function(ValueTable = NULL,
     
     # apply condition
     conditioned_data <- .implement_conditioning(unconditioned, 
-                                               condition=condition_and_equator[[1]], 
-                                               equator=condition_and_equator[[2]],
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator[[1]], 
+                                                equator=condition_and_equator[[2]],
+                                                recoded_data = recoded_data)
     # prepare output as data frame
     data.frame(
       feature = .$new.name, 
@@ -686,8 +694,9 @@ make_GBI <- function(ValueTable = NULL,
       stringsAsFactors=FALSE)  
     
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value")  |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE)  |>  
+    as.data.frame() |>
+    .check_no_listcols("ninth_set_rec")
   
   # merge new features with recoded_data for further use
   recoded_data <- dplyr::full_join(ninth_set_rec, recoded_data, by=c("Language_ID"="Language_ID")) |> as.data.frame()
@@ -716,7 +725,7 @@ make_GBI <- function(ValueTable = NULL,
     
     # recode (multiple features)
     new_data <- .implement_recode(original_data, expected_states, recoding_groups, recoded_states, 
-                                 nvar="multiple", recode_mode="logical_arguments")
+                                  nvar="multiple", recode_mode="logical_arguments")
     
     # create table (unconditioned)
     unconditioned <- data.frame(
@@ -732,26 +741,26 @@ make_GBI <- function(ValueTable = NULL,
     condition_statement_1 <- conditions[1]
     condition_and_equator_1 <- .extract_condition_and_equator(condition_statement_1)
     conditioned_data <- .implement_conditioning(unconditioned, 
-                                               condition=condition_and_equator_1[[1]], 
-                                               equator=condition_and_equator_1[[2]],
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator_1[[1]], 
+                                                equator=condition_and_equator_1[[2]],
+                                                recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 2, apply condition 2
     condition_statement_2 <- conditions[2]
     condition_and_equator_2 <- .extract_condition_and_equator(condition_statement_2)
     conditioned_data <- .implement_conditioning(conditioned_data, 
-                                               condition=condition_and_equator_2[[1]], 
-                                               equator=condition_and_equator_2[[2]],
-                                               recoded_data = recoded_data)
+                                                condition=condition_and_equator_2[[1]], 
+                                                equator=condition_and_equator_2[[2]],
+                                                recoded_data = recoded_data)
     
     # determine and extract conditions and equators for condition 3, apply condition 3, if there are more than 2 conditions
     if (nr_conditions>2){
       condition_statement_3 <- conditions[3]
       condition_and_equator_3 <- .extract_condition_and_equator(condition_statement_3)
       conditioned_data <- .implement_conditioning(conditioned_data, 
-                                                 condition=condition_and_equator_3[[1]], 
-                                                 equator=condition_and_equator_3[[2]],
-                                                 recoded_data = recoded_data)
+                                                  condition=condition_and_equator_3[[1]], 
+                                                  equator=condition_and_equator_3[[2]],
+                                                  recoded_data = recoded_data)
     }
     
     # determine and extract conditions and equators for condition 4, apply condition 4, if there are more than 3 conditions
@@ -759,9 +768,9 @@ make_GBI <- function(ValueTable = NULL,
       condition_statement_4 <- conditions[4]
       condition_and_equator_4 <- .extract_condition_and_equator(condition_statement_4)
       conditioned_data <- .implement_conditioning(conditioned_data, 
-                                                 condition=condition_and_equator_4[[1]], 
-                                                 equator=condition_and_equator_4[[2]],
-                                                 recoded_data = recoded_data)
+                                                  condition=condition_and_equator_4[[1]], 
+                                                  equator=condition_and_equator_4[[2]],
+                                                  recoded_data = recoded_data)
     }
     
     # prepare output as data frame
@@ -771,8 +780,9 @@ make_GBI <- function(ValueTable = NULL,
       value = as.character(conditioned_data[,2]),  
       stringsAsFactors=FALSE)  
   })  |> 
-    tidyr::pivot_wider(names_from = "feature", values_from = "value") |>  
-    as.data.frame()
+    tidyr::pivot_wider(names_from = "feature", values_from = "value", names_sort = TRUE) |>  
+    as.data.frame() |>
+    .check_no_listcols("tenth_set_rec")
   
   
   # merge new features with recoded_data for further use
@@ -782,8 +792,8 @@ make_GBI <- function(ValueTable = NULL,
   recoded_data[is.na(recoded_data)]<-"NA"
   
   # subset full data into original layer; logical layer and statistical layer
-#  recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
-#  all_decisions <- read.csv("fixed/decisions-log.csv")
+  #  recode_patterns <- read.csv("fixed/feature-recode-patterns.csv")
+  #  all_decisions <- read.csv("fixed/decisions-log.csv")
   logical_decisions <- all_decisions |> 
     dplyr::filter( .data[["modification.type"]] %in% c("logical","design"))
   statistical_decisions <- all_decisions |> 
@@ -819,7 +829,7 @@ make_GBI <- function(ValueTable = NULL,
   
   ### statistical dataset: check all original features that should be in the statistical filter are in there and vice versa
   
-
+  
   
   statistical_add <- unique(statistical_decisions$resulting.added.features) 
   statistical_remove <- unique(unlist(stringr::str_split(statistical_decisions$resulting.removed.features,", ")))
@@ -841,7 +851,7 @@ make_GBI <- function(ValueTable = NULL,
   ids <- stats::na.omit(all_decisions$modification.ID)
   for (id in ids){
     
-
+    
     type <- dplyr::filter(all_decisions, .data[["modification.ID"]] == id)[["modification.type"]]
     if (type == "statistical"){
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
@@ -883,7 +893,7 @@ make_GBI <- function(ValueTable = NULL,
     }
     else if (type %in% c("logical","design-automated","design-manual")){ 
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
-
+      
       should_all <- all_decisions |> 
         dplyr::filter(.data[["modification.ID"]] == id) |> 
         dplyr::select(c("relevant.features","resulting.added.features","resulting.removed.features")) |> 
@@ -924,7 +934,9 @@ make_GBI <- function(ValueTable = NULL,
   rds <- dplyr::filter(all_decisions, 
                        .data[["resulting.modification"]] == "tendency logged in known.remaining.dependencies")
   for (rd in seq_len(nrow(rds))){
-    id <- rds[rd, "modification.ID", drop = FALSE]
+    id <- rds |> 
+      dplyr::slice(rd) |> 
+      dplyr::pull(dplyr::all_of("modification.ID"))
     
     should_associated <- rds |> 
       dplyr::slice(rd) |> 
@@ -940,17 +952,17 @@ make_GBI <- function(ValueTable = NULL,
     testthat::expect_true(all(is_associated %in% should_associated))
     testthat::expect_true(all(should_associated %in% is_associated))
   }
-
+  
   ########## make, check and save cldf  ########## 
   # languages.csv
-#  lang_metadata <- LanguageTable
+  #  lang_metadata <- LanguageTable
   
   taxonomy_logical <- data.frame(Language_ID = logical_data[["Language_ID"]])
- # taxonomy_logical <- left_join(taxonomy_logical,lang_metadata, by = "Language_ID")
+  # taxonomy_logical <- left_join(taxonomy_logical,lang_metadata, by = "Language_ID")
   taxonomy_logical[taxonomy_logical==""] <- NA
   
   taxonomy_statistical <- data.frame(Language_ID = statistical_data[["Language_ID"]])
-#  taxonomy_statistical <- left_join(taxonomy_statistical,lang_metadata, by = "Language_ID")
+  #  taxonomy_statistical <- left_join(taxonomy_statistical,lang_metadata, by = "Language_ID")
   taxonomy_statistical[taxonomy_statistical==""] <- NA
   
   # parameters.csv
@@ -1009,9 +1021,9 @@ make_GBI <- function(ValueTable = NULL,
   testthat::expect_true(all(unique(logical_long$new.name) %in% parameters$new.name))
   testthat::expect_true(all(unique(statistical_long$new.name) %in% parameters$new.name))
   testthat::expect_true(all(dplyr::filter(parameters,
-                                .data[["design.logical"]] == "TRUE")$new.name %in% unique(logical_long$new.name)))
+                                          .data[["design.logical"]] == "TRUE")$new.name %in% unique(logical_long$new.name)))
   testthat::expect_true(all(dplyr::filter(parameters,
-                                .data[["design.logical.statistical"]] == "TRUE")$new.name %in% unique(statistical_long$new.name)))
+                                          .data[["design.logical.statistical"]] == "TRUE")$new.name %in% unique(statistical_long$new.name)))
   
   testthat::expect_true(all(unique(logical_long$code_ID) %in% logical_codes$code_ID))
   testthat::expect_true(all(unique(statistical_long$code_ID) %in% statistical_codes$code_ID))
@@ -1019,32 +1031,32 @@ make_GBI <- function(ValueTable = NULL,
   testthat::expect_true(all(statistical_codes$code_ID %in% unique(statistical_long$code_ID)))
   
   testthat::expect_true(all(unique(unlist(strsplit(dplyr::filter(parameters, 
-                                                       .data[["modification.IDs"]] !="")$modification.IDs,";"))) %in% modifications$modification.ID))
+                                                                 .data[["modification.IDs"]] !="")$modification.IDs,";"))) %in% modifications$modification.ID))
   testthat::expect_true(all(unique(unlist(strsplit(dplyr::filter(parameters, 
-  .data[["associated.modification.IDs.without.resulting.action"]] !="")$associated.modification.IDs.without.resulting.action,";"))) %in% modifications$modification.ID))
+                                                                 .data[["associated.modification.IDs.without.resulting.action"]] !="")$associated.modification.IDs.without.resulting.action,";"))) %in% modifications$modification.ID))
   testthat::expect_true(all(modifications$modification.ID %in% c(unique(unlist(strsplit(dplyr::filter(parameters,
-                                                                                            .data[["modification.IDs"]] !="")$modification.IDs,";"))),
-                                                       unique(unlist(strsplit(dplyr::filter(parameters,
-                                                                                            .data[["associated.modification.IDs.without.resulting.action"]]!="")$associated.modification.IDs.without.resulting.action,";"))))))
+                                                                                                      .data[["modification.IDs"]] !="")$modification.IDs,";"))),
+                                                                 unique(unlist(strsplit(dplyr::filter(parameters,
+                                                                                                      .data[["associated.modification.IDs.without.resulting.action"]]!="")$associated.modification.IDs.without.resulting.action,";"))))))
   
   ########################OUTPUT###################
   
   # this full set of all input and recoded features needs to be stored to perform statistical tests
-output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
-      
-  ########## save data as language-feature matrices ########## 
-  # save logical and statistical datasets as language-feature matrices (.csv)
-  "logicalGBI" = logical_data |> as.data.frame(), 
-  "statisticalGBI" = statistical_data  |> as.data.frame(),
-
-  # write all cldf components:
-  "parameters_logicalGBI" = parameters_logical  |> as.data.frame(),
-  "parameters_statisticalGBI" = parameters_statistical  |> as.data.frame(),
-  "values_logicalGBI" = logical_long  |> as.data.frame(),
-  "values_statisticalGBI" = statistical_long  |> as.data.frame(),
-  "codes_logicalGBI" = logical_codes  |> as.data.frame(),
-  "codes_statisticalGBI" = statistical_codes  |> as.data.frame(),
-  "modificationsGBI" = modifications  |> as.data.frame()
+  output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
+                 
+                 ########## save data as language-feature matrices ########## 
+                 # save logical and statistical datasets as language-feature matrices (.csv)
+                 "logicalGBI" = logical_data |> as.data.frame(), 
+                 "statisticalGBI" = statistical_data  |> as.data.frame(),
+                 
+                 # write all cldf components:
+                 "parameters_logicalGBI" = parameters_logical  |> as.data.frame(),
+                 "parameters_statisticalGBI" = parameters_statistical  |> as.data.frame(),
+                 "values_logicalGBI" = logical_long  |> as.data.frame(),
+                 "values_statisticalGBI" = statistical_long  |> as.data.frame(),
+                 "codes_logicalGBI" = logical_codes  |> as.data.frame(),
+                 "codes_statisticalGBI" = statistical_codes  |> as.data.frame(),
+                 "modificationsGBI" = modifications  |> as.data.frame()
   )
   
   if(verbose == TRUE){cat("GBI finished.\n", sep="")}
@@ -1053,6 +1065,22 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
 }
 
 #### helper functions ####
+
+# this function guards against tidyr::pivot_wider() silently producing
+# list-columns, which happens when there are duplicate id x names_from
+# combinations. tidyr::spread() (which pivot_wider() replaces throughout this
+# file) used to error loudly in that situation; pivot_wider() does not, by
+# design, so we replicate the old fail-fast behaviour explicitly here.
+.check_no_listcols <- function(df, label){
+  testthat::expect_true(
+    !any(vapply(df, is.list, logical(1))),
+    info = paste0(
+      "tidyr::pivot_wider() produced list-column(s) in '", label, 
+      "' -- check for duplicate Language_ID x feature combinations in the input data."
+    )
+  )
+  invisible(df)
+}
 
 # this function serves to condition a feature on another -- note that the currently implemented function works for up to 5 desired states in the %in% case
 .implement_conditioning <- function(feature_to_be_conditioned, condition, equator, recoded_data){
@@ -1090,7 +1118,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
     col_name <- names(conditioned_upon_feature)[2]
     condition_applies_strict <- conditioned_upon_feature |>
       dplyr::filter(.data[[col_name]] == condition[2]) |>
-      dplyr::pull(.data[["Language_ID"]])
+      dplyr::pull(dplyr::all_of("Language_ID"))
     
     condition_applies <- setdiff(conditioned_upon_feature[["Language_ID"]], condition_applies_strict)
     
@@ -1109,12 +1137,12 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
     col_name <- names(conditioned_upon_feature)[2]
     condition_applies_q <- conditioned_upon_feature |>
       dplyr::filter(.data[[col_name]] == "?") |>
-      dplyr::pull(.data[["Language_ID"]])
+      dplyr::pull(dplyr::all_of("Language_ID"))
     
     condition_applies_desired_states <- conditioned_upon_feature |>
       dplyr::filter(.data[[col_name]] ==desired_states[1]|
                       .data[[col_name]] ==desired_states[2]  ) |>
-      dplyr::pull(.data[["Language_ID"]])
+      dplyr::pull(dplyr::all_of("Language_ID"))
     
     # if there are more than 2 desired states, add the third
     if(nr_desired_states>2){
@@ -1122,7 +1150,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
       col_name <- names(conditioned_upon_feature)[2]
       condition_applies_desired_states_2 <- conditioned_upon_feature |>
         dplyr::filter(.data[[col_name]] ==desired_states[3] ) |>
-        dplyr::pull(.data[["Language_ID"]])
+        dplyr::pull(dplyr::all_of("Language_ID"))
       
       condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_2)
     }
@@ -1131,7 +1159,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
       col_name <- names(conditioned_upon_feature)[2]
       condition_applies_desired_states_3 <- conditioned_upon_feature |>
         dplyr::filter(.data[[col_name]] ==desired_states[4] ) |>
-        dplyr::pull(.data[["Language_ID"]])
+        dplyr::pull(dplyr::all_of("Language_ID"))
       
       condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_3)
     }
@@ -1141,7 +1169,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
       col_name <- names(conditioned_upon_feature)[2]
       condition_applies_desired_states_4 <- conditioned_upon_feature |>
         dplyr::filter(.data[[col_name]] ==desired_states[5] ) |>
-        dplyr::pull(.data[["Language_ID"]])
+        dplyr::pull(dplyr::all_of("Language_ID"))
       
       condition_applies_desired_states <- c(condition_applies_desired_states,condition_applies_desired_states_4)
     }
@@ -1166,7 +1194,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
     condition_applies_undesired_states <-  conditioned_upon_feature |>
       dplyr::filter(.data[[col_name]] == undesired_states[1]|
                       .data[[col_name]] == undesired_states[2] ) |>
-      dplyr::pull(.data[["Language_ID"]])
+      dplyr::pull(dplyr::all_of("Language_ID"))
     
     # if there are more than 2 undesired states, add the third
     if(nr_undesired_states>2){
@@ -1175,7 +1203,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
       
       condition_applies_undesired_states_2 <-  conditioned_upon_feature |>
         dplyr::filter(.data[[col_name]] == undesired_states[3]) |>
-        dplyr::pull(.data[["Language_ID"]])
+        dplyr::pull(dplyr::all_of("Language_ID"))
       
       condition_applies_undesired_states <- c(condition_applies_undesired_states,      condition_applies_undesired_states_2)
     }
@@ -1186,7 +1214,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
       
       condition_applies_undesired_states_3 <-  conditioned_upon_feature |>
         dplyr::filter(.data[[col_name]] == undesired_states[4]) |>
-        dplyr::pull(.data[["Language_ID"]])
+        dplyr::pull(dplyr::all_of("Language_ID"))
       
       condition_applies_undesired_states <- c(condition_applies_undesired_states,      condition_applies_undesired_states_3)
     } 
@@ -1198,7 +1226,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
       
       condition_applies_undesired_states_4 <-  conditioned_upon_feature |>
         dplyr::filter(.data[[col_name]] == undesired_states[5]) |>
-        dplyr::pull(.data[["Language_ID"]])
+        dplyr::pull(dplyr::all_of("Language_ID"))
       
       condition_applies_undesired_states <- c(condition_applies_undesired_states, condition_applies_undesired_states_4)
     }
@@ -1248,6 +1276,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
   testthat::expect_true(all(!is.na(expected_levels$i)))
   testthat::expect_true(all(!is.na(expected_levels$level)))
   
+  
   # make sure that the expected values match the original values found (applies only to simple recode)
   if (recode_mode=="simple"){
     if(nvar=="single"){
@@ -1296,7 +1325,7 @@ output <- list(data_for_statsGBI = recoded_data  |> as.data.frame(),
     # recode the data according to prioritised feature
     for (i in seq_len(nrow(level_table))){
       original_data[original_data[["Language_ID"]] %in% dplyr::filter(original_data,
-                                                                 eval(parse(text=level_table$level[i])))[["Language_ID"]],"merged"]<-level_table$new_level[i]
+                                                                      eval(parse(text=level_table$level[i])))[["Language_ID"]],"merged"]<-level_table$new_level[i]
     }
     # make "other" state become "?" if applicable
     original_data[is.na(original_data)]<-"?"
