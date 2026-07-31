@@ -15,10 +15,14 @@ make_GBI <- function(ValueTable = NULL,
                      # LanguageTable = NULL
 ){
   
-  #  ValueTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/values.csv", sep = ",") 
-  #  LanguageTable <- read.delim("../../../../grambank-v2.0rc2 2/cldf/languages.csv", sep = ",") 
+nrow_ValueTable <- ValueTable |> nrow()
+nrow_ValueTable_distinct <-  dplyr::distinct(dplyr::select(ValueTable, Parameter_ID, Language_ID)) |> nrow()
   
-  
+if(nrow_ValueTable != nrow_ValueTable_distinct){
+  stop("ValueTable has duplicate rows for Language_ID ~ Parameter_ID.")
+  } 
+
+
   ########## load and prepare data ########## 
   # read in original grambank data
   original_feature_matrix <- ValueTable |> 
