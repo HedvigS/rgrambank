@@ -8,9 +8,11 @@ library(testthat)
 library(cluster)
 #remotes::install_github("annagraff/densify") 
 library(densify)
-library(beepr)
 
 set.seed(1111)
+
+dir <- "output"
+if(!dir.exists(dir)){dir.create(dir)}
 
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
@@ -23,6 +25,12 @@ Grambank_ValueTable <-  rgrambank::reduce_ValueTable_to_unique_glottocodes(
   replace_missing_language_level_ID = T) |> 
   dplyr::select(-Language_ID) |> 
   dplyr::rename(Language_ID = Glottocode) 
+
+#subset to just 200 languages to speed up for demonstration
+lgs_to_keep <- sample(Grambank_ValueTable$Language_ID, size = 300)
+
+Grambank_ValueTable <- Grambank_ValueTable |> 
+  dplyr::filter(Language_ID %in% lgs_to_keep)
 
 #densify
 recode_patterns <- read.csv("https://raw.githubusercontent.com/annagraff/crossling-curated/0e8695e176044f268b7d8c1ac012061b7bf1b343/scripts/GBI/feature-recode-patterns.csv")
@@ -56,12 +64,7 @@ GBI <- rgrambank::make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_ful
 GBI_dense <- rgrambank::densify_GB(GBI = GBI, Glottolog_ValueTable = glottolog_rcldf_obj$tables$ValueTable,
                         limits = list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA))
 
-
-beepr::beep(3)
-
 #making each long 
-#GB_statistical_multistate_non_numeric_feats <- c("GB995F", "GB332EON", "GB900EO")
-#GB800EO
 
 GB_dense_long <- GB_dense$Grambank_densified   |> 
   reshape2::melt(id.vars = "Language_ID") |> 
@@ -77,6 +80,9 @@ GBI_logical <- GBI$values_logicalGBI |>
   dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) |> 
   dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
 
+GBI_logical |> 
+  readr::write_tsv("output/GBI_logical.tsv", na = "")
+
 GBI_logical_dense <- GBI_dense$logical_densified_with_question_mark_and_NA |> 
   reshape2::melt(id.vars = "Language_ID") |> 
   dplyr::select(Language_ID, Parameter_ID = variable, Value = value) |> 
@@ -85,6 +91,9 @@ GBI_logical_dense <- GBI_dense$logical_densified_with_question_mark_and_NA |>
 GBI_statistical <- GBI$values_statisticalGBI |> 
   dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) |> 
   dplyr::mutate(Value = ifelse(Value == "?", NA, Value)) 
+
+GBI_statistical |> 
+  readr::write_tsv("output/GBI_statistical.tsv", na = "")
 
 GBI_statistical_dense <- GBI_dense$statistical_densified_with_question_mark_and_NA |> 
   reshape2::melt(id.vars = "Language_ID") |> 
@@ -181,11 +190,8 @@ GB_statistical_map <- plot_MDS(plot_title = "GBI - statistical (cropped)", Value
 
 GB_statitical_dense_map <- plot_MDS(plot_title = "GBI - statistical (dense)", ValueTable = GBI_statistical_dense, LongLatTable = LongLatTable, crop = F, ParameterTable = GBI$parameters_statisticalGBI)
 
-library(beepr)
-beep()
-
 p <- (GB_map + GB_logical_map + GB_statistical_map) / (GB_dense_map  + GB_logical_dense_map  + GB_statitical_dense_map)
 
-ggsave(plot = p, "output/GB_GBI_compare_maps.png", width = 35, height = 30, units = "cm")
+ggplot2::ggsave(plot = p, "output/GB_GBI_compare_maps.png", width = 35, height = 30, units = "cm")
 
 
