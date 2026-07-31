@@ -12,7 +12,7 @@ Authors@R: c(
           person(given = "Anna",        family = "Graff",  role = c("aut","ctb")),
           person(given = "Angela",        family = "Chira",  role = c("aut", "ctb"))
      )
-Description: Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder inst/extdata for example data used in some helper functions.
+Description: Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder `example_scripts` for scripts showcasing functions.
 License: Apache License 2.0
 Depends: 
     R (>= 4.3.0)
