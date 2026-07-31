@@ -12,8 +12,8 @@ Authors@R: c(
           person(given = "Anna",        family = "Graff",  role = c("aut","ctb")),
           person(given = "Angela",        family = "Chira",  role = c("aut", "ctb"))
      )
-Description: Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder "example_scripts" for examples for all functions.
-License: Apache License (>= 2)
+Description: Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder `example_scripts` for scripts showcasing functions.
+License: Apache License 2.0
 Depends: 
     R (>= 4.3.0)
 Imports:
@@ -23,13 +23,13 @@ Imports:
     ggplot2 (>= 4.0.1),
     rlang (>= 1.1.6),
     stringr (>= 1.5.1),
-    testthat (>= 3.2.2),
     tidyr (>= 1.3.1)
 Suggests:
     rcldf (>= 1.4.0),
-    densify (>= 0.0.0.9000)
+    densify (>= 0.0.0.9000),
+    testthat (>= 3.2.2)
 RoxygenNote: 7.3.2
 Remotes:
-    github::annagraff/densify,
-    github::SimonGreenhill/rcldf
+    annagraff/densify,
+    SimonGreenhill/rcldf
 Config/testthat/edition: 3
