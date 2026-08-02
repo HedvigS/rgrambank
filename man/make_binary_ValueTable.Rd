@@ -8,7 +8,8 @@ make_binary_ValueTable(
   ValueTable = NULL,
   keep_multistate = FALSE,
   keep_native_binary = TRUE,
-  trim_to_only_native_binary = FALSE
+  trim_to_only_native_binary = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
