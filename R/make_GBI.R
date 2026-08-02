@@ -1,8 +1,15 @@
 #' make_GBI makes the  GBI-logical dataset as per Graff et al (accepted)
 #'
-#'@note This function is based on code from the paper Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence.Scientific Data . Original code can be found here: https://github.com/annagraff/crossling-curated/blob/main/scripts/GBI/build-datasets.R. The function rgrambank::make_GBI has been modified by Hedvig Skirgård to adapt to the rgrambank package and take into account changes between Grambank v1 and v2. The modifications are: turn binarised features (in Grambank v2 and further versions) corresponding multistate, rename variables to avoid loading recode-patterns several times, remove language meta-data, remove lazy loading of variables for dplyr::filter + dplyr::mutate and replace data.table::setDT with base::as.data.frame. 
+#'@note This function is based on code from the paper Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence.Scientific Data . Original code can be found here: https://github.com/annagraff/crossling-curated/blob/main/scripts/GBI/build-datasets.R. The function rgrambank::make_GBI has been modified by Hedvig Skirgård to adapt to the rgrambank package and take into account changes between Grambank v1 and v2. The modifications are: turn binarised features (in Grambank v2 and further versions) corresponding multistate, rename variables to avoid loading recode-patterns several times, remove language meta-data, remove lazy loading of variables for dplyr::filter + dplyr::mutate, replace data.table::setDT with base::as.data.frame, replace spread with pivot_wider and other updates to more recent versions of tidyverse packages.
+#' Regarding binarisation: if the input ValueTable contains binarised features 
+#' (GB024a/b, GB025a/b, GB065a/b, GB130a/b, GB193a/b, GB203a/b) introduced in 
+#' Grambank v2, these are automatically reconstructed into their multistate 
+#' equivalents before processing. If both multistate and native binary codings 
+#' exist for the same language, native binary takes priority and is used to render
+#' multistate data-points.
+#'
 #' @param ValueTable data-frame. Grambank ValueTable.
-#' @param verbose logical. If TRUE, function reports more information to console while running.
+#' @param verbose logical. If TRUE, function reports more information to console while running, such as reports progress and any clashes between multistate and native binary feature codings. If FALSE, runs silently.
 #' @param recode_patterns_full data-frame of recoding patterns from Graff et al (2025). Can be found at https://github.com/HedvigS/rgrambank/raw/refs/heads/main/example_scripts/fixed/feature-recode-patterns.csv
 #' @param all_decisions data-frame of recoding decisions from Graff et al (2025). Can be found at   https://raw.githubusercontent.com/HedvigS/rgrambank/refs/heads/main/example_scripts/fixed/decisions-log.csv
 #' @references Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence. Scientific Data 12:106 https://doi.org/10.1038/s41597-024-04319-4
@@ -15,18 +22,38 @@ make_GBI <- function(ValueTable = NULL,
                      # LanguageTable = NULL
 ){
   
-  print("You're using make_GBI from the make GBI updates branch.")
+  message("You're using the newer version of make_GBI")
   
 nrow_ValueTable <- ValueTable |> nrow()
 nrow_ValueTable_distinct <-  dplyr::distinct(dplyr::select(ValueTable, Parameter_ID, Language_ID)) |> nrow()
   
 if(nrow_ValueTable != nrow_ValueTable_distinct){
   stop("ValueTable has duplicate rows for Language_ID ~ Parameter_ID.")
-  } 
+} 
 
+# Grambank v2 contains binarised features of the old multistate features from GB v1 (read more here: https://github.com/grambank/grambank/wiki/Binarised-features). The crossling-curated workflow currently calls for the mulistate features only, which is why the binarised (e.g. GB024a with values 0, 1 and ?) will be turned "back" into the multistate (e.g. GB024 with values 1, 2, 3 and ?).
+
+#check if any of the binarised features occurr  
+if(any(c("GB024a",
+         "GB024b",
+         "GB025a",
+         "GB025b",
+         "GB065a",
+         "GB065b",
+         "GB130a",
+         "GB130b",
+         "GB193a",
+         "GB193b",
+         "GB203a",
+         "GB203b")   %in% ValueTable$Parameter_ID )){
+  if(verbose == TRUE){
+    message("Binarised features detected, turning into multistate to match GBI documentation.")
+  }
+  ValueTable <- ValueTable |> 
+    make_multistate_ValueTable(verbose = verbose, keep_binarised = FALSE) #turn to multistate datapoints, which is what rest of GBI code expects.
+}
 
   ########## load and prepare data ########## 
-  # read in original grambank data
   original_feature_matrix <- ValueTable |> 
     tidyr::pivot_wider(
       id_cols = "Language_ID",
@@ -36,183 +63,6 @@ if(nrow_ValueTable != nrow_ValueTable_distinct){
   
   # replace missing data by ? (--> because these data points are unknown, not "not applicable")
   original_feature_matrix[is.na(original_feature_matrix)] <- "?"
-  
-  # Grambank v2 contains binarised features of the old multistate features from GB v1 (read more here: https://github.com/grambank/grambank/wiki/Binarised-features). The crossling-curated workflow currently calls for the mulistate features only, which is why the binarised (e.g. GB024a with values 0, 1 and ?) will be turned "back" into the multistate (e.g. GB024 with values 1, 2, 3 and ?).
-
-#check if any of the binarised features occurr  
-  if(any(c("GB024a",
-      "GB024b",
-      "GB025a",
-      "GB025b",
-      "GB065a",
-      "GB065b",
-      "GB130a",
-      "GB130b",
-      "GB193a",
-      "GB193b",
-      "GB203a",
-      "GB203b")   %in% colnames(original_feature_matrix)){
-   
-    #GB024	What is the order of numeral and noun in the NP?
-    #GB024a	Is the order of the numeral and noun Num-N?
-    #GB024b	Is the order of the numeral and noun N-Num?
-    
-    # Values for GB024 are: 1 (Num -N), 2 (N - Dum) and 3 (both)
-    
-    if(original_feature_matrix$GB024 == "?"){
-    
-    original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024a == "1" & 
-                                              (original_feature_matrix$GB024b == "0" | original_feature_matrix$GB024b == "?"),
-                                      #        original_feature_matrix$GB024b == "0|?", 
-                                      yes =    "1",
-                                      no =      original_feature_matrix$GB024)
-    
-    original_feature_matrix$GB024 <- ifelse( (original_feature_matrix$GB024a == "0" | original_feature_matrix$GB024a == "?"),
-                                         #     original_feature_matrix$GB024a == "0|?"  &
-                                              original_feature_matrix$GB024b == "1" , 
-                                         yes =    "2",
-                                         no =   original_feature_matrix$GB024)
-    
-    original_feature_matrix$GB024 <- ifelse(original_feature_matrix$GB024a == "1" &
-                                              original_feature_matrix$GB024b == "1" , 
-                                            yes =   "3",
-                                            no = original_feature_matrix$GB024)
-    
-    }
-    
-    #GB025	What is the order of adnominal demonstrative and noun?
-    #GB025a	Is the order of the adnominal demonstrative and noun Dem-N?
-    #GB025b	Is the order of the adnominal demonstrative and noun N-Dem?
-    
-    #Values for GB025 are: 1 (Dem - N), 2 (N - Dem) and 3 (both)
-    
-    original_feature_matrix$GB025 <- ifelse(original_feature_matrix$GB025 == "?" &   
-                                              original_feature_matrix$GB025a == "1" &
-                                            (original_feature_matrix$GB025b == "0" | original_feature_matrix$GB025b == "?"), 
-                                            yes =    "1",
-                                            no = original_feature_matrix$GB025)
-    
-    original_feature_matrix$GB025 <- ifelse(original_feature_matrix$GB025 == "?" &   
-                                            (original_feature_matrix$GB025a == "0" | original_feature_matrix$GB025a == "?") &
-                                              original_feature_matrix$GB025b == "1" ,
-                                            yes = "2",
-                                            no = original_feature_matrix$GB025)
-    
-    original_feature_matrix$GB025 <- ifelse(original_feature_matrix$GB025 == "?" &   
-                                              original_feature_matrix$GB025a == "1" &
-                                              original_feature_matrix$GB025b == "1" , 
-                                            yes =  "3",
-                                            no = original_feature_matrix$GB025)
-    
-    #GB065	What is the pragmatically unmarked order of adnominal possessor noun and possessed noun?
-    #GB065a	Is the pragmatically unmarked order of adnominal possessor noun and possessed noun PSR-PSD?
-    #GB065b	Is the pragmatically unmarked order of adnominal possessor noun and possessed noun PSD-PSR?
-    
-    # Values for GB065 are = 1 (Possessor-Possessed), 2 (Possessed-Possessor) and 3 (both)
-    
-    original_feature_matrix$GB065 <- ifelse(original_feature_matrix$GB065 == "?" &   
-                                              original_feature_matrix$GB065a == "1" &
-                                            (original_feature_matrix$GB065b == "0" | original_feature_matrix$GB065b == "?") , 
-                                            yes = "1",
-                                            no = original_feature_matrix$GB065)
-    
-    original_feature_matrix$GB065 <- ifelse(original_feature_matrix$GB065 == "?" &   
-                                            (original_feature_matrix$GB065a == "0" | original_feature_matrix$GB065a == "?") &
-                                              original_feature_matrix$GB065b == "1" , 
-                                            yes =  "2",
-                                            no = original_feature_matrix$GB065)
-    
-    original_feature_matrix$GB065 <- ifelse(original_feature_matrix$GB065 == "?" &   
-                                              original_feature_matrix$GB065a == "1" &
-                                              original_feature_matrix$GB065b == "1" , 
-                                            yes =  "3",
-                                            no = original_feature_matrix$GB065)
-    
-    #GB130	What is the pragmatically unmarked order of S and V in intransitive clauses?
-    #GB130a	Is the pragmatically unmarked order of S and V in intransitive clauses S-V?
-    #GB130b	Is the pragmatically unmarked order of S and V in intransitive clauses V-S?
-    
-    # Values for GB130 are = 1 (SV), 0 (VS) and 3 (both)
-    
-    original_feature_matrix$GB130 <- ifelse(original_feature_matrix$GB130 == "?" &   
-                                              original_feature_matrix$GB130a == "1" &
-                                            (original_feature_matrix$GB130b == "0" | original_feature_matrix$GB130b == "?"), 
-                                            yes =  "1",
-                                            no = original_feature_matrix$GB130)
-    
-    original_feature_matrix$GB130 <- ifelse(original_feature_matrix$GB130 == "?" &   
-                                            (original_feature_matrix$GB130a == "0" | original_feature_matrix$GB130a == "?") &
-                                              original_feature_matrix$GB130b == "1" , 
-                                            yes = "2",
-                                            no = original_feature_matrix$GB130)
-    
-    original_feature_matrix$GB130 <- ifelse(original_feature_matrix$GB130 == "?" &   
-                                              original_feature_matrix$GB130a == "1" &
-                                              original_feature_matrix$GB130b == "1" ,
-                                            yes =  "3",
-                                            no = original_feature_matrix$GB130)
-    
-    #GB193	What is the order of adnominal property word and noun?
-    #GB193a	Is the order of the adnominal property word (ANM) and noun ANM-N?
-    #GB193b	Is the order of the adnominal property word (ANM) and noun N-ANM?
-    
-    # Values for GB139 are: 0 (they cannot be used attributively), 1 (ANM - N), 2 (N - ANM), 3 (both)
-    
-    original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
-                                              original_feature_matrix$GB193a == "0" &
-                                              original_feature_matrix$GB193b == "0" , 
-                                            yes =  "0",
-                                            no = original_feature_matrix$GB193)
-    
-    original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
-                                              original_feature_matrix$GB193a == "1" &
-                                            (original_feature_matrix$GB193b == "0" | original_feature_matrix$GB193b == "?") ,
-                                            yes =  "1",
-                                            no = original_feature_matrix$GB193)
-    
-    original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
-                                            (original_feature_matrix$GB193a == "0" | original_feature_matrix$GB193a == "?") &
-                                              original_feature_matrix$GB193b == "1" , 
-                                            yes = "2",
-                                            no = original_feature_matrix$GB193)
-    
-    original_feature_matrix$GB193 <- ifelse(original_feature_matrix$GB193 == "?" &   
-                                              original_feature_matrix$GB193a == "1" &
-                                              original_feature_matrix$GB193b == "1" ,
-                                            yes =  "3",
-                                            no = original_feature_matrix$GB193)
-    
-    
-    #GB203	What is the order of the adnominal collective universal quantifier ('all') and the noun? ()
-    #GB203a	Is the order of the adnominal collective universal quantifier (UQ) and noun UQ-N?
-    #GB203b	Is the order of the adnominal collective universal quantifier (UQ) and noun N-QU?
-    
-    # Values for GB203 are: 0 (no UQ), 1 (UQ - N), 2 (N - UQ) and 3 (both)
-    
-    original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
-                                              original_feature_matrix$GB203a == "0" &
-                                              original_feature_matrix$GB203b == "0" ,
-                                            yes =  "0",
-                                            no = original_feature_matrix$GB203)
-    
-    original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
-                                              original_feature_matrix$GB203a == "1" &
-                                            (original_feature_matrix$GB203b == "0" | original_feature_matrix$GB203b == "?") , 
-                                            yes =  "1",
-                                            no = original_feature_matrix$GB203)
-    
-    original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
-                                            (original_feature_matrix$GB203a == "0" | original_feature_matrix$GB203a == "?") &
-                                              original_feature_matrix$GB203b == "1" , 
-                                            yes =  "2",
-                                            no = original_feature_matrix$GB203)
-    
-    original_feature_matrix$GB203 <- ifelse(original_feature_matrix$GB203 == "?" &   
-                                              original_feature_matrix$GB203a == "1" &
-                                              original_feature_matrix$GB203b == "1" ,
-                                            yes =  "3",
-                                            no = original_feature_matrix$GB203)
-  }
   
   
   ########## parse all recodings in the appropriate order ########## 
