@@ -10,8 +10,6 @@ make_binary_ParameterTable<- function(ParameterTable,
                                       keep_multi_state_features = TRUE,
                                       keep_native_binary = FALSE){
   
-  #ParameterTable <- parametertabke
-  
   multistate_features <- c("GB024", "GB025", "GB065", "GB130", "GB193", "GB203")
 
     binarised_feats <-  c(
