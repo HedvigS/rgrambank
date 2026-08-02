@@ -20,6 +20,10 @@ make_binary_ValueTable(
 \item{keep_native_binary}{logical vector. If TRUE and if the ValueTable already contains some binarised features, they are kept. If false, they are overriden and replaced by values derived from the multi-state features. Note that native binary coding and binarised coding principally differs in terms of ? and 0 coding. See note.}
 
 \item{trim_to_only_native_binary}{logical vector. If TRUE, multi-state features are dropped and not binarised.}
+
+\item{verbose}{logical. If TRUE (default), reports any clashes between
+multistate and native binary feature codings via warning. If FALSE,
+clash detection runs silently.}
 }
 \value{
 Data-frame (long ValueTable)
