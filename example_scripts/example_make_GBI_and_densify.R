@@ -62,19 +62,19 @@ GB_dense_binary <- rgrambank::densify_GB(
 GBI <- rgrambank::make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_full = recode_patterns, all_decisions = all_decisions)
 
 GBI_dense <- rgrambank::densify_GB(GBI = GBI, Glottolog_ValueTable = glottolog_rcldf_obj$tables$ValueTable,
-                        limits = list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA))
+                                   limits = list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA))
 
 #making each long 
 
 GB_dense_long <- GB_dense$Grambank_densified   |> 
   reshape2::melt(id.vars = "Language_ID") |> 
   dplyr::select(Language_ID, Parameter_ID = variable, Value = value) |> 
-  filter(!is.na(Value))
+  dplyr::filter(!is.na(Value))
 
 GB_dense_long_binary <- GB_dense_binary$Grambank_densified   |> 
   reshape2::melt(id.vars = "Language_ID") |> 
   dplyr::select(Language_ID, Parameter_ID = variable, Value = value) |> 
-  filter(!is.na(Value))
+  dplyr::filter(!is.na(Value))
 
 GBI_logical <- GBI$values_logicalGBI |>
   dplyr::select(Language_ID, Parameter_ID = new.name, Value = value) |> 
@@ -109,30 +109,30 @@ plot_MDS <- function(plot_title = "", ValueTable, ParameterTable,
                      LongLatTable = LongLatTable, 
                      crop = TRUE){
   
-#  ValueTable <- GBI_statistical_dense
+  #  ValueTable <- GBI_statistical_dense
   
-if(crop == T){
-  ValueTable <- rgrambank::crop_missing_data(ValueTable = ValueTable, ParameterTable = ParameterTable,
-                                                     cut_off_parameters  = 0.7538462, 
-                                                     cut_off_languages = 0.7538462) 
-}
-
+  if(crop == T){
+    ValueTable <- rgrambank::crop_missing_data(ValueTable = ValueTable, ParameterTable = ParameterTable,
+                                               cut_off_parameters  = 0.7538462, 
+                                               cut_off_languages = 0.7538462) 
+  }
+  
   #crop such that features with lots of missing data and languages are removed
-ValueTable_prepped <- ValueTable |> 
+  ValueTable_prepped <- ValueTable |> 
     mutate(Value = as.character(Value)) |>
     dplyr::select(Language_ID, Parameter_ID, Value) |>  
     reshape2::dcast(Language_ID ~ Parameter_ID, value.var = "Value") 
-
-percent_missing <-   paste0(  
-round(100 * (  
-  sum(is.na(ValueTable_prepped[,2:ncol(ValueTable_prepped)])) /   
-    (  sum(is.na(ValueTable_prepped[,2:ncol(ValueTable_prepped)])) +   sum(!is.na(ValueTable_prepped[,2:ncol(ValueTable_prepped)])) ) 
-  ),digits = 2), "%")
-    
-nlgs <- ValueTable_prepped |> nrow()
-nfeats <- ncol(ValueTable_prepped) -1
-
-
+  
+  percent_missing <-   paste0(  
+    round(100 * (  
+      sum(is.na(ValueTable_prepped[,2:ncol(ValueTable_prepped)])) /   
+        (  sum(is.na(ValueTable_prepped[,2:ncol(ValueTable_prepped)])) +   sum(!is.na(ValueTable_prepped[,2:ncol(ValueTable_prepped)])) ) 
+    ),digits = 2), "%")
+  
+  nlgs <- ValueTable_prepped |> nrow()
+  nfeats <- ncol(ValueTable_prepped) -1
+  
+  
   #imputation
   imputed_data <- ValueTable_prepped |>
     column_to_rownames("Language_ID") |> 
@@ -143,20 +143,20 @@ nfeats <- ncol(ValueTable_prepped) -1
   
   cat(paste0("The imputation OOB error is ", round(imputed_data$OOBerror, 2), ".\n"))
   
-imputed_df <-     imputed_data$ximp |> 
-  mutate( across(where(is.factor), ~ factor(na_if(as.character(.x), "NA"))), across(where(is.character), ~ na_if(.x, "NA")) )
-
-Not_applicable <- imputed_df |>  is.na() |> sum()
-
-All <- ncol(imputed_df) * nrow(imputed_df)
-
-plot_title <- paste0(plot_title, ".\n nlgs = ", nlgs, ", nfeats = ", nfeats, ",\n imputed missing data = ", percent_missing,",\n not applicable left = ",round((Not_applicable / All) * 100, digits = 0))
-
-dists <- cluster::daisy(x = imputed_df, metric = "gower")
-
-mds <- cmdscale(dists , k = 3)
-
-    
+  imputed_df <-     imputed_data$ximp |> 
+    mutate( across(where(is.factor), ~ factor(na_if(as.character(.x), "NA"))), across(where(is.character), ~ na_if(.x, "NA")) )
+  
+  Not_applicable <- imputed_df |>  is.na() |> sum()
+  
+  All <- ncol(imputed_df) * nrow(imputed_df)
+  
+  plot_title <- paste0(plot_title, ".\n nlgs = ", nlgs, ", nfeats = ", nfeats, ",\n imputed missing data = ", percent_missing,",\n not applicable left = ",round((Not_applicable / All) * 100, digits = 0))
+  
+  dists <- cluster::daisy(x = imputed_df, metric = "gower")
+  
+  mds <- cmdscale(dists , k = 3)
+  
+  
   ###Map first 3 PCA components to RGB
   RGB_vec <- mds |> 
     as.data.frame() |> 
@@ -172,8 +172,8 @@ mds <- cmdscale(dists , k = 3)
   #specifically to plot RGB we can't use mapping = aes() because we want to refer to the values themselves, not have ggplot then map them to colors on its own. Therefore we need to pass it the RGB vector outside of aes().
   map <- basemap_list$basemap +
     geom_jitter(mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 1) +
-  ggtitle(plot_title)
-map  
+    ggtitle(plot_title)
+  map  
 }
 
 datasets <- c(Grambank_ValueTable, GB_dense_long, GBI_logical, GBI_logical_dense, GBI_statistical , GBI_statistical_dense)
@@ -193,5 +193,4 @@ GB_statitical_dense_map <- plot_MDS(plot_title = "GBI - statistical (dense)", Va
 p <- (GB_map + GB_logical_map + GB_statistical_map) / (GB_dense_map  + GB_logical_dense_map  + GB_statitical_dense_map)
 
 ggplot2::ggsave(plot = p, "output/GB_GBI_compare_maps.png", width = 35, height = 30, units = "cm")
-
 
