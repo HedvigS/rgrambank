@@ -15,6 +15,8 @@ make_GBI <- function(ValueTable = NULL,
                      # LanguageTable = NULL
 ){
   
+  print("You're using make_GBI from the make GBI updates branch.")
+  
 nrow_ValueTable <- ValueTable |> nrow()
 nrow_ValueTable_distinct <-  dplyr::distinct(dplyr::select(ValueTable, Parameter_ID, Language_ID)) |> nrow()
   
