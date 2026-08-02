@@ -76,7 +76,7 @@ make_multistate_ValueTable <- function(ValueTable = NULL,
 
   # Check that there is something to reconstruct
   if (!any(.binarised_parameters %in% ValueTable$Parameter_ID)) {
-    message("No binarised features found in ValueTable — returning input unchanged.")
+    message("No binarised features found in ValueTable - returning input unchanged.")
     return(ValueTable)
   }
   
@@ -153,7 +153,7 @@ make_multistate_ValueTable <- function(ValueTable = NULL,
       dplyr::mutate(
         !!base := dplyr::case_when(
           
-          # Already known — keep as-is (only applies to languages without
+          # Already known - keep as-is (only applies to languages without
           # native binary, since we removed multistate for those above)
           !is.na(.data[[base]]) & .data[[base]] != "?"    ~ .data[[base]],
           
