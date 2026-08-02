@@ -14,7 +14,7 @@ make_GBI(
 \arguments{
 \item{ValueTable}{data-frame. Grambank ValueTable.}
 
-\item{verbose}{logical. If TRUE, function reports more information to console while running.}
+\item{verbose}{logical. If TRUE, function reports more information to console while running, such as reports progress and any clashes between multistate and native binary feature codings. If FALSE, runs silently.}
 
 \item{recode_patterns_full}{data-frame of recoding patterns from Graff et al (2025). Can be found at https://github.com/HedvigS/rgrambank/raw/refs/heads/main/example_scripts/fixed/feature-recode-patterns.csv}
 
@@ -24,7 +24,13 @@ make_GBI(
 make_GBI makes the  GBI-logical dataset as per Graff et al (accepted)
 }
 \note{
-This function is based on code from the paper Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence.Scientific Data . Original code can be found here: https://github.com/annagraff/crossling-curated/blob/main/scripts/GBI/build-datasets.R. The function rgrambank::make_GBI has been modified by Hedvig Skirgård to adapt to the rgrambank package and take into account changes between Grambank v1 and v2. The modifications are: turn binarised features (in Grambank v2 and further versions) corresponding multistate, rename variables to avoid loading recode-patterns several times, remove language meta-data, remove lazy loading of variables for dplyr::filter + dplyr::mutate and replace data.table::setDT with base::as.data.frame.
+This function is based on code from the paper Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence.Scientific Data . Original code can be found here: https://github.com/annagraff/crossling-curated/blob/main/scripts/GBI/build-datasets.R. The function rgrambank::make_GBI has been modified by Hedvig Skirgård to adapt to the rgrambank package and take into account changes between Grambank v1 and v2. The modifications are: turn binarised features (in Grambank v2 and further versions) corresponding multistate, rename variables to avoid loading recode-patterns several times, remove language meta-data, remove lazy loading of variables for dplyr::filter + dplyr::mutate, replace data.table::setDT with base::as.data.frame, replace spread with pivot_wider and other updates to more recent versions of tidyverse packages.
+Regarding binarisation: if the input ValueTable contains binarised features 
+(GB024a/b, GB025a/b, GB065a/b, GB130a/b, GB193a/b, GB203a/b) introduced in 
+Grambank v2, these are automatically reconstructed into their multistate 
+equivalents before processing. If both multistate and native binary codings 
+exist for the same language, native binary takes priority and is used to render
+multistate data-points.
 }
 \references{
 Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence. Scientific Data 12:106 https://doi.org/10.1038/s41597-024-04319-4
