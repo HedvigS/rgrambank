@@ -28,6 +28,7 @@ make_binary_ValueTable <- function(ValueTable = NULL,
     stop("'ValueTable' must have the columns: 'ID', 'Language_ID', 'Parameter_ID', 'Value' and 'Code_ID'.")
   }
   
+  .check_dups_ValueTable(ValueTable = ValueTable)
 
   .binary_parameters <- c(
     "GB024a", "GB024b",
