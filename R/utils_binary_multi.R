@@ -1,5 +1,5 @@
 
-.warn_multistate_binary_clashes <- function(ValueTable) {
+.warn_multistate_binary_clashes <- function(ValueTable, verbose = FALSE) {
   
   # Expected compatible native binary values (col_a, col_b) for each multistate value.
   # The implied-absent side accepts "0" or "?" — a coder may have found clear evidence
@@ -92,7 +92,16 @@
     }
   }
   
-  if (is.null(clashes) || nrow(clashes) == 0) return(invisible(NULL))
+  if (is.null(clashes) || nrow(clashes) == 0){ 
+    
+    if(verbose == TRUE){
+          message("ValueTable does not have clashes between multistate and binarised feature values")
+    
+      }
+    return(invisible(NULL))
+  }
+
+
   
   clash_lines <- paste(
     apply(clashes, 1, function(r) {
@@ -115,16 +124,23 @@
     call. = FALSE
   )
   
+
+  
   invisible(NULL)
 }
 
-.check_dups_ValueTable <- function(ValueTable = NULL){
+.check_dups_ValueTable <- function(ValueTable = NULL, verbose = FALSE){
   
   nrow_ValueTable <- ValueTable |> nrow()
   nrow_ValueTable_distinct <-  dplyr::distinct(dplyr::select(ValueTable, "Parameter_ID", "Language_ID")) |> nrow()
   
   if(nrow_ValueTable != nrow_ValueTable_distinct){
     stop("ValueTable has duplicate rows for Language_ID ~ Parameter_ID.")
-  } 
-   
+  }else{
+    message("ValueTable does not have duplicate rows for Language_ID ~ Parameter_ID.")
+    }
+
+  invisible(NULL)
 }
+
+
