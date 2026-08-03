@@ -62,7 +62,7 @@ make_multistate_ValueTable <- function(ValueTable = NULL,
     stop("'ValueTable' must be a dataframe.")
   }
   
-  .check_dups_ValueTable(ValueTable = ValueTable)
+  .check_dups_ValueTable(ValueTable = ValueTable, verbose = verbose)
   
   if (!all(c("ID", "Language_ID", "Parameter_ID", "Value", "Code_ID") %in% colnames(ValueTable))) {
     stop("'ValueTable' must have the columns: 'ID', 'Language_ID', 'Parameter_ID', 'Value' and 'Code_ID'.")
@@ -86,7 +86,7 @@ make_multistate_ValueTable <- function(ValueTable = NULL,
   # Warn about any clashes between multistate and native binary codings.
   # Native binary will take priority in reconstruction.
   if(verbose == TRUE){
-  .warn_multistate_binary_clashes(ValueTable)
+  .warn_multistate_binary_clashes(ValueTable, verbose = verbose)
   }  
   # For each multistate feature, reconstruct from binarised pairs.
   # Native binary priority is achieved by:
