@@ -54,7 +54,23 @@ df_check_multistate_binary_clashes_clean <- data.frame(
 )
 
 
-#df_make_binary
+df_make_binary_solo <- data.frame(
+ID           = c("GB025-lang1", "GB130-lang1", "GB065-lang1"),
+Language_ID  = c("lang1", "lang1", "lang1"),
+Parameter_ID = c("GB025", "GB130", "GB065"),
+Value        = c("1", "1", "3"),
+Code_ID      = c("GB025-1", "GB130-1", "GB065-3"),
+Comment      = c(NA, NA, NA), 
+Source       = c("griff1", "griff1", "griff1"),  
+Source_comment= c("griff1", "griff1", "griff1"),
+Coders        = c("HS", "HS", "HS"),
+stringsAsFactors = FALSE
+)
 
-#df_make_multistate
+
+
+
+#df_make_multistate_solo
+
+#df_make_binary_multistate_mixed
 
