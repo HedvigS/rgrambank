@@ -28,7 +28,7 @@ make_binary_ValueTable <- function(ValueTable = NULL,
     stop("'ValueTable' must have the columns: 'ID', 'Language_ID', 'Parameter_ID', 'Value' and 'Code_ID'.")
   }
   
-  .check_dups_ValueTable(ValueTable = ValueTable)
+  .check_dups_ValueTable(ValueTable = ValueTable, verbose = verbose)
 
   .binary_parameters <- c(
     "GB024a", "GB024b",
@@ -50,7 +50,7 @@ make_binary_ValueTable <- function(ValueTable = NULL,
   # Native binary will take priority (handled downstream by anti_join),
   # but clashes are flagged here for transparency.
   if (keep_native_binary == TRUE && trim_to_only_native_binary == FALSE && verbose == TRUE) {
-    .warn_multistate_binary_clashes(ValueTable)
+    .warn_multistate_binary_clashes(ValueTable, verbose = verbose)
   }
   
   if (trim_to_only_native_binary == TRUE) {
