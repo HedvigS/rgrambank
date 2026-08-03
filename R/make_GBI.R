@@ -24,12 +24,7 @@ make_GBI <- function(ValueTable = NULL,
   
   message("You're using the newer version of make_GBI")
   
-nrow_ValueTable <- ValueTable |> nrow()
-nrow_ValueTable_distinct <-  dplyr::distinct(dplyr::select(ValueTable, Parameter_ID, Language_ID)) |> nrow()
-  
-if(nrow_ValueTable != nrow_ValueTable_distinct){
-  stop("ValueTable has duplicate rows for Language_ID ~ Parameter_ID.")
-} 
+  .check_dups_ValueTable(ValueTable = ValueTable)
 
 # Grambank v2 contains binarised features of the old multistate features from GB v1 (read more here: https://github.com/grambank/grambank/wiki/Binarised-features). The crossling-curated workflow currently calls for the mulistate features only, which is why the binarised (e.g. GB024a with values 0, 1 and ?) will be turned "back" into the multistate (e.g. GB024 with values 1, 2, 3 and ?).
 
