@@ -1,36 +1,72 @@
 
-.warn_multistate_binary_clashes <- function(ValueTable, verbose = FALSE) {
+.warn_multistate_binary_clashes <- function(ValueTable, verbose = FALSE, ignore_question_mark_mismatch = TRUE) {
   
   # Expected compatible native binary values (col_a, col_b) for each multistate value.
   # The implied-absent side accepts "0" or "?" — a coder may have found clear evidence
   # for one order but left the other uncertain, which is not a clash.
+  
+  # A value of 1 in the multistate feature value could match to 1 and 0 in the binarised version (GBXXXa), or 1 and ?. The user can set ignore_question_mark_mismatch to TRUE if they don't want a warning raised for 1 and ? values
+  
+  # acceptable values for col_a and col_b are stored as comma-separated strings
+  # and split later — this avoids list columns in base R data frames
+  
+  if(ignore_question_mark_mismatch == TRUE){
+    multistate_value = c("1","2","3", "?",
+                         "1","2","3", "?",
+                         "1","2","3", "?",
+                         "1","2","3", "?",
+                         "0","1","2","3", "?",
+                         "0","1","2","3","?")
+    
+     expected_a       = c("1","0,?","1", "?",
+                         "1","0,?","1", "?",
+                         "1","0,?","1", "?",
+                         "1","0,?","1", "?",
+                         "0","1","0,?","1", "?",
+                         "0","1","0,?","1", "?")
+  
+  expected_b       = c("0,?","1","1", "?",
+                       "0,?","1","1", "?",
+                       "0,?","1","1", "?",
+                       "0,?","1","1", "?",
+                       "0","0,?","1","1", "?",
+                       "0","0,?","1","1", "?")
+  }  
+
+  if(ignore_question_mark_mismatch == FALSE){
+    
+    multistate_value = c("1","2","3", "?",
+                         "1","2","3", "?",
+                         "1","2","3", "?",
+                         "1","2","3", "?",
+                         "0","1","2","3", "?",
+                         "0","1","2","3", "?")
+    
+    expected_a       = c("1","0","1", "?",
+                         "1","0","1", "?",
+                         "1","0","1", "?",
+                         "1","0","1", "?",
+                         "0","1","0","1", "?",
+                         "0","1","0","1" ,"?")
+    
+    expected_b       = c("0","1","1", "?",
+                         "0","1","1", "?",
+                         "0","1","1", "?",
+                         "0","1","1", "?",
+                         "0","0","1","1", "?",
+                         "0","0","1","1" ,"?")
+  }  
+  
   expected <- data.frame(
-    base             = c("GB024","GB024","GB024",
-                         "GB025","GB025","GB025",
-                         "GB065","GB065","GB065",
-                         "GB130","GB130","GB130",
-                         "GB193","GB193","GB193","GB193",
-                         "GB203","GB203","GB203","GB203"),
-    multistate_value = c("1","2","3",
-                         "1","2","3",
-                         "1","2","3",
-                         "1","2","3",
-                         "0","1","2","3",
-                         "0","1","2","3"),
-    # acceptable values for col_a and col_b are stored as comma-separated strings
-    # and split later — this avoids list columns in base R data frames
-    expected_a       = c("1","0,?","1",
-                         "1","0,?","1",
-                         "1","0,?","1",
-                         "1","0,?","1",
-                         "0","1","0,?","1",
-                         "0","1","0,?","1"),
-    expected_b       = c("0,?","1","1",
-                         "0,?","1","1",
-                         "0,?","1","1",
-                         "0,?","1","1",
-                         "0","0,?","1","1",
-                         "0","0,?","1","1"),
+    base             = c("GB024","GB024","GB024","GB024",
+                         "GB025","GB025","GB025","GB025",
+                         "GB065","GB065","GB065","GB065",
+                         "GB130","GB130","GB130", "GB130",
+                         "GB193","GB193","GB193","GB193","GB193",
+                         "GB203","GB203","GB203","GB203","GB203"),
+    multistate_value =  multistate_value ,
+      expected_a       =  expected_a ,
+    expected_b       =  expected_b ,
     stringsAsFactors = FALSE
   )
   
@@ -42,10 +78,9 @@
     col_a <- paste0(base, "a")
     col_b <- paste0(base, "b")
     
-    # Pull rows for each of the three features, ignoring "?" in multistate
+    # Pull rows for each of the three features,
     multistate <- ValueTable |>
-      dplyr::filter(.data[["Parameter_ID"]] == base,
-                    .data[["Value"]]        != "?") |>
+      dplyr::filter(.data[["Parameter_ID"]] == base) |>
       dplyr::select("Language_ID", "multistate_value" = "Value")
     
     native_a <- ValueTable |>
@@ -124,10 +159,14 @@
     call. = FALSE
   )
   
+  clashes |> 
+    dplyr::group_by(Language_ID) |> 
+    summarise(features = paste(feature, collapse = ", ")) |> View()
 
   
   invisible(NULL)
 }
+
 
 .check_dups_ValueTable <- function(ValueTable = NULL, verbose = FALSE){
   
