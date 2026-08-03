@@ -50,6 +50,7 @@
 #'
 #' @seealso \code{\link{make_binary_ValueTable}} for the reverse operation.
 #'
+#' @importFrom rlang :=
 #' @author Hedvig Skirgård
 #' @export
 make_multistate_ValueTable <- function(ValueTable = NULL,
@@ -60,6 +61,8 @@ make_multistate_ValueTable <- function(ValueTable = NULL,
   if (!inherits(ValueTable, "data.frame")) {
     stop("'ValueTable' must be a dataframe.")
   }
+  
+  .check_dups_ValueTable(ValueTable = ValueTable)
   
   if (!all(c("ID", "Language_ID", "Parameter_ID", "Value", "Code_ID") %in% colnames(ValueTable))) {
     stop("'ValueTable' must have the columns: 'ID', 'Language_ID', 'Parameter_ID', 'Value' and 'Code_ID'.")
