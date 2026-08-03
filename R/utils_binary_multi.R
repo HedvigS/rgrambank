@@ -46,15 +46,15 @@
     multistate <- ValueTable |>
       dplyr::filter(.data[["Parameter_ID"]] == base,
                     .data[["Value"]]        != "?") |>
-      dplyr::select("Language_ID", multistate_value = "Value")
+      dplyr::select("Language_ID", "multistate_value" = "Value")
     
     native_a <- ValueTable |>
       dplyr::filter(.data[["Parameter_ID"]] == col_a) |>
-      dplyr::select("Language_ID", value_a = "Value")
+      dplyr::select("Language_ID", "value_a" = "Value")
     
     native_b <- ValueTable |>
       dplyr::filter(.data[["Parameter_ID"]] == col_b) |>
-      dplyr::select("Language_ID", value_b = "Value")
+      dplyr::select("Language_ID", "value_b" = "Value")
     
     # Only check languages that have all three coded
     combined <- multistate |>
@@ -79,7 +79,8 @@
             b_ok <- val_b %in% strsplit(exp_b, ",")[[1]]
             a_ok && b_ok
           },
-          value_a, value_b, expected_a, expected_b
+          combined[["value_a"]], combined[["value_b"]],
+          combined[["expected_a"]], combined[["expected_b"]]
         )
       ) |>
       dplyr::mutate(feature = base) |>
@@ -117,4 +118,13 @@
   invisible(NULL)
 }
 
-
+.check_dups_ValueTable <- function(ValueTable = NULL){
+  
+  nrow_ValueTable <- ValueTable |> nrow()
+  nrow_ValueTable_distinct <-  dplyr::distinct(dplyr::select(ValueTable, "Parameter_ID", "Language_ID")) |> nrow()
+  
+  if(nrow_ValueTable != nrow_ValueTable_distinct){
+    stop("ValueTable has duplicate rows for Language_ID ~ Parameter_ID.")
+  } 
+   
+}
