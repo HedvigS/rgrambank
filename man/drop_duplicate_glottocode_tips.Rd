@@ -2,13 +2,13 @@
 % Please edit documentation in R/drop_duplicate_glottocode_tips.R
 \name{drop_duplicate_glottocode_tips}
 \alias{drop_duplicate_glottocode_tips}
-\title{If a language tree has tips with are matched to duplicate glottocodes, drop all but one at random. If there are tips which are dialects of the same language, you can choose to drop all but one.}
+\title{If a language tree has tips with are matched to duplicate glottocodes, drop all but one at random. If there are tips which are dialects of the same language (given the Glottolog LanguageTable provided), you can choose to drop all but one.}
 \usage{
 drop_duplicate_glottocode_tips(
   tree = NULL,
   merge_dialects = TRUE,
   TaxonTable = NULL,
-  GlottologLanguageTable = NULL,
+  LanguageTable = NULL,
   rename_tips_to_glottocodes = TRUE
 )
 }
@@ -17,9 +17,9 @@ drop_duplicate_glottocode_tips(
 
 \item{merge_dialects}{a logical specifying whether to replace dialect tip labels with the glottocode of the language that is their parent, and then drop all but one}
 
-\item{TaxonTable}{data-frame of tip-labels matched to Glottocodes. Needs the columns "taxon" and "Glottocode". If merge_dialects == TRUE then GlottologLanguageTable also needs to be supplied.}
+\item{TaxonTable}{data-frame of tip-labels matched to Glottocodes. Needs the columns "taxon" and "Glottocode". If merge_dialects == TRUE then LanguageTable also needs to be supplied.}
 
-\item{GlottologLanguageTable}{data-frame of Glottocodes matched to Language_level_ID (if dialect, Language_level_ID is the glottocode of the parent that is a language). If merge-dialects is TRUE then GlottologLanguageTable needs to be specified. The data-frame needs to contain the columns "Glottocode" and "Language_level_ID".}
+\item{LanguageTable}{data-frame of Glottocodes matched to Language_level_ID (if dialect, Language_level_ID is the glottocode of the parent that is a language). If merge-dialects is TRUE then LanguageTable needs to be specified. The data-frame needs to contain the columns "Glottocode" and "Language_level_ID". "Language_level_ID" cannot be missing for any Glottocode. If the language is not a dialect, Language_level_ID is just a repetition of the Glottocode.}
 
 \item{rename_tips_to_glottocodes}{logical. If TRUE, the tip-labels of the output tree are renamed to the corresponding Glottocodes. If FALSE, the original tip-labels are retained.}
 }
@@ -27,7 +27,7 @@ drop_duplicate_glottocode_tips(
 tree without tips with duplicate Glottocodes, optionally all but one dialect is dropped as well.
 }
 \description{
-If a language tree has tips with are matched to duplicate glottocodes, drop all but one at random. If there are tips which are dialects of the same language, you can choose to drop all but one.
+If a language tree has tips with are matched to duplicate glottocodes, drop all but one at random. If there are tips which are dialects of the same language (given the Glottolog LanguageTable provided), you can choose to drop all but one.
 }
 \author{
 Hedvig Skirgård
