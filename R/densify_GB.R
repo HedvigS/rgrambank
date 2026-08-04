@@ -130,6 +130,10 @@ densify_GB <- function(Grambank_ValueTable = NA,
     # prune to optima
     # we include minimum row coding density, since NAs on language end should largely be random
     # we include taxonomic index since densification here explicitly seeks to increase taxonomic diversity
+    
+    # !! and rlang::parse_expr() are intentional here - scoring_function is a 
+    # string argument that needs to be dynamically evaluated as an expression 
+    # inside densify::prune(). Direct passing of the string variable does not work.
       
       logical_densified <- densify::prune(logical_log, 
                                           scoring_function = !!rlang::parse_expr(scoring_function))
@@ -166,16 +170,16 @@ densify_GB <- function(Grambank_ValueTable = NA,
                " languages and ", 
                .summarize_matrix(statistical_for_pruning)[[2]] - .summarize_matrix(statistical_densified)[[2]], " GBI_statistical features were dropped.\n"))
     
+  }
+    
     output <- list(logical_densified_with_question_mark_and_NA = logical_densified_with_question_mark_and_NA, 
                    logical_densified = logical_densified, 
                    statistical_densified_with_question_mark_and_NA = statistical_densified_with_question_mark_and_NA,
                    statistical_densified = statistical_densified)
-  
-  }
 }
 
   ############IF USING "REGULAR" GB, not GBI
-  if(any(!is.na(Grambank_ValueTable))){
+  else if(!isTRUE(all(is.na(Grambank_ValueTable)))) {
     
     Grambank_wide <- Grambank_ValueTable |> 
       dplyr::mutate(Value = as.character(.data[["Value"]])) |> 
@@ -196,8 +200,12 @@ densify_GB <- function(Grambank_ValueTable = NA,
                        cols = colnames(Grambank_ValueTable_for_pruning)[!colnames(Grambank_ValueTable_for_pruning) %in% "Language_ID"],
                        taxonomy = glottolog_tree_adj_table,
                        taxon_id = "Language_ID",
+                       limits= limits,
                        density_mean_weights = density_mean_weights)
     
+    # !! and rlang::parse_expr() are intentional here - scoring_function is a 
+    # string argument that needs to be dynamically evaluated as an expression 
+    # inside densify::prune(). Direct passing of the string variable does not work.
     
     Grambank_densified <- densify::prune(Grambank_ValueTable_log, 
                                            scoring_function =  !!rlang::parse_expr(scoring_function))
@@ -216,7 +224,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
   Before densifying, Grambank had ",   .summarize_matrix(Grambank_ValueTable_for_pruning)[[4]], " data coverage (counting ? as missing). After densifying, it has ",   .summarize_matrix(Grambank_densified)[[4]], " data coverage. ", 
                format( .summarize_matrix(Grambank_ValueTable_for_pruning)[[1]] - .summarize_matrix(Grambank_densified)[[1]], big.mark=",") ,
                " languages and ", 
-               .summarize_matrix(Grambank_ValueTable_for_pruning)[[2]] - .summarize_matrix(Grambank_densified)[[2]], " GBI_logical features were dropped.\n"))
+               .summarize_matrix(Grambank_ValueTable_for_pruning)[[2]] - .summarize_matrix(Grambank_densified)[[2]], " Grambank features were dropped.\n"))
     
     
     }
