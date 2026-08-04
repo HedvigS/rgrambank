@@ -32,6 +32,10 @@ if(tree$tip.label |> unique() |> length() != ape::Ntip(tree)){
     stop("TaxonTable lacks the column 'Glottocode'.\n")
   }
   
+  if(sum(is.na(TaxonTable)) >0){
+    stop("There are missing values in TaxonTable.")
+  }
+  
 
 if(merge_dialects == TRUE){
 
