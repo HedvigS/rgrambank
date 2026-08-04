@@ -167,4 +167,24 @@ df_make_multistate_solo_expected <- data.frame(
 
 
 
+#objects for testing drop_duplicate_glottocode_tips
+
+set.seed(1241)
+test_tree <- ape::rtree(7, rooted = TRUE)
+TaxonTable <- data.frame(Glottocode = c("ainu1240","ainu1240",
+                                   "kuri1271","sakh1245",
+                                   "hokk1243", "hokk1243",
+                                   "tara1248"),
+                           taxon    = c("t2", "t4", "t3", "t7", "t1", "t5", "t6"))
+
+LanguageTable <-   data.frame(Glottocode = c("ainu1240",
+"kuri1271",
+"hokk1243", 
+"tara1248", "sakh1245"),
+
+Language_level_ID = c("ainu1240",
+                      "kuri1271",
+                      "ainu1240", 
+                      "ainu1240", "sakh1245")
+)
 
