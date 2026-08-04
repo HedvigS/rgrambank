@@ -28,6 +28,7 @@ make_binary_ValueTable <- function(ValueTable = NULL,
     stop("'ValueTable' must have the columns: 'ID', 'Language_ID', 'Parameter_ID', 'Value' and 'Code_ID'.")
   }
   
+  .check_binarised_feature_pairs(ValueTable = ValueTable, verbose = verbose)
   .check_dups_ValueTable(ValueTable = ValueTable, verbose = verbose)
 
   .binary_parameters <- c(
