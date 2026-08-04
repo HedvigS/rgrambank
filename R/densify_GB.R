@@ -18,7 +18,7 @@
 densify_GB <- function(Grambank_ValueTable = NA,
                        GBI = NA, 
                        Glottolog_ValueTable = NA, 
-                       verbose = T,
+                       verbose = TRUE,
                        min_variability = 3,  # each variable must have at least 3 languages in its second-largest state
                        density_mean = "log_odds",
                        density_mean_weights = list(coding = 0.999, taxonomy = 1),
