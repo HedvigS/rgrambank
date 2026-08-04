@@ -15,7 +15,7 @@ df_make_binary_solo_expected <- data.frame(
 
 test_that("make_binary_ValueTable() correctly binarises multistate features", {
   
-  result <- make_binary_ValueTable(df_make_binary_solo, verbose = FALSE)
+  result <- make_binary_ValueTable(ValueTable = df_make_binary_solo, verbose = FALSE)
   
   # Sort both by Parameter_ID to ensure row order does not affect comparison
   result <- result[order(result$Parameter_ID), ]
@@ -23,6 +23,8 @@ test_that("make_binary_ValueTable() correctly binarises multistate features", {
   
   expect_equal(result, expected, ignore_attr = TRUE)
 })
+
+
 
 df_make_binary_multistate_mixed_expected <- data.frame(
   ID           = c("GB025a-lang1", "GB025b-lang1", "GB130a-lang1","GB130b-lang1", "GB065a-lang1", "GB065b-lang1"),
