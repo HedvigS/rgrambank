@@ -169,7 +169,8 @@
   if(nrow_ValueTable != nrow_ValueTable_distinct){
     stop("ValueTable has duplicate rows for Language_ID ~ Parameter_ID.")
   }else{
-    message("ValueTable does not have duplicate rows for Language_ID ~ Parameter_ID.")
+    if(verbose == TRUE){
+    message("ValueTable does not have duplicate rows for Language_ID ~ Parameter_ID.")}
     }
 
   invisible(NULL)

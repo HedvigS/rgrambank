@@ -62,13 +62,14 @@ make_multistate_ValueTable <- function(ValueTable = NULL,
     stop("'ValueTable' must be a dataframe.")
   }
   
+  .check_binarised_feature_pairs(ValueTable = ValueTable, verbose = verbose)
   .check_dups_ValueTable(ValueTable = ValueTable, verbose = verbose)
-  
+
   if (!all(c("ID", "Language_ID", "Parameter_ID", "Value", "Code_ID") %in% colnames(ValueTable))) {
     stop("'ValueTable' must have the columns: 'ID', 'Language_ID', 'Parameter_ID', 'Value' and 'Code_ID'.")
   }
   
-  .binarised_parameters <- c(
+.binarised_parameters <- c(
     "GB024a", "GB024b",
     "GB025a", "GB025b",
     "GB065a", "GB065b",
@@ -94,7 +95,7 @@ make_multistate_ValueTable <- function(ValueTable = NULL,
   #      native binary codings (so reconstruction starts from "?"/NA)
   #   2. Reconstructing the multistate value from the native binary values
   #   3. Removing the binarised rows (if keep_binarised = FALSE)
-  
+
   # Define the feature pairs with their reconstruction properties
   feature_pairs <- list(
     # base, col_a, col_b, has_zero
@@ -182,6 +183,26 @@ make_multistate_ValueTable <- function(ValueTable = NULL,
         )
       )
     
+    # Gather metadata from binarised rows for this pair
+    metadata <- ValueTable |>
+      dplyr::filter(
+        .data[["Parameter_ID"]] %in% c(col_a, col_b) &
+          .data[["Language_ID"]] %in% langs_with_native_binary
+      ) |>
+      dplyr::group_by(.data[["Language_ID"]]) |>
+      dplyr::summarise(
+        Source         = paste(unique(stats::na.omit(.data[["Source"]])),         collapse = ","),
+        Source_comment = paste(unique(stats::na.omit(.data[["Source_comment"]])), collapse = ","),
+        Coders         = paste(unique(stats::na.omit(.data[["Coders"]])),         collapse = ","),
+        Comment        = paste(unique(stats::na.omit(.data[["Comment"]])),        collapse = ","),
+        .groups = "drop"
+      ) |>
+      # Replace empty strings (from all-NA groups) with NA
+      dplyr::mutate(dplyr::across(
+        c("Source", "Source_comment", "Coders", "Comment"),
+        ~ dplyr::na_if(.x, "")
+      ))
+    
     # Convert reconstructed values back to long format
     reconstructed_long <- wide |>
       dplyr::select("Language_ID", !!base) |>
@@ -192,14 +213,19 @@ make_multistate_ValueTable <- function(ValueTable = NULL,
         ID           = paste0(base, "-", .data[["Language_ID"]]),
         Code_ID      = paste0(base, "-", .data[["Value"]])
       ) |>
-      dplyr::select(dplyr::all_of(c("ID", "Language_ID", "Parameter_ID", "Value", "Code_ID")))
+      dplyr::left_join(metadata, by = "Language_ID") |>
+      dplyr::select(dplyr::any_of(c(
+        "ID", "Language_ID", "Parameter_ID", "Value", "Code_ID",
+        "Source", "Source_comment", "Coders", "Comment"
+      )))
     
     # Remove old multistate rows for all languages (we replace them wholesale)
     # and remove binarised rows, then add the reconstructed rows
     ValueTable <- ValueTable |>
       dplyr::filter(.data[["Parameter_ID"]] != base)
     
-    ValueTable <- dplyr::bind_rows(ValueTable, reconstructed_long)
+    ValueTable <- dplyr::bind_rows(ValueTable, reconstructed_long) |> 
+      dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
   }
   
   # Drop binarised columns from output if requested
