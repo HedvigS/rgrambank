@@ -2,10 +2,8 @@
 .warn_multistate_binary_clashes <- function(ValueTable, verbose = FALSE, ignore_question_mark_mismatch = TRUE) {
   
   # Expected compatible native binary values (col_a, col_b) for each multistate value.
-  # The implied-absent side accepts "0" or "?" — a coder may have found clear evidence
-  # for one order but left the other uncertain, which is not a clash.
-  
-  # A value of 1 in the multistate feature value could match to 1 and 0 in the binarised version (GBXXXa), or 1 and ?. The user can set ignore_question_mark_mismatch to TRUE if they don't want a warning raised for 1 and ? values
+
+  # A value of 1 in the multistate feature value could match to 1 and 0 in the binarised version (GBXXXa), or 1 and ?. The user can set ignore_question_mark_mismatch to TRUE if they don't want a warning raised for 1 and ? values mismatching.
   
   # acceptable values for col_a and col_b are stored as comma-separated strings
   # and split later — this avoids list columns in base R data frames
