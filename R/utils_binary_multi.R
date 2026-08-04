@@ -159,11 +159,6 @@
     call. = FALSE
   )
   
-  clashes |> 
-    dplyr::group_by(Language_ID) |> 
-    summarise(features = paste(feature, collapse = ", ")) |> View()
-
-  
   invisible(NULL)
 }
 
@@ -182,4 +177,57 @@
   invisible(NULL)
 }
 
+
+.check_binarised_feature_pairs <- function(ValueTable = NULL, verbose = FALSE) {
+  
+  pairs <- list(
+    c("GB024a", "GB024b"),
+    c("GB025a", "GB025b"),
+    c("GB065a", "GB065b"),
+    c("GB130a", "GB130b"),
+    c("GB193a", "GB193b"),
+    c("GB203a", "GB203b")
+  )
+  
+  all_binary_features <- unlist(pairs)
+  
+  # Check if none of the binary features are present at all
+  if (verbose && !any(all_binary_features %in% ValueTable$Parameter_ID)) {
+    message("No binarised features found in the data - skipping pair checks.")
+    return(invisible(TRUE))
+  }
+  
+  issues <- list()
+  
+  for (pair in pairs) {
+    feat1 <- pair[1]
+    feat2 <- pair[2]
+    
+    feat1_exists <- feat1 %in% ValueTable$Parameter_ID
+    feat2_exists <- feat2 %in% ValueTable$Parameter_ID
+    
+    # XOR: one exists but not the other
+    if (feat1_exists != feat2_exists) {
+      missing <- ifelse(!feat1_exists, feat1, feat2)
+      present <- ifelse(feat1_exists, feat1, feat2)
+      issues[[length(issues) + 1]] <- sprintf(
+        "Pair mismatch: '%s' is present but '%s' is missing", 
+        present, missing
+      )
+    }
+  }
+  
+  if (length(issues) == 0) {
+    if (verbose) {
+      message("All feature pairs OK")
+    }
+    return(invisible(TRUE))
+  } else {
+    for (issue in issues) {
+      message(issue)
+    }
+    stop("At least one pair is incomplete.")
+    return(invisible(FALSE))
+  }
+}
 
