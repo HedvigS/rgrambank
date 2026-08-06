@@ -12,8 +12,7 @@ Grambank and other CLDF-datasets",
     person("Anna",     "Graff"),
     person("Angela",   "Chira")
   ),
-  year     = "2025",
+  year     = "2026",
   url = "https://github.com/HedvigS/rgrambank",
-  note = "R package version 1.1.0",
-  doi      = "10.5281/zenodo.7740139"
+  doi      = "10.5281/zenodo.16915289"
 )
