@@ -3,15 +3,15 @@ Title: Assorted functions for handling language data, in particular Grambank and
 Version: 1.1.1
 Encoding: UTF-8
 Authors@R: c(
-          person(given = "Hedvig",      family = "Skirgård",  role = c("aut", "cre"), email = "hedvig.public@gmail.com", comment = c(ORCID = "0000-0002-7748-2381")), 
-          person(given = "Sam",        family = "Passmore",  role = c("aut","ctb")),
-          person(given = "Enock",      family = "Appiah Tieku",      role = c("aut","rev")),
-          person(given = "Stephen",      family = "Mann",      role = c("aut","rev")),
-          person(given = "Clemens",    family = "Schmid",  role = c("aut","rev", "ctb"), comment = c(ORCID = "0000-0003-3448-5715")),
-          person(given = "Taras",        family = "Zakharko",  role = c("aut","ctb")),
-          person(given = "Anna",        family = "Graff",  role = c("aut","ctb")),
-          person(given = "Angela",        family = "Chira",  role = c("aut", "ctb"))
-     )
+    person(given = "Hedvig",   family = "Skirgård",     role = c("aut", "cre"), email = "hedvig.public@gmail.com", comment = c(ORCID = "0000-0002-7748-2381")),
+    person(given = "Sam",      family = "Passmore",     role = c("aut", "ctb")),
+    person(given = "Enock",    family = "Appiah Tieku", role = c("aut", "rev")),
+    person(given = "Stephen",  family = "Mann",         role = c("aut", "rev")),
+    person(given = "Clemens",  family = "Schmid",       role = c("aut", "rev", "ctb"), comment = c(ORCID = "0000-0003-3448-5715")),
+    person(given = "Taras",    family = "Zakharko",     role = c("aut", "ctb")),
+    person(given = "Anna",     family = "Graff",        role = c("aut", "ctb")),
+    person(given = "Angela",   family = "Chira",        role = c("aut", "ctb"))
+    )
 Description: Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder "example_scripts" for examples for all functions.
 License: Apache License (>= 2)
 Depends: 
