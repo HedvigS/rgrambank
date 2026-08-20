@@ -1,8 +1,8 @@
 #' Calculates Cultural fixation scores, as specified in Muthukrishna et al (2020)
 #'
-#' @param d a NxM matrix of N observations for M traits, the first column must consist of population names; columns are given "trait" names, within which are variants of each trait. If d is not defined, ValueTable_long  and GroupTable need to be defined
+#' @param d a NxM matrix of N observations for M traits, the first column must consist of population names; columns are given "trait" names, within which are variants of each trait. If d is not defined, ValueTable_long  and PopTable need to be defined
 #' @param ValueTable_long dataframe with columns ID, Parameter_ID and Value. If ValueTable_long is defined, d must be NULL
-#' @param GroupTable dataframe with columns ID and Group_ID. If GroupTable is defined, d must be NULL
+#' @param PopTable dataframe with columns ID and Pop_ID. If PopTable is defined, d must be NULL
 #' @param loci character vector that name the traits for which the fst is to be computed
 #' @param type Either a numeric vector of length 1 (0 = discrete/categorical, 1 = quantiatative/ordinal) or a named numeric vector of the same length as "loci" (or number of unique values in Parameter_ID in ValueTable_long) indicating what type of each trait it is. If the argument is of length 1, that type will be applied to all loci. If the argument is longer than 1, note that the names of the vector must be the vector loci, i.e. make sure that row.names(type) <- loci
 #' @param bootstrap logical, if TRUE, telling the program to compute bootstrapped standard errors and confidence intervals
@@ -28,7 +28,7 @@
 
 CultureFst <- function(d = NULL, 
                       ValueTable_long  = NULL,
-                      GroupTable = NULL,
+                      PopTable = NULL,
                       loci = NULL, 
                       type  = NULL, 
                       bootstrap  = TRUE, 
@@ -37,13 +37,13 @@ CultureFst <- function(d = NULL,
                       verbose = TRUE ){
   
   
-  # ------- various argument checks, including creating d and loci if ValueTable_long and GroupTable are defined ----------
+  # ------- various argument checks, including creating d and loci if ValueTable_long and PopTable are defined ----------
   
-  #the original function had the arguments d and loci. Users of the package rgrambank are likely more familiar with using long ValueTables and additional tables for information such as groups/populations. The function has been modified so that users can supply ValueTable_long and GroupTable instead of d and loci. The function then renders d and loci correctly from those arguments. The old functionality is still preserved, users can us d and loci as before.
+  #the original function had the arguments d and loci. Users of the package rgrambank are likely more familiar with using long ValueTables and additional tables for information such as groups/populations. The function has been modified so that users can supply ValueTable_long and PopTable instead of d and loci. The function then renders d and loci correctly from those arguments. The old functionality is still preserved, users can us d and loci as before.
     
-  if (is.null(d) && (is.null(ValueTable_long ) || is.null(GroupTable))) {
+  if (is.null(d) && (is.null(ValueTable_long ) || is.null(PopTable))) {
     stop(
-      "Either 'd' must be provided, or both 'ValueTable_long ' and 'GroupTable' must be provided."
+      "Either 'd' must be provided, or both 'ValueTable_long ' and 'PopTable' must be provided."
     )
   }
   
@@ -55,8 +55,8 @@ CultureFst <- function(d = NULL,
     stop("'ValueTable_long ' must be a data frame.")
   }
   
-  if (!is.null(GroupTable) && !is.data.frame(GroupTable)) {
-    stop("'GroupTable' must be a data frame.")
+  if (!is.null(PopTable) && !is.data.frame(PopTable)) {
+    stop("'PopTable' must be a data frame.")
   }
   
   # If ValueTable is provided, loci must be NULL
@@ -82,17 +82,17 @@ CultureFst <- function(d = NULL,
     }
   }
   
-  # Check required columns in GroupTable
-  if (!is.null(GroupTable)) {
-    required_cols_GroupTable <- c("ID", "Group_ID")
-    missing_cols_GroupTable  <- required_cols_GroupTable[
-      !required_cols_GroupTable %in% colnames(GroupTable)
+  # Check required columns in PopTable
+  if (!is.null(PopTable)) {
+    required_cols_PopTable <- c("ID", "Pop_ID")
+    missing_cols_PopTable  <- required_cols_PopTable[
+      !required_cols_PopTable %in% colnames(PopTable)
     ]
-    if (length(missing_cols_GroupTable) > 0) {
+    if (length(missing_cols_PopTable) > 0) {
       stop(
-        "'GroupTable' is missing required column(s): ",
-        paste(missing_cols_GroupTable, collapse = ", "),
-        ". Required columns are: ID, Group_ID."
+        "'PopTable' is missing required column(s): ",
+        paste(missing_cols_PopTable, collapse = ", "),
+        ". Required columns are: ID, Pop_ID."
       )
     }
   }
@@ -151,17 +151,17 @@ if(is.data.frame(ValueTable_long)){
 if(is.null(d)){
   
 #  d <- ValueTable_long |> 
-#    dplyr::left_join(GroupTable, by = "ID") |> 
+#    dplyr::left_join(PopTable, by = "ID") |> 
 #    tidyr::pivot_wider(names_from = "Parameter_ID", values_from = "Value") |> 
 #    dplyr::select(-ID)
  
-  # merge ValueTable_long and GroupTable
-  merged <- merge(ValueTable_long, GroupTable, by = "ID", all.x = TRUE)
+  # merge ValueTable_long and PopTable
+  merged <- merge(ValueTable_long, PopTable, by = "ID", all.x = TRUE)
   
   # pivot wider — reshape from long to wide
   d <- reshape(
     merged,
-    idvar     = c("ID", "Group_ID"),
+    idvar     = c("ID", "Pop_ID"),
     timevar   = "Parameter_ID",
     v.names   = "Value",
     direction = "wide"
