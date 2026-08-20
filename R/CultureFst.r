@@ -1,16 +1,184 @@
-CultureFst = function( d, loci, type, bootstrap, no.samples, label ){
-  # returns a matrix of pairwise fst values in the lower diagonal
-  # and bootstrapped confidence intervals in the upper-diagonal (optional)
+#' Calculates Cultural fixation scores, as specified in Muthukrishna et al (2020)
+#'
+#' @param d a NxM matrix of N observations for M traits, the first column must consist of population names; columns are given "trait" names, within which are variants of each trait. If d is not defined, ValueTable_long  and GroupTable need to be defined
+#' @param ValueTable_long dataframe with columns ID, Parameter_ID and Value. If ValueTable_long is defined, d must be NULL
+#' @param GroupTable dataframe with columns ID and Group_ID. If GroupTable is defined, d must be NULL
+#' @param loci character vector that name the traits for which the fst is to be computed
+#' @param type Either a numeric vector of length 1 (0 = discrete/categorical, 1 = quantiatative/ordinal) or a named numeric vector of the same length as "loci" (or number of unique values in Parameter_ID in ValueTable_long) indicating what type of each trait it is. If the argument is of length 1, that type will be applied to all loci. If the argument is longer than 1, note that the names of the vector must be the vector loci, i.e. make sure that row.names(type) <- loci
+#' @param bootstrap logical, if TRUE, telling the program to compute bootstrapped standard errors and confidence intervals
+#' @param no.samples numeric vector of length 1. Number of resamples in the bootstrap. Default is 100. Only used if bootstrap is TRUE.
+#' @param label character string that will be part of the output .rdata file name  (saved as "label_Fst.rdata"). If NULL (the default), no file is saved.
+#' @param verbose logical. If TRUE, reports progress messages including the current bootstrap sample number. Default is TRUE.
+#' @return A named list containing:
+#'   \itemize{
+#'     \item \code{fst.loci} list of pairwise Fst values per trait (when multiple loci)
+#'     \item \code{mean.fst} matrix of mean pairwise Fst values. If bootstrap is TRUE, the upper diagonal contains bootstrapped standard errors and the lower diagonal contains Fst estimates
+#'     \item \code{mean.fst.confint} matrix with bootstrapped 95\% confidence intervals in the upper diagonal, if bootstrap is TRUE
+#'     \item \code{loci} character vector of trait names used
+#'     \item \code{pops} character vector of population names
+#'     \item \code{sample.size} named numeric vector of sample sizes per population
+#'     \item \code{boot} list of bootstrap results (pairs, se, mean, quantiles, estimates), if bootstrap is TRUE
+#'   }
+#' @note This function is adapted from Muthukrishna et al (2020). Please cite the original article when used in publications.
+#' @author Original function: Muthukrishna, M., Bell, A. V., Henrich, J., Curtin, C. M., Gedranovich, A., McInerney, J., & Thue, B. Adaptation for rgrambank: Hedvig Skirgård
+#' @export  
+
+#'@references Muthukrishna, M., Bell, A. V., Henrich, J., Curtin, C. M., Gedranovich, A., McInerney, J., & Thue, B. (2020). "Beyond Western, Educated, Industrial, Rich, and Democratic (WEIRD) Psychology: Measuring and Mapping Scales of Cultural and Psychological Distance." Psychological Science, 0956797620916782. Published, 05/21/2020.
+#https://journals.sagepub.com/doi/suppl/10.1177/0956797620916782
+
+CultureFst <- function(d = NULL, 
+                      ValueTable_long  = NULL,
+                      GroupTable = NULL,
+                      loci = NULL, 
+                      type  = NULL, 
+                      bootstrap  = TRUE, 
+                      no.samples  = 100, 
+                      label = NULL, 
+                      verbose = TRUE ){
   
-  # what the data should look like:
-  # d: a NxM matrix of N observations for M traits, the first column must consist of population names; columns are given "trait" names, within which are variants of each trait
-  # loci: a vector of characters that name the traits for which the fst is to be computed
-  # type: is a vector the same length as "loci" indicating what type of trait it is: 0 for discrete (categorical), 1 for quantitative; NOTE the "row names" of type must be the vector loci, i.e. make sure that row.names(type) <- loci
-  # bootstrap: a logical, if TRUE, telling the program to compute bootstrapped standard errors and confidence intervals
-  # no.samples: numeric, designating the number of resamples in the bootstrap
   
-  # label will be part of .rdata file name reporting the results
+  # ------- various argument checks, including creating d and loci if ValueTable_long and GroupTable are defined ----------
   
+  #the original function had the arguments d and loci. Users of the package rgrambank are likely more familiar with using long ValueTables and additional tables for information such as groups/populations. The function has been modified so that users can supply ValueTable_long and GroupTable instead of d and loci. The function then renders d and loci correctly from those arguments. The old functionality is still preserved, users can us d and loci as before.
+    
+  if (is.null(d) && (is.null(ValueTable_long ) || is.null(GroupTable))) {
+    stop(
+      "Either 'd' must be provided, or both 'ValueTable_long ' and 'GroupTable' must be provided."
+    )
+  }
+  
+  if (!is.null(d) && !is.matrix(d)) {
+    stop("'d' must be a matrix.")
+  }
+  
+  if (!is.null(ValueTable_long ) && !is.data.frame(ValueTable_long )) {
+    stop("'ValueTable_long ' must be a data frame.")
+  }
+  
+  if (!is.null(GroupTable) && !is.data.frame(GroupTable)) {
+    stop("'GroupTable' must be a data frame.")
+  }
+  
+  # If ValueTable is provided, loci must be NULL
+  if (!is.null(ValueTable_long) && !is.null(loci)) {
+    stop(
+      "'loci' must be NULL when 'ValueTable_long' is provided. ",
+      "loci are derived from 'ValueTable_long' directly."
+    )
+  }
+  
+  # Check required columns in ValueTable_long
+  if (!is.null(ValueTable_long)) {
+    required_cols_ValueTable <- c("ID", "Parameter_ID", "Value")
+    missing_cols_ValueTable  <- required_cols_ValueTable[
+      !required_cols_ValueTable %in% colnames(ValueTable_long)
+    ]
+    if (length(missing_cols_ValueTable) > 0) {
+      stop(
+        "'ValueTable_long' is missing required column(s): ",
+        paste(missing_cols_ValueTable, collapse = ", "),
+        ". Required columns are: ID, Parameter_ID, Value."
+      )
+    }
+  }
+  
+  # Check required columns in GroupTable
+  if (!is.null(GroupTable)) {
+    required_cols_GroupTable <- c("ID", "Group_ID")
+    missing_cols_GroupTable  <- required_cols_GroupTable[
+      !required_cols_GroupTable %in% colnames(GroupTable)
+    ]
+    if (length(missing_cols_GroupTable) > 0) {
+      stop(
+        "'GroupTable' is missing required column(s): ",
+        paste(missing_cols_GroupTable, collapse = ", "),
+        ". Required columns are: ID, Group_ID."
+      )
+    }
+  }
+  
+if(is.data.frame(ValueTable_long)){
+  loci = ValueTable_long$Parameter_ID |> unique()
+}
+  
+# The original function used the argument type which was a named vector. In the rgrambank version, users can set type to just one value (0 or 1) if all loci/features are of the same type. The named vector is then created. The old behaviour is preserved, users can still give a named vector for type.
+
+  if(is.null(type)){
+  stop("'type' needs to be defined.")
+} else{
+  
+  if (length(type) == 1) {
+    
+    # scalar — must be 0 or 1
+    if (!type %in% c(0, 1)) {
+      stop("'type' must be 0 (discrete/categorical) or 1 (quantitative/ordinal).")
+    }
+
+    #creating a named numeric vector where all values are the same
+    type <- rep(type, length(loci))
+    names(type) <- loci
+    
+  } else {
+    # vector — all values must be 0 or 1
+    if (!all(type %in% c(0, 1))) {
+      stop("All values in 'type' must be 0 (discrete/categorical) or 1 (quantitative/ordinal).")
+    }
+    
+    # must be named
+    if (is.null(names(type))) {
+      stop("'type' has length > 1 but has no names. The vector needs to be named, matching loci/ValueTable_long$Parameter_ID")
+    }
+    
+    # names must exactly match loci (no missing, no extra, no duplicates)
+    if (length(type) != length(loci)) {
+      stop(
+        "'type' has length ", length(type), " but 'loci' has length ", length(loci), ".",
+        " They must be the same length."
+      )
+    }
+    
+    if (anyDuplicated(names(type)) > 0) {
+      stop("Names of 'type' must not contain duplicates.")
+    }
+    
+    if (!setequal(names(type), loci)) {
+      stop("Names of 'type' must exactly match 'loci'.")
+    }
+  }
+}
+  
+  
+if(is.null(d)){
+  
+#  d <- ValueTable_long |> 
+#    dplyr::left_join(GroupTable, by = "ID") |> 
+#    tidyr::pivot_wider(names_from = "Parameter_ID", values_from = "Value") |> 
+#    dplyr::select(-ID)
+ 
+  # merge ValueTable_long and GroupTable
+  merged <- merge(ValueTable_long, GroupTable, by = "ID", all.x = TRUE)
+  
+  # pivot wider — reshape from long to wide
+  d <- reshape(
+    merged,
+    idvar     = c("ID", "Group_ID"),
+    timevar   = "Parameter_ID",
+    v.names   = "Value",
+    direction = "wide"
+  )
+     
+  # clean up column names (reshape adds "Value." prefix)
+  colnames(d) <- gsub("^Value\\.", "", colnames(d))
+  
+  # drop ID column
+  d <- d[, !colnames(d) %in% "ID"]
+  
+  d <- as.matrix(d)
+}
+  
+  if(verbose == TRUE){
+    cat(paste0("CultureFst started. There are ", no.samples, " samples to go through.\n"))}
+ 
   # ------- function to compute an Fst for a single trait ----------
   Fst.loci = function( d, l ){
     # d is the data matrix
@@ -99,14 +267,18 @@ CultureFst = function( d, loci, type, bootstrap, no.samples, label ){
   # ----------------------------------------------------------
   # Bootstrap function for confidence intervals
   bootFst = function(){
+    
     # function to generate a mean Fst for each sample
     sampleFst = function( i ){
-      print(i)
+      
+      cat(paste0("I'm on ", i, " out of ", no.samples, " samples.\n"))
+      
       subpops = subset( pops, sapply( 1:length(pops), function(z) any(pops[z]==pair) ) )
       index.sample = sapply( subpops, function(z){ set = which(d[,1]== z); sample( set, length(set), replace = TRUE ) } )
       index.sample = unlist( index.sample )
       ans = Fst.gen( d[index.sample,] )
       res = ans$mean.fst
+      
       res }
     # resample
     btfst = lapply( 1:no.samples, sampleFst )	
@@ -135,7 +307,6 @@ CultureFst = function( d, loci, type, bootstrap, no.samples, label ){
   
   # ---------------------------------------------------
   # subfunction calls and output	
-  library(utils)
   # all pair-wise combinations
   pair = t( combn( as.character( unique(d[,1]) ), 2 ) )
   # population names
@@ -159,7 +330,10 @@ CultureFst = function( d, loci, type, bootstrap, no.samples, label ){
     colnames(ans$mean.fst.confint) = pops; rownames(ans$mean.fst.confint) = pops
   }	
   # save output to .rdata file	
-  save(ans, file = paste( label, "_Fst.rdata", sep = "" ) ) 
+  
+  if(!is.null(label)){
+    save(ans, file = paste( label, "_Fst.rdata", sep = "" ) ) 
+  }
   if( bootstrap==TRUE ) print( ans$mean.fst.confint ) else print(ans$mean.fst)
   ans
 }
