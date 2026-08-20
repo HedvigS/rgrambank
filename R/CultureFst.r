@@ -176,8 +176,6 @@ if(is.null(d)){
   d <- as.matrix(d)
 }
   
-  if(verbose == TRUE){
-    cat(paste0("CultureFst started. There are ", no.samples, " samples to go through.\n"))}
  
   # ------- function to compute an Fst for a single trait ----------
   Fst.loci = function( d, l ){
@@ -271,7 +269,9 @@ if(is.null(d)){
     # function to generate a mean Fst for each sample
     sampleFst = function( i ){
       
-      cat(paste0("I'm on ", i, " out of ", no.samples, " samples.\n"))
+      if(verbose == TRUE){
+      cat(paste0("CultureFst is on ", i, " out of ", no.samples, " samples for bootstrapping confidence intervals.\n"))
+        }
       
       subpops = subset( pops, sapply( 1:length(pops), function(z) any(pops[z]==pair) ) )
       index.sample = sapply( subpops, function(z){ set = which(d[,1]== z); sample( set, length(set), replace = TRUE ) } )
