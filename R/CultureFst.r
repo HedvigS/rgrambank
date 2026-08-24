@@ -20,8 +20,10 @@
 #'     \item \code{boot} list of bootstrap results (pairs, se, mean, quantiles, estimates), if bootstrap is TRUE
 #'   }
 #' @note This function is adapted from Muthukrishna et al (2020). Please cite the original article when used in publications.
-#' @author Original function: Muthukrishna, M., Bell, A. V., Henrich, J., Curtin, C. M., Gedranovich, A., McInerney, J., & Thue, B. Adaptation for rgrambank: Hedvig Skirgård
+#' @author Original function: Michael Muthukrishna, Adrian V. Bell, Joseph Henrich, Cameron M. Curtin, Alexander Gedranovich, Jason McInerney & Braden Thue. Adaptation for rgrambank: Hedvig Skirgård
 #' @export  
+#' 
+#' 
 
 #'@references Muthukrishna, M., Bell, A. V., Henrich, J., Curtin, C. M., Gedranovich, A., McInerney, J., & Thue, B. (2020). "Beyond Western, Educated, Industrial, Rich, and Democratic (WEIRD) Psychology: Measuring and Mapping Scales of Cultural and Psychological Distance." Psychological Science, 0956797620916782. Published, 05/21/2020.
 #https://journals.sagepub.com/doi/suppl/10.1177/0956797620916782
