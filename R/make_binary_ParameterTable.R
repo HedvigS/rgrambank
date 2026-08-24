@@ -87,6 +87,12 @@ make_binary_ParameterTable<- function(ParameterTable,
     ),
     Binary_Multistate = c("Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised"))
 
+if(keep_native_binary == FALSE){
+  
+ParameterTable <- ParameterTable |> 
+  dplyr::filter(!ID %in%  binarised_feats)
+  
+  }
 
 ParameterTable_new <- ParameterTable |>
     dplyr::full_join(.Parameter_binary, by = "ID") |>

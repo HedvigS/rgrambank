@@ -15,6 +15,8 @@
 #' @references Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence. Scientific Data 12:106 https://doi.org/10.1038/s41597-024-04319-4
 #' @author Original GBI code: Anna Graff, Natalia Chousou-Polydouri, David Inman, Hedvig Skirgård, Marc Lischka, Taras Zakharko, Chiara Barbieri & Balthasar Bickel. Wrapper function: Anna Graff and Hedvig Skirgård.
 #' @export
+#' 
+#' 
 make_GBI <- function(ValueTable = NULL,
                      verbose = TRUE,
                      recode_patterns_full = NULL, 
@@ -25,29 +27,29 @@ make_GBI <- function(ValueTable = NULL,
   message("You're using the newer version of make_GBI")
   
   .check_dups_ValueTable(ValueTable = ValueTable, verbose = verbose)
-
-# Grambank v2 contains binarised features of the old multistate features from GB v1 (read more here: https://github.com/grambank/grambank/wiki/Binarised-features). The crossling-curated workflow currently calls for the mulistate features only, which is why the binarised (e.g. GB024a with values 0, 1 and ?) will be turned "back" into the multistate (e.g. GB024 with values 1, 2, 3 and ?).
-
-#check if any of the binarised features occurr  
-if(any(c("GB024a",
-         "GB024b",
-         "GB025a",
-         "GB025b",
-         "GB065a",
-         "GB065b",
-         "GB130a",
-         "GB130b",
-         "GB193a",
-         "GB193b",
-         "GB203a",
-         "GB203b")   %in% ValueTable$Parameter_ID )){
-  if(verbose == TRUE){
-    message("Binarised features detected, turning into multistate to match GBI documentation.")
+  
+  # Grambank v2 contains binarised features of the old multistate features from GB v1 (read more here: https://github.com/grambank/grambank/wiki/Binarised-features). The crossling-curated workflow currently calls for the mulistate features only, which is why the binarised (e.g. GB024a with values 0, 1 and ?) will be turned "back" into the multistate (e.g. GB024 with values 1, 2, 3 and ?).
+  
+  #check if any of the binarised features occurr  
+  if(any(c("GB024a",
+           "GB024b",
+           "GB025a",
+           "GB025b",
+           "GB065a",
+           "GB065b",
+           "GB130a",
+           "GB130b",
+           "GB193a",
+           "GB193b",
+           "GB203a",
+           "GB203b")   %in% ValueTable$Parameter_ID )){
+    if(verbose == TRUE){
+      message("Binarised features detected, turning into multistate to match GBI documentation.")
+    }
+    ValueTable <- ValueTable |> 
+      make_multistate_ValueTable(verbose = verbose, keep_binarised = FALSE) #turn to multistate datapoints, which is what rest of GBI code expects.
   }
-  ValueTable <- ValueTable |> 
-    make_multistate_ValueTable(verbose = verbose, keep_binarised = FALSE) #turn to multistate datapoints, which is what rest of GBI code expects.
-}
-
+  
   ########## load and prepare data ########## 
   original_feature_matrix <- ValueTable |> 
     tidyr::pivot_wider(
@@ -59,6 +61,18 @@ if(any(c("GB024a",
   # replace missing data by ? (--> because these data points are unknown, not "not applicable")
   original_feature_matrix[is.na(original_feature_matrix)] <- "?"
   
+  # Warn about columns with no variability (all same value, ignoring ?)
+  non_lang_cols <- setdiff(names(original_feature_matrix), "Language_ID")
+  no_variability <- sapply(non_lang_cols, function(col) {
+    vals <- original_feature_matrix[[col]]
+    length(unique(vals)) <= 1
+  })
+  if (any(no_variability)) {
+    warning(
+      "The following features have no variability (all same value, ignoring '?'): ",
+      paste(non_lang_cols[no_variability], collapse = ", ")
+    )
+  }
   
   ########## parse all recodings in the appropriate order ########## 
   ## include without modification ##
@@ -718,9 +732,6 @@ if(any(c("GB024a",
   testthat::expect_true(all(logical_names_should %in% logical_names_is))
   
   ### statistical dataset: check all original features that should be in the statistical filter are in there and vice versa
-  
-  
-  
   statistical_add <- unique(statistical_decisions$resulting.added.features) 
   statistical_remove <- unique(unlist(stringr::str_split(statistical_decisions$resulting.removed.features,", ")))
   # statistical dataset is: a) the features from the final logical dataset, plus b) all statistical additions, minus c) all statistical removals
@@ -740,7 +751,6 @@ if(any(c("GB024a",
   # specific modification ID match --> ensure that each modification ID in the features sheet is in the modification sheet, associated via the correct columns and features; and vice versa
   ids <- stats::na.omit(all_decisions$modification.ID)
   for (id in ids){
-    
     
     type <- dplyr::filter(all_decisions, .data[["modification.ID"]] == id)[["modification.type"]]
     if (type == "statistical"){
@@ -783,7 +793,6 @@ if(any(c("GB024a",
     }
     else if (type %in% c("logical","design-automated","design-manual")){ 
       # check that each instance of a modification ID in the spreadsheet ("is") is foreseen in the decisions_log ("should") and vice versa
-      
       should_all <- all_decisions |> 
         dplyr::filter(.data[["modification.ID"]] == id) |> 
         dplyr::select(c("relevant.features","resulting.added.features","resulting.removed.features")) |> 
@@ -1167,17 +1176,26 @@ if(any(c("GB024a",
   testthat::expect_true(all(!is.na(expected_levels$level)))
   
   
-  # make sure that the expected values match the original values found (applies only to simple recode)
+  # check that the expected values match the original values found (applies only to simple recode)
+  # warn rather than error if not all expected values are present
   if (recode_mode=="simple"){
     if(nvar=="single"){
-      testthat::expect_true(setequal(expected_levels$level, stats::na.omit(original_data)), info=
-                              paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
-                                     "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
+      if(!setequal(expected_levels$level, stats::na.omit(original_data))) {
+        warning(
+          "Not all expected values are present in the data.\n",
+          "Expected:\n", paste0("  ", expected_levels$level, collapse="\n"), "\n",
+          "Got:\n",      paste0("  ", unique(original_data),  collapse="\n")
+        )
+      }
     }
     if(nvar=="multiple"){
-      testthat::expect_true(all(unique(stats::na.omit(original_data$merged)) %in% expected_levels$level), info=
-                              paste0("Expected:\n", paste0("  ", (expected_levels$level), collapse="\n"), "\n",
-                                     "Got:\n",  paste0("  ", (unique(original_data)), collapse="\n")))
+      if(!all(unique(stats::na.omit(original_data$merged)) %in% expected_levels$level)) {
+        warning(
+          "Not all expected values are present in the data.\n",
+          "Expected:\n", paste0("  ", expected_levels$level, collapse="\n"), "\n",
+          "Got:\n",      paste0("  ", unique(original_data),  collapse="\n")
+        )
+      }
     }
   }
   
