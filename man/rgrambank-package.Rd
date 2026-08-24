@@ -20,6 +20,13 @@ Authors:
   \item Taras Zakharko [contributor]
   \item Anna Graff [contributor]
   \item Angela Chira [contributor]
+  \item Michael Muthukrishna [contributor]
+  \item Adrian V. Bell [contributor]
+  \item Joseph Henrich [contributor]
+  \item Cameron M. Curtin [contributor]
+  \item Alexander Gedranovich [contributor]
+  \item Jason McInerney [contributor]
+  \item Braden Thue [contributor]
 }
 
 }
