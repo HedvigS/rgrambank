@@ -161,7 +161,7 @@ if(is.null(d)){
   merged <- merge(ValueTable_long, PopTable, by = "ID", all.x = TRUE)
   
   # pivot wider — reshape from long to wide
-  d <- reshape(
+  d <- stats::reshape(
     merged,
     idvar     = c("ID", "Pop_ID"),
     timevar   = "Parameter_ID",
@@ -194,7 +194,7 @@ if(is.null(d)){
       npairs <- dim(pair)[1]
       print( paste( "q trait", l ) )
       # find total variance
-      totalvar = sapply( 1:npairs, function(y){ w = pair[y,2]; yo = pair[y,1]; var( c( d[ d[,1]==yo,l], d[ d[,1]==w, l ] ), na.rm=T )} ) 
+      totalvar = sapply( 1:npairs, function(y){ w = pair[y,2]; yo = pair[y,1]; stats::var( c( d[ d[,1]==yo,l], d[ d[,1]==w, l ] ), na.rm=T )} ) 
       # compute between-group variance
       # find global mean
       totalmean = sapply( 1:npairs, function(y){ w = pair[y,2]; yo = pair[y,1]; mean( c( d[ d[,1]==yo,l], d[ d[,1]==w, l ] ), na.rm=T )} )
@@ -296,11 +296,11 @@ if(is.null(d)){
       a } ) 
     
     # calculate standard errors, means, and quantiles
-    Fst.se = sapply( pops, function(w) sapply( pops, function(y){ ifelse( any(pair[,2]==w & pair[,1]==y), sqrt( var( bootDistr[,pair[,2]==w & pair[,1]==y ], na.rm = TRUE ) ), NA ) } ) )
+    Fst.se = sapply( pops, function(w) sapply( pops, function(y){ ifelse( any(pair[,2]==w & pair[,1]==y), sqrt( stats::var( bootDistr[,pair[,2]==w & pair[,1]==y ], na.rm = TRUE ) ), NA ) } ) )
     
     Fst.mean = sapply( pops, function(w) sapply( pops, function(y){ ifelse( any(pair[,2]==w & pair[,1]==y), mean( bootDistr[,pair[,2]==w & pair[,1]==y ], na.rm = TRUE ), NA ) } ) )
     
-    Fst.confint = sapply( pops, function(w) sapply( pops, function(y) ifelse( any(pair[,2]==w & pair[,1]==y), paste( format( quantile( bootDistr[,pair[,2]==w & pair[,1]==y ], prob = 0.025, na.rm = TRUE ), digits = 3),", ", format( quantile( bootDistr[,pair[,2]==w & pair[,1]==y ], prob = 0.975, na.rm = TRUE ), digits = 3), sep = "" ), NA )  ) )
+    Fst.confint = sapply( pops, function(w) sapply( pops, function(y) ifelse( any(pair[,2]==w & pair[,1]==y), paste( format( stats::quantile( bootDistr[,pair[,2]==w & pair[,1]==y ], prob = 0.025, na.rm = TRUE ), digits = 3),", ", format( stats::quantile( bootDistr[,pair[,2]==w & pair[,1]==y ], prob = 0.975, na.rm = TRUE ), digits = 3), sep = "" ), NA )  ) )
     
     ans = list( pair, Fst.se, Fst.mean, Fst.confint, bootDistr )
     names(ans) = c("pairs", "se","mean","quantiles","estimates" )
@@ -310,7 +310,7 @@ if(is.null(d)){
   # ---------------------------------------------------
   # subfunction calls and output	
   # all pair-wise combinations
-  pair = t( combn( as.character( unique(d[,1]) ), 2 ) )
+  pair = t( utils::combn( as.character( unique(d[,1]) ), 2 ) )
   # population names
   pops = as.character(unique(d[,1]))
   # run fst calculation
