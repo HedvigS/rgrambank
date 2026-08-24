@@ -10,7 +10,14 @@ Authors@R: c(
     person(given = "Clemens",  family = "Schmid",       role = c("aut", "rev", "ctb"), comment = c(ORCID = "0000-0003-3448-5715")),
     person(given = "Taras",    family = "Zakharko",     role = c("aut", "ctb")),
     person(given = "Anna",     family = "Graff",        role = c("aut", "ctb")),
-    person(given = "Angela",   family = "Chira",        role = c("aut", "ctb"))
+    person(given = "Angela",   family = "Chira",        role = c("aut", "ctb")),
+    person(given = "Michael",     family = "Muthukrishna",     role = c("aut","ctb")),
+    person(given = "Adrian V.",   family = "Bell",             role = c("aut","ctb")),
+    person(given = "Joseph",      family = "Henrich",          role = c("aut","ctb")),
+    person(given = "Cameron M.",  family = "Curtin",           role = c("aut","ctb")),
+    person(given = "Alexander",   family = "Gedranovich",      role = c("aut","ctb")),
+    person(given = "Jason",       family = "McInerney",        role = c("aut","ctb")),
+    person(given = "Braden",      family = "Thue",             role = c("aut","ctb"))
     )
 Description: Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder "example_scripts" for examples for all functions.
 License: Apache License (>= 2)
