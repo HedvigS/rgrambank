@@ -6,22 +6,17 @@ Grambank and other CLDF-datasets",
     person("Hedvig", "Skirgård"),
     person("Sam", "Passmore"),
     person("Enock", "Appiah Tieku"),
-    person("Stephen", "Mann"),
+    person("Stephen Francis", "Mann"),
     person("Clemens", "Schmid"),
     person("Taras", "Zakharko"),
     person("Anna", "Graff"),
     person("Angela", "Chira"),
     person("Michael", "Muthukrishna"),
-    person("Adrian V.", "Bell"),
-    person("Joseph", "Henrich"),
-    person("Cameron M.", "Curtin"),
-    person("Alexander", "Gedranovich"),
-    person("Jason", "McInerney"),
-    person("Braden", "Thue")
+    person("Adrian Viliami", "Bell")
   ),
   year         = "2026",
-  note         = "R package dev version commit 227365d",
+  note         = "R package dev version commit 37e1656",
   url          = "https://github.com/HedvigS/rgrambank",
-  textVersion  = "Hedvig Skirgård, Sam Passmore, Enock Appiah Tieku, Stephen Mann, Clemens Schmid, Taras Zakharko, Anna Graff, Angela Chira, Michael Muthukrishna, Adrian V. Bell, Joseph Henrich, Cameron M. Curtin, Alexander Gedranovich, Jason McInerney, Braden Thue. rgrambank: Assorted functions for handling language data, in particular
-Grambank and other CLDF-datasets. R package dev version commit 227365d. https://github.com/HedvigS/rgrambank"
+  textVersion  = "Hedvig Skirgård, Sam Passmore, Enock Appiah Tieku, Stephen Francis Mann, Clemens Schmid, Taras Zakharko, Anna Graff, Angela Chira, Michael Muthukrishna, Adrian Viliami Bell. rgrambank: Assorted functions for handling language data, in particular
+Grambank and other CLDF-datasets. R package dev version commit 37e1656. https://github.com/HedvigS/rgrambank"
 )
