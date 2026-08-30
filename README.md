@@ -5,23 +5,15 @@
 This repository contains a set of R functions that are useful for analysis of Grambank data, and other CLDF-datasets. Most of the functions are adapted from the code behind [the Grambank release paper of 2023](https://www.science.org/doi/10.1126/sciadv.adg6175). The code of the paper was also published as grambank-analysed on [Zenodo](https://zenodo.org/doi/10.5281/zenodo.7740821) and [GitHub](https://github.com/grambank/grambank-analysed/tree/v1.0/R_grambank). Part of that code has been been re-written here to produce more general functions that can easily be applied to future Grambank releases and other CLDF-datasets.
 
 # Installing package
-The R-functions of this repository can be accessed as an R-package. The packages is not available via CRAN, instead you can install it directly from GitHub. The packages `remotes` and `devtools` contain functions for installing packages from GitHub.
+The R-functions of this repository can be accessed as an R-package. The packages is not available via CRAN, instead you can install it directly from GitHub. The packages `remotes` and `devtools` contain functions for installing packages from GitHub (see example below). 
 
 ```
 library(remotes)
-remotes::install_github("HedvigS/rgrambank")
-library(rgrambank)
+remotes::install_github(repo = "HedvigS/rgrambank", ref = "v1.1.0")
 ```
 
-# Versioning
-
-The content here will be continuously updated and periodically released with version tags. Git allows for accessing the state of the repos at a particular time via commit labels or tags. This can be used when cloning or accessing content via URLs and when installing the package withing R. We _strongly_ encourage you to keep track of versioning, this makes it easier to identify issues later.
-
-```
-library(remotes)
-remotes::install_github("HedvigS/rgrambank", ref = "v1.0")
-library(rgrambank)
-```
+# Package versioning
+The content here is continuously updated and periodically released with version tags.  You are welcome to install the most recent version that exists on GitHub by just running `remotes::install_github(repo = "HedvigS/rgrambank")`. However, if you want to be more precise with versioning, you can use the tags (as with `v1.1.0` above) or an even a specific commit Secure Hash Algorithm (e.g. `remotes::install_github("HedvigS/rgrambank", ref = "84bdef7fd7df70f5a6fcdcb6699d52b311548003")`).  We _strongly_ encourage you to keep track of versioning, this makes it easier to identify issues later and makes your code more reproducible.
 
 ## Structure of content
 Within this repository, functions are found in the directory `R` and examples in `example_scripts`. The directory `example_scripts` contain `R`-scripts which illustrate sepcific functions. For example, the script `example_scripts/binarise.R` showcases the functions `rgrambank::make_binary_ParameterTable`and `rgrambank::make_binary_ValueTable`. This README contains a list of all the functions, linked to example scripts and with details on who wrote the function and who reviewed it. In order to run the example scripts you need to set your working directory to `example_scripts`, as this is how the file-paths to `R` and `fixed` are set up. The example scripts also rely on the package [rcldf by Simon Greenhill](https://github.com/SimonGreenhill/rcldf) for fetching Grambank and Glottobank-datasets.
