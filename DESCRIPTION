@@ -3,19 +3,19 @@ Title: Assorted functions for handling language data, in particular Grambank and
 Version: 1.1.1
 Encoding: UTF-8
 Authors@R: c(
-    person(given = "Hedvig",   family = "Skirgård",     role = c("aut", "cre"), email = "hedvig.public@gmail.com", comment = c(ORCID = "0000-0002-7748-2381")),
-    person(given = "Sam",      family = "Passmore",     role = c("aut", "ctb")),
-    person(given = "Enock",    family = "Appiah Tieku", role = c("aut", "rev")),
-    person(given = "Stephen Francis",  family = "Mann",         role = c("aut", "rev")),
-    person(given = "Clemens",  family = "Schmid",       role = c("aut", "rev", "ctb"), comment = c(ORCID = "0000-0003-3448-5715")),
-    person(given = "Taras",    family = "Zakharko",     role = c("aut", "ctb")),
-    person(given = "Anna",     family = "Graff",        role = c("aut", "ctb")),
-    person(given = "Angela",   family = "Chira",        role = c("aut", "ctb")),
-    person(given = "Michael",     family = "Muthukrishna",     role = c("aut","ctb")),
-    person(given = "Adrian Viliami",   family = "Bell",        role = c("aut","ctb")),
-    person(given = "Alexander",   family = "Gedranovich",      role = c("aut","ctb")),
-    person(given = "Jason",       family = "McInerney",        role = c("aut","ctb")),
-    person(given = "Braden",      family = "Thue",             role = c("aut","ctb"))
+    person(given = "Hedvig",      family = "Skirgård",      role = c("aut", "cre"), email = "hedvig.public@gmail.com", comment = c(ORCID = "0000-0002-7748-2381")),
+    person(given = "Sam",         family = "Passmore",      role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-5302-356X")),
+    person(given = "Enock",       family = "Appiah Tieku",  role = c("aut", "rev"), comment = c(ORCID = "0000-0003-0766-366X")),
+    person(given = "Stephen Francis",  family = "Mann",     role = c("aut", "rev"), comment = c(ORCID = "0000-0002-4136-8595")),
+    person(given = "Clemens",     family = "Schmid",        role = c("aut", "rev", "ctb"), comment = c(ORCID = "0000-0003-3448-5715")),
+    person(given = "Taras",       family = "Zakharko",      role = c("aut", "ctb"), comment = c(ORCID = "0000-0001-7601-8424")),
+    person(given = "Anna",        family = "Graff",         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-7703-3471")),
+    person(given = "Angela",      family = "Chira",         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-2964-7583")),
+    person(given = "Michael",     family = "Muthukrishna",  role = c("aut","ctb"), comment =c(ORCID = "0000-0002-7079-5166")),
+    person(given = "Adrian Viliami",   family = "Bell",     role = c("aut","ctb")),
+    person(given = "Alexander",   family = "Gedranovich",   role = c("aut","ctb")),
+    person(given = "Jason",       family = "McInerney",     role = c("aut","ctb")),
+    person(given = "Braden",      family = "Thue",          role = c("aut","ctb"))
 
     )
 Description: Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder "example_scripts" for examples for all functions.
@@ -25,18 +25,18 @@ Depends:
 Date: 2026-08-06
 Imports:
     ape (>= 5.8-1),
-    dplyr(>= 1.1.4),
+    dplyr (>= 1.1.4),
     fields (>= 17.1),
     ggplot2 (>= 4.0.1),
     rlang (>= 1.1.6),
     stringr (>= 1.5.1),
-    testthat (>= 3.2.2),
     tidyr (>= 1.3.1)
 Suggests:
     rcldf (>= 1.4.0),
+    testthat (>= 3.2.2),
     densify (>= 0.0.0.9000)
 RoxygenNote: 7.3.2
 Remotes:
-    github::annagraff/densify,
-    github::SimonGreenhill/rcldf
+    annagraff/densify,
+    SimonGreenhill/rcldf
 Config/testthat/edition: 3
