@@ -3,3 +3,4 @@
 ^\.github$
 ^example_scripts$
 ^rgrambank\.pdf$
+^data-raw$
