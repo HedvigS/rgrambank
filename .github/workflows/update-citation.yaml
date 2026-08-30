@@ -18,7 +18,7 @@ jobs:
           needs: check
 
       - name: Update CITATION
-        run: Rscript data-raw/update_citation.R
+        run: Rscript data-raw/update_CITATION.R
 
       - name: Commit and push CITATION
         run: |
