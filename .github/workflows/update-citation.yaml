@@ -2,29 +2,28 @@ name: Update CITATION
 
 on:
   push:
-  branches: [main, master]
+    branches: [main, master]
 
 jobs:
   update-citation:
-  runs-on: ubuntu-latest
-steps:
-  - uses: actions/checkout@v4
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-- uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-r@v2
 
-- uses: r-lib/actions/setup-r-dependencies@v2
-with:
-  extra-packages: any::glue
-needs: check
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::glue
+          needs: check
 
-- name: Update CITATION
-run: Rscript data-raw/update_citation.R
-# adjust path to wherever your script lives
+      - name: Update CITATION
+        run: Rscript data-raw/update_citation.R
 
-- name: Commit and push CITATION
-run: |
-  git config --local user.email "actions@github.com"
-git config --local user.name "GitHub Actions"
-git add inst/CITATION
-git diff --staged --quiet || git commit -m "Auto-update CITATION [skip ci]"
-git push
+      - name: Commit and push CITATION
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add inst/CITATION
+          git diff --staged --quiet || git commit -m "Auto-update CITATION [skip ci]"
+          git push
