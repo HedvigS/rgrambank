@@ -1,18 +1,25 @@
 bibentry(
-  bibtype  = "Manual",
-  title    = "rgrambank: Assorted functions for handling language data, in particular
+  bibtype      = "Manual",
+  title        = "rgrambank: Assorted functions for handling language data, in particular
 Grambank and other CLDF-datasets",
-  author  = c(
-    person("Hedvig",   "Skirgård"),
-    person("Sam",      "Passmore"),
-    person("Enock",    "Appiah Tieku"),
-    person("Stephen",  "Mann"),
-    person("Clemens",  "Schmid"),
-    person("Taras",    "Zakharko"),
-    person("Anna",     "Graff"),
-    person("Angela",   "Chira")
+  author       = c(
+    person("Hedvig", "Skirgård"),
+    person("Sam", "Passmore"),
+    person("Enock", "Appiah Tieku"),
+    person("Stephen Francis", "Mann"),
+    person("Clemens", "Schmid"),
+    person("Taras", "Zakharko"),
+    person("Anna", "Graff"),
+    person("Angela", "Chira"),
+    person("Michael", "Muthukrishna"),
+    person("Adrian Viliami", "Bell"),
+    person("Alexander", "Gedranovich"),
+    person("Jason", "McInerney"),
+    person("Braden", "Thue")
   ),
-  year     = "2026",
-  url = "https://github.com/HedvigS/rgrambank",
-  doi      = "10.5281/zenodo.16915289"
+  year         = "2026",
+  note         = "R package dev version commit c7ae0d4",
+  url          = "https://github.com/HedvigS/rgrambank",
+  textVersion  = "Hedvig Skirgård, Sam Passmore, Enock Appiah Tieku, Stephen Francis Mann, Clemens Schmid, Taras Zakharko, Anna Graff, Angela Chira, Michael Muthukrishna, Adrian Viliami Bell, Alexander Gedranovich, Jason McInerney, Braden Thue. rgrambank: Assorted functions for handling language data, in particular
+Grambank and other CLDF-datasets. R package dev version commit c7ae0d4. https://github.com/HedvigS/rgrambank"
 )

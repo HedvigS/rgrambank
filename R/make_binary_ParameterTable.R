@@ -90,8 +90,7 @@ make_binary_ParameterTable<- function(ParameterTable,
 if(keep_native_binary == FALSE){
   
 ParameterTable <- ParameterTable |> 
-  dplyr::filter(!ID %in%  binarised_feats)
-  
+  dplyr::filter(!.data[["ID"]] %in% binarised_feats)
   }
 
 ParameterTable_new <- ParameterTable |>

@@ -15,11 +15,13 @@ Authors:
 \itemize{
   \item Sam Passmore [contributor]
   \item Enock Appiah Tieku [reviewer]
-  \item Stephen Mann [reviewer]
+  \item Stephen Francis Mann [reviewer]
   \item Clemens Schmid (\href{https://orcid.org/0000-0003-3448-5715}{ORCID}) [reviewer, contributor]
   \item Taras Zakharko [contributor]
   \item Anna Graff [contributor]
   \item Angela Chira [contributor]
+  \item Michael Muthukrishna [contributor]
+  \item Adrian Viliami Bell [contributor]
 }
 
 }
