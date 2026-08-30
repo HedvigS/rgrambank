@@ -45,9 +45,9 @@ bibentry(
   author       = {author_block},
   year         = "{format(Sys.Date(), "%Y")}",
   note         = "{note}",
-  url          = "https://github.com/HedvigS/rgrambank",
+  url          = "https://github.com/HedvigS/rgrambank, https://zenodo.org/records/16915290",
   textVersion  = "{author_string}. rgrambank: {meta$Title}. {note}. https://github.com/HedvigS/rgrambank"
 )
 ')
 
-writeLines(citation_content, con = "../inst/CITATION")
+writeLines(citation_content, con = "inst/CITATION")
