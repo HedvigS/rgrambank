@@ -7,10 +7,9 @@ meta$`Authors@R` <- trimws(meta$`Authors@R`)
 
 # Get SHA
 sha <- tryCatch(
-  substr(meta$RemoteSha, 1, 7),
+  substr(Sys.getenv("GITHUB_SHA"), 1, 7),
   error = function(e) NULL
 )
-
 # Build note
 note <- if (!is.null(sha)) {
   paste0("R package dev version commit ", sha)
