@@ -1,6 +1,9 @@
 library(glue)
 
-meta <- utils::packageDescription("rgrambank")
+meta <- read.dcf("DESCRIPTION", keep.white = TRUE)
+meta <- as.list(meta[1,])
+# Parse Authors@R which is stored as a string in the DCF
+meta$`Authors@R` <- trimws(meta$`Authors@R`)
 
 # Get SHA
 sha <- tryCatch(
