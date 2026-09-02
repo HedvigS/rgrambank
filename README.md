@@ -24,9 +24,20 @@ Detailed descriptions of the functions parameters and behaviour can be found in 
 
 The entire set of code of the Grambank release-paper and grambank-analysed was primarily written by Simon Greenhill, Sam Passmore, Hedvig Skirgård, Damián Blasi, Russell Dinnage, Hannah Haynie, Angela Chira and Luke Maurits. The functions here, in rgrambank, are primarily written by Hedvig Skirgård. Specific author(s) is/are specified for each function.
 
+# Internal function reviewing
+To make the package good and to prepare for submission to ROpenSci, we are asking package contributors and colleagues to review individual functions. The internal function review consists minimally of answering these questions:
 
-# Review
-The functions in this repos go through internal peer-review within the Department of Cultural and Linguistic Evolution at the Max Planck Insitute for Evolutionary Anthropology. The table below tracks which functions have been reviewed and by whom.
+* does the package [install](https://github.com/HedvigS/rgrambank/blob/main/README.md#installing-package) successfully on your machine?
+* does the given function do what the documentation says it does?
+* is the documentation lacking in some way?
+* does the function break in anyway under reasonable conditions (try out some different varieties of input that should work)?
+  * We are also developing unit-tests. Reviewers can use the unit-tests as inspiration for ways of breaking the function. [Here are the basic data-frames](https://github.com/HedvigS/rgrambank/blob/main/tests/testthat/helper-fixtures.R) that are used in the unit tests and [here is an example of a unit test](https://github.com/HedvigS/rgrambank/blob/main/tests/testthat/test-make_multistate_ValueTable.R). 
+ 
+For members of the Department of Linguistic and Cultural Evolution at the Max Planck Institute for Evolutionary Anthropology we are using [the existing internal code review system](https://github.com/dlce-eva/papers/blob/main/README.md) ([example](https://github.com/dlce-eva/papers/pull/17))). For other colleagues, we use [the GitHub issue system of this repos](https://github.com/HedvigS/rgrambank/issues).
+
+The table below tracks which functions have been reviewed and by whom.
+
+We really welcome feedback on this package and are very grateful for all people who contribute by function reviewing.
 
 # Functions
 
@@ -48,8 +59,6 @@ The functions in this repos go through internal peer-review within the Departmen
 | ❌| ❌| make_GBI| make GBI logical and GBI statistical as per Graff et al (in press) Curating global datasets of structural linguistic features for independence. Scientific Data  | [example_scripts/make_GBI.R](https://github.com/HedvigS/rgrambank/blob/main/example_scripts/make_GBI.R)|Original function: Anna Graff, Natalia Chousou-Polydouri, David Inman, Hedvig Skirgård, Marc Lischka, Taras Zakharko, Chiara Barbieri & Balthasar Bickel.  Adaptation for rgrambank: Hedvig Skirgård & Anna Graff | |
 | ❌ |❌| densify_GB| densifying GB or GBI | [example_scripts/make_GBI.R](https://github.com/HedvigS/rgrambank/blob/main/example_scripts/make_GBI.R)| Original function: Anna Graff Marc Lischka, Taras Zakharko, Richard Furrer & Balthasar Bickel.  adaptation for rgrambank: Hedvig Skirgård |  | 
 | ❌ |❌| CultureFst | Calculates Cultural Fixation Score à la Muthukrishna et al (2020) | |  Original function: Michael Muthukrishna, Adrian V. Bell, Joseph Henrich, Cameron M. Curtin, Alexander Gedranovich, Jason McInerney & Braden Thue. Adaptation for rgrambank: Hedvig Skirgård|  || 
-
-
 
 # Differences between grambank/grambank-analysed and HedvigS/rgrambank
 
