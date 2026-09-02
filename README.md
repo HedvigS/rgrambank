@@ -9,11 +9,11 @@ The R-functions of this repository can be accessed as an R-package. The packages
 
 ```
 library(remotes)
-remotes::install_github(repo = "HedvigS/rgrambank", ref = "v1.1.0")
+remotes::install_github(repo = "HedvigS/rgrambank")
 ```
 
-# Package versioning
-The content here is continuously updated and periodically released with version tags.  You are welcome to install the most recent version that exists on GitHub by just running `remotes::install_github(repo = "HedvigS/rgrambank")`. However, if you want to be more precise with versioning, you can use the tags (as with `v1.1.0` above) or an even a specific commit Secure Hash Algorithm (e.g. `remotes::install_github("HedvigS/rgrambank", ref = "84bdef7fd7df70f5a6fcdcb6699d52b311548003")`).  We _strongly_ encourage you to keep track of versioning, this makes it easier to identify issues later and makes your code more reproducible.
+## Package versioning
+The content here is continuously updated and periodically released with version tags.  You are welcome to install the most recent version that exists on GitHub by just running `remotes::install_github(repo = "HedvigS/rgrambank")`. However, if you want to be more precise with versioning, you can use tags (e.g. `remotes::install_github(repo = "HedvigS/rgrambank", ref = "v1.1.0")`) or an even a specific commit Secure Hash Algorithm (e.g. `remotes::install_github("HedvigS/rgrambank", ref = "84bdef7fd7df70f5a6fcdcb6699d52b311548003")`).  We _strongly_ encourage you to keep track of versioning, this makes it easier to identify issues later and makes your code more reproducible.
 
 ## Structure of content
 Within this repository, functions are found in the directory `R` and examples in `example_scripts`. The directory `example_scripts` contain `R`-scripts which illustrate sepcific functions. For example, the script `example_scripts/binarise.R` showcases the functions `rgrambank::make_binary_ParameterTable`and `rgrambank::make_binary_ValueTable`. This README contains a list of all the functions, linked to example scripts and with details on who wrote the function and who reviewed it. In order to run the example scripts you need to set your working directory to `example_scripts`, as this is how the file-paths to `R` and `fixed` are set up. The example scripts also rely on the package [rcldf by Simon Greenhill](https://github.com/SimonGreenhill/rcldf) for fetching Grambank and Glottobank-datasets.
