@@ -22,7 +22,9 @@ Detailed descriptions of the functions parameters and behaviour can be found in 
 
 # Who did what
 
-The entire set of code of the Grambank release-paper and grambank-analysed was primarily written by Simon Greenhill, Sam Passmore, Hedvig Skirgård, Damián Blasi, Russell Dinnage, Hannah Haynie, Angela Chira and Luke Maurits. The functions here, in rgrambank, are primarily written by Hedvig Skirgård. Specific author(s) is/are specified for each function.
+The entire set of code of the Grambank release-paper and grambank-analysed was primarily written by Simon Greenhill, Sam Passmore, Hedvig Skirgård, Damián Blasi, Russell Dinnage, Hannah Haynie, Angela Chira and Luke Maurits. The functions here in rgrambank are primarily adapted further by Hedvig Skirgård. Specific author(s) is/are specified for each function.
+
+We have also added a wrapper function for a function in [the densify-package](https://github.com/annagraff/densify), code from [Graff et al (2025)](https://doi.org/10.1038/s41597-024-04319-4) and [Muthukrishna et al (2010)](https://doi.org/10.1177/0956797620916) which is relevant to Grambank analysis. The original code authors are acknowledged in the documentation and we recommend users to cite the original papers when they use those functions (densify_GB, make_GBI & CultureFst respectively). 
 
 # Internal function reviewing
 To make the package good and to prepare for submission to ROpenSci, we are asking package contributors and colleagues to review individual functions. The internal function review consists minimally of answering these questions:
