@@ -1,7 +1,6 @@
 bibentry(
   bibtype      = "Manual",
-  title        = "rgrambank: Assorted functions for handling language data, in particular
-Grambank and other CLDF-datasets",
+  title        = "rgrambank: Assorted functions for handling language data, in particular Grambank and other CLDF-datasets",
   author       = c(
     person("Hedvig", "Skirgård"),
     person("Sam", "Passmore"),
@@ -15,11 +14,11 @@ Grambank and other CLDF-datasets",
     person("Adrian Viliami", "Bell"),
     person("Alexander", "Gedranovich"),
     person("Jason", "McInerney"),
-    person("Braden", "Thue")
+    person("Braden", "Thue"),
+    person("Cameron M.", "Curtin")
   ),
   year         = "2026",
-  note         = "R package dev version commit c7ae0d4",
-  url          = "https://github.com/HedvigS/rgrambank",
-  textVersion  = "Hedvig Skirgård, Sam Passmore, Enock Appiah Tieku, Stephen Francis Mann, Clemens Schmid, Taras Zakharko, Anna Graff, Angela Chira, Michael Muthukrishna, Adrian Viliami Bell, Alexander Gedranovich, Jason McInerney, Braden Thue. rgrambank: Assorted functions for handling language data, in particular
-Grambank and other CLDF-datasets. R package dev version commit c7ae0d4. https://github.com/HedvigS/rgrambank"
+  note         = "R package dev version commit bd9f40f (2026-09-07)",
+  url          = "https://github.com/HedvigS/rgrambank, https://zenodo.org/records/16915290",
+  textVersion  = "Hedvig Skirgård, Sam Passmore, Enock Appiah Tieku, Stephen Francis Mann, Clemens Schmid, Taras Zakharko, Anna Graff, Angela Chira, Michael Muthukrishna, Adrian Viliami Bell, Alexander Gedranovich, Jason McInerney, Braden Thue, Cameron M. Curtin (2026) rgrambank: Assorted functions for handling language data, in particular Grambank and other CLDF-datasets. R package dev version commit bd9f40f (2026-09-07). https://github.com/HedvigS/rgrambank"
 )
