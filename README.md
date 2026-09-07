@@ -1,4 +1,4 @@
-<img src="https://github.com/HedvigS/R_grambank_cookbook/assets/5327845/c666415a-4e8a-4be1-81f5-4ed29db62cb0" width="300" height="300">
+<img width="456" height="465" alt="rgrambank logo-2" src="https://github.com/user-attachments/assets/f199c9a2-3d8c-43f8-bdbd-5eb882ba91f0" />
 
 # What this is
 
