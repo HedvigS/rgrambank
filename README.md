@@ -33,11 +33,11 @@ To make the package good and to prepare for submission to ROpenSci, we are askin
 * does the given function do what the documentation says it does?
 * is the documentation lacking in some way?
 * does the function break in anyway under reasonable conditions (try out some different varieties of input that should work)?
-  * We are also developing unit-tests. Reviewers can use the unit-tests as inspiration for ways of breaking the function. [Here are the basic data-frames](https://github.com/HedvigS/rgrambank/blob/main/tests/testthat/helper-fixtures.R) that are used in the unit tests and [here is an example of a unit test](https://github.com/HedvigS/rgrambank/blob/main/tests/testthat/test-make_multistate_ValueTable.R). 
- 
-For members of the Department of Linguistic and Cultural Evolution at the Max Planck Institute for Evolutionary Anthropology we are using [the existing internal code review system](https://github.com/dlce-eva/papers/blob/main/README.md) ([example](https://github.com/dlce-eva/papers/pull/17))). For other colleagues, we use [the GitHub issue system of this repos](https://github.com/HedvigS/rgrambank/issues).
+  * We are also developing unit-tests. Reviewers can use existing unit-tests as inspiration for ways of testing the limits of the function. [Here are the basic data-frames](https://github.com/HedvigS/rgrambank/blob/main/tests/testthat/helper-fixtures.R) that are used in the unit tests and [here is an example of a unit test](https://github.com/HedvigS/rgrambank/blob/main/tests/testthat/test-make_multistate_ValueTable.R). 
 
-The table below tracks which functions have been reviewed and by whom.
+The table below tracks which functions have been reviewed and by whom. **If you want to volunteer to review a function, we would welcome that heartily!** Start by filing an [issue](https://github.com/HedvigS/rgrambank/issues) here saying what function you are targeting and your name, that way we can mark it as ongoing review (🟡) in the table of functions below. 
+ 
+For members of the Department of Linguistic and Cultural Evolution at the Max Planck Institute for Evolutionary Anthropology we are using [the existing internal code review system](https://github.com/dlce-eva/papers/blob/main/README.md) ([example](https://github.com/dlce-eva/papers/pull/17))). For other colleagues and friends, we use [the GitHub issue system of this repos](https://github.com/HedvigS/rgrambank/issues). 
 
 We really welcome feedback on this package and are very grateful for all people who contribute by function reviewing.
 
