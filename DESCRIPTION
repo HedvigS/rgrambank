@@ -3,20 +3,20 @@ Title: Assorted functions for handling language data, in particular Grambank and
 Version: 1.1.1
 Encoding: UTF-8
 Authors@R: c(
-    person(given = "Hedvig",      family = "Skirgård",      role = c("aut", "cre"), email = "hedvig.public@gmail.com", comment = c(ORCID = "0000-0002-7748-2381")),
-    person(given = "Sam",         family = "Passmore",      role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-5302-356X")),
-    person(given = "Enock",       family = "Appiah Tieku",  role = c("aut", "rev"), comment = c(ORCID = "0000-0003-0766-366X")),
-    person(given = "Stephen Francis",  family = "Mann",     role = c("aut", "rev"), comment = c(ORCID = "0000-0002-4136-8595")),
-    person(given = "Clemens",     family = "Schmid",        role = c("aut", "rev", "ctb"), comment = c(ORCID = "0000-0003-3448-5715")),
-    person(given = "Taras",       family = "Zakharko",      role = c("aut", "ctb"), comment = c(ORCID = "0000-0001-7601-8424")),
-    person(given = "Anna",        family = "Graff",         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-7703-3471")),
-    person(given = "Angela",      family = "Chira",         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-2964-7583")),
-    person(given = "Michael",     family = "Muthukrishna",  role = c("aut","ctb"), comment =c(ORCID = "0000-0002-7079-5166")),
-    person(given = "Adrian Viliami",   family = "Bell",     role = c("aut","ctb")),
-    person(given = "Alexander",   family = "Gedranovich",   role = c("aut","ctb")),
-    person(given = "Jason",       family = "McInerney",     role = c("aut","ctb")),
+    person(given = "Hedvig",      family = "Skirgård",      role = c("aut", "cre"), email = "hedvig.public@gmail.com", comment = c(ORCID = "0000-0002-7748-2381", github = "HedvigS")),
+    person(given = "Sam",         family = "Passmore",      role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-5302-356X", github = "SamPassmore")),
+    person(given = "Enock",       family = "Appiah Tieku",  role = c("aut", "rev"), comment = c(ORCID = "0000-0003-0766-366X", github = "enockappiahtieku")),
+    person(given = "Stephen Francis",  family = "Mann",     role = c("aut", "rev"), comment = c(ORCID = "0000-0002-4136-8595", github = "stephenfmann")),
+    person(given = "Clemens",     family = "Schmid",        role = c("aut", "rev", "ctb"), comment = c(ORCID = "0000-0003-3448-5715", github = "nevrome")),
+    person(given = "Taras",       family = "Zakharko",      role = c("aut", "ctb"), comment = c(ORCID = "0000-0001-7601-8424",     github = "tzakharko")),
+    person(given = "Anna",        family = "Graff",         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-7703-3471",     github = "annagraff")),
+    person(given = "Angela",      family = "Chira",         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-2964-7583",     github = "angela-mc")),
+    person(given = "Michael",     family = "Muthukrishna",  role = c("aut","ctb"), comment =c(ORCID = "0000-0002-7079-5166",       github = "muthukrishna")),
+    person(given = "Adrian Viliami",   family = "Bell",     role = c("aut","ctb"), comment = c(github = "avbell")),
+    person(given = "Alexander",   family = "Gedranovich",   role = c("aut","ctb"), comment = c(github = "redmode")),
+    person(given = "Jason",       family = "McInerney",     role = c("aut","ctb"), comment = c(github = "wwwslinger")),
     person(given = "Braden",      family = "Thue",          role = c("aut","ctb")),
-    person(given = "Cameron M.",  family = "Curtin",        role = c("aut","ctb")))
+    person(given = "Cameron M.",  family = "Curtin",        role = c("aut","ctb"), comment = c(github = "cmcurtin")))
 Description: Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder "example_scripts" for examples for all functions.
 License: Apache License (>= 2)
 Depends: 
