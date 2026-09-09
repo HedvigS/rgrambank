@@ -10,8 +10,8 @@
 #'
 #' @param ValueTable data-frame. Grambank ValueTable.
 #' @param verbose logical. If TRUE, function reports more information to console while running, such as reports progress and any clashes between multistate and native binary feature codings. If FALSE, runs silently.
-#' @param recode_patterns_full data-frame of recoding patterns from Graff et al (2025). Can be found at https://github.com/HedvigS/rgrambank/raw/refs/heads/main/example_scripts/fixed/feature-recode-patterns.csv
-#' @param all_decisions data-frame of recoding decisions from Graff et al (2025). Can be found at   https://raw.githubusercontent.com/HedvigS/rgrambank/refs/heads/main/example_scripts/fixed/decisions-log.csv
+#' @param recode_patterns_full data-frame of recoding patterns from Graff et al (2025). Can be found at "https://raw.githubusercontent.com/annagraff/crossling-curated/0e8695e176044f268b7d8c1ac012061b7bf1b343/scripts/GBI/feature-recode-patterns.csv"
+#' @param all_decisions data-frame of recoding decisions from Graff et al (2025). Can be found at   "https://raw.githubusercontent.com/annagraff/crossling-curated/0e8695e176044f268b7d8c1ac012061b7bf1b343/scripts/GBI/decisions-log.csv"
 #' @references Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence. Scientific Data 12:106 https://doi.org/10.1038/s41597-024-04319-4
 #' @author Original GBI code: Anna Graff, Natalia Chousou-Polydouri, David Inman, Hedvig Skirgård, Marc Lischka, Taras Zakharko, Chiara Barbieri & Balthasar Bickel. Wrapper function: Anna Graff and Hedvig Skirgård.
 #' @export
