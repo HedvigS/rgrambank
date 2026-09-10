@@ -1,7 +1,7 @@
 #' Makes a version of the Grambank ParameterTable with information on binarised features
 #' @param ParameterTable data-frame, long format. ParameterTable from cldf.
 #' @param keep_multi_state_features logical. If TRUE, rows with the multistate version of the features remain, if FALSE only binary or binarised features remain in the ParameterTable.
-#' @param keep_native_binary logical vector. If ParameterTable already contains binary features, should these be kept? If so, the function just feeds back the same ParameterTable that it received. This is mainly useful for backwards compatability (applying scripts meant for Grambank version 1 to version 2).
+#' @param keep_native_binary logical. If ParameterTable already contains binary features, should these be kept? If so, the function just feeds back the same ParameterTable that it received. This is mainly useful for backwards compatability (applying scripts meant for Grambank version 1 to version 2).
 #' @author Hedvig Skirgård
 #' @return data-frame of ParameterTable with added rows for binarised version of multi-state features
 #' @export
@@ -69,7 +69,7 @@ make_binary_ParameterTable<- function(ParameterTable,
              "Is the order of the adnominal property word (ANM) and noun ANM-N?",
              "Is the order of the adnominal property word (ANM) and noun N-ANM?",
              "Is the order of the adnominal collective universal quantifier (UQ) and noun UQ-N?",
-             "Is the order of the adnominal collective universal quantifier (UQ) and noun N-QU?" ),
+             "Is the order of the adnominal collective universal quantifier (UQ) and noun N-UQ?" ),
 
     "Word_Order_binary"= c(
         0,
@@ -88,7 +88,6 @@ make_binary_ParameterTable<- function(ParameterTable,
     Binary_Multistate = c("Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised","Binarised"))
 
 if(keep_native_binary == FALSE){
-  
 ParameterTable <- ParameterTable |> 
   dplyr::filter(!.data[["ID"]] %in% binarised_feats)
   }
@@ -103,19 +102,20 @@ ParameterTable_new <- ParameterTable |>
     dplyr::mutate(Word_Order = ifelse(!is.na(.data[["Word_Order_binary"]]), 
                                       yes = .data[["Word_Order_binary"]], 
                                       no = .data[["Word_Order"]])) |>
-    dplyr::select(-c("ID_binary", "Name_binary", "Grambank_ID_desc_binary", "Word_Order_binary")) |>
-    dplyr::mutate(Binary_Multistate= ifelse(.data[["ID"]] %in% multistate_features, 
-                                                  yes = "Multi", 
-                                                  no= .data[["Binary_Multistate"]])) |>
-    dplyr::mutate(Binary_Multistate = ifelse(is.na(.data[["Binary_Multistate"]]), 
-                                             yes = "Binary", 
-                                             no =.data[["Binary_Multistate"]]))
+    dplyr::select(-c("ID_binary", "Name_binary", "Grambank_ID_desc_binary", "Word_Order_binary")) 
   }
 
 if(keep_multi_state_features == FALSE){
 ParameterTable_new <-     ParameterTable_new |>
     dplyr::filter(!(.data[["ID"]] %in% multistate_features))
 }
+    
+if(keep_multi_state_features == TRUE){
+      ParameterTable_new <-     ParameterTable |>
+        dplyr::filter((.data[["ID"]] %in% multistate_features)) |> 
+        dplyr::full_join(ParameterTable_new, by = join_by(ID, Name, Description, ColumnSpec, Patrons, Grambank_ID_desc, Boundness, Flexivity,
+                                                          Gender_or_Noun_Class, Locus_of_Marking, Word_Order, Informativity))
+    }
   
 # there can be two binary rows for the same feature, e.g. GB024a. This removes that issue
     if(any(duplicated(ParameterTable_new[["ID"]]))
@@ -125,7 +125,15 @@ ParameterTable_new <-     ParameterTable_new |>
       dplyr::filter(!(dplyr::n() > 1 & .data[["Binary_Multistate"]] == "Binarised")) |>
       dplyr::ungroup()
     
-  }
-  
-ParameterTable_new
+    }
+    
+    # add information about being binary, multistate or binarised 
+    ParameterTable_new <- ParameterTable_new |>
+      dplyr::mutate(Binary_Multistate= ifelse(.data[["ID"]] %in% multistate_features, 
+                                              yes = "Multistate", 
+                                              no= .data[["Binary_Multistate"]])) |>
+      dplyr::mutate(Binary_Multistate = ifelse(is.na(.data[["Binary_Multistate"]]), 
+                                               yes = "Binary", 
+                                               no =.data[["Binary_Multistate"]]))
+return(ParameterTable_new)
 }
