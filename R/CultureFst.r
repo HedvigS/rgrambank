@@ -112,7 +112,7 @@ if(is.data.frame(ValueTable_long)){
   loci = ValueTable_long$Parameter_ID |> unique()
 }
   
-# The original function used the argument type which was a named vector. In the rgrambank version, users can set type to just one value (0 or 1) if all loci/features are of the same type. The named vector is then created. The old behaviour is preserved, users can still give a named vector for type.
+# The original function used the argument "type" which was a named vector of the same length as number of features to compare over (loci). In the rgrambank version, users can set type to just one value (0 or 1) if all loci/features are of the same type. The named vector is then created. The old behaviour is preserved, users can still give a named vector for type.
 
   if(is.null(type)){
   stop("'type' needs to be defined.")
@@ -160,12 +160,7 @@ if(is.data.frame(ValueTable_long)){
   
   
 if(is.null(d)){
-  
-#  d <- ValueTable_long |> 
-#    dplyr::left_join(PopTable, by = "ID") |> 
-#    tidyr::pivot_wider(names_from = "Parameter_ID", values_from = "Value") |> 
-#    dplyr::select(-ID)
- 
+
   # merge ValueTable_long and PopTable
   merged <- merge(ValueTable_long, PopTable, by = "ID", all.x = TRUE)
   
@@ -187,7 +182,18 @@ if(is.null(d)){
   d <- as.matrix(d)
 }
   
- 
+  
+counts_per_pop <- table(d[,1])
+  
+  if(any(counts_per_pop < 2)){
+    small_pops <- names(counts_per_pop[counts_per_pop < 2])
+    stop(
+      "The following population(s) have fewer than 2 members and therefore cannot be used for calculating Fst: ",
+      paste(small_pops, collapse = ", "),
+      ". Please remove these populations, or reassign the observations to a different group."
+    )
+  }
+  
   # ------- function to compute an Fst for a single trait ----------
   Fst.loci = function( d, l ){
     # d is the data matrix
