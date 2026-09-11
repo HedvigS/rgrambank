@@ -15,7 +15,7 @@ Authors@R: c(
     person(given = "Adrian Viliami",   family = "Bell",     role = c("aut","ctb"), comment = c(github = "avbell")),
     person(given = "Alexander",   family = "Gedranovich",   role = c("aut","ctb"), comment = c(github = "redmode")),
     person(given = "Jason",       family = "McInerney",     role = c("aut","ctb"), comment = c(github = "wwwslinger")),
-    person(given = "Braden",      family = "Thue",          role = c("aut","ctb")),
+    person(given = "Braden",      family = "Thue",          role = c("aut","ctb"), comment = c(github = "wwwslinger")),
     person(given = "Cameron M.",  family = "Curtin",        role = c("aut","ctb"), comment = c(github = "cmcurtin")))
 Description: Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder "example_scripts" for examples for all functions.
 License: Apache License (>= 2)
