@@ -1,9 +1,9 @@
 #' Calculates Cultural fixation scores, as specified in Muthukrishna et al (2020)
 #'
 #' @param d a NxM matrix of N observations for M traits, the first column must consist of population names; columns are given "trait" names, within which are variants of each trait. If d is not defined, ValueTable_long  and PopTable need to be defined
-#' @param ValueTable_long dataframe with columns ID, Parameter_ID and Value. If ValueTable_long is defined, d must be NULL
+#' @param ValueTable_long dataframe with columns ID, Parameter_ID and Value. If ValueTable_long is defined, d and loci must be NULL
 #' @param PopTable dataframe with columns ID and Pop_ID. If PopTable is defined, d must be NULL
-#' @param loci character vector that name the traits for which the fst is to be computed
+#' @param loci character vector that name the traits for which the fst is to be computed. 'loci' must be NULL when 'ValueTable_long' is provided. loci are derived from 'ValueTable_long' directly if it is supplied.
 #' @param type Either a numeric vector of length 1 (0 = discrete/categorical, 1 = quantiatative/ordinal) or a named numeric vector of the same length as "loci" (or number of unique values in Parameter_ID in ValueTable_long) indicating what type of each trait it is. If the argument is of length 1, that type will be applied to all loci. If the argument is longer than 1, note that the names of the vector must be the vector loci, i.e. make sure that row.names(type) <- loci
 #' @param bootstrap logical, if TRUE, telling the program to compute bootstrapped standard errors and confidence intervals
 #' @param no.samples numeric vector of length 1. Number of resamples in the bootstrap. Default is 100. Only used if bootstrap is TRUE.
@@ -43,14 +43,19 @@ CultureFst <- function(d = NULL,
   
   #the original function had the arguments d and loci. Users of the package rgrambank are likely more familiar with using long ValueTables and additional tables for information such as groups/populations. The function has been modified so that users can supply ValueTable_long and PopTable instead of d and loci. The function then renders d and loci correctly from those arguments. The old functionality is still preserved, users can us d and loci as before.
     
-  if (is.null(d) && (is.null(ValueTable_long ) || is.null(PopTable))) {
+if ((is.null(d) || is.null(loci)) && (is.null(ValueTable_long) || is.null(PopTable))) {
     stop(
-      "Either 'd' must be provided, or both 'ValueTable_long ' and 'PopTable' must be provided."
+      "Either 'd' and 'loci' must be provided, or both 'ValueTable_long ' and 'PopTable' must be provided."
     )
   }
   
   if (!is.null(d) && !is.matrix(d)) {
     stop("'d' must be a matrix.")
+  }
+  
+  
+  if (!is.null(d) && anyNA(d[, 1])) {
+    stop("The first column in 'd' cannot have NAs.")
   }
   
   if (!is.null(ValueTable_long ) && !is.data.frame(ValueTable_long )) {
@@ -59,6 +64,10 @@ CultureFst <- function(d = NULL,
   
   if (!is.null(PopTable) && !is.data.frame(PopTable)) {
     stop("'PopTable' must be a data frame.")
+  }
+  
+  if (!is.null(PopTable) && anyNA(PopTable$Pop_ID)) {
+    stop("The column 'Pop_ID' in 'PopTable' cannot contain NAs.")
   }
   
   # If ValueTable is provided, loci must be NULL
