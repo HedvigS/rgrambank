@@ -113,8 +113,7 @@ ParameterTable_new <-     ParameterTable_new |>
 if(keep_multi_state_features == TRUE){
       ParameterTable_new <-     ParameterTable |>
         dplyr::filter((.data[["ID"]] %in% multistate_features)) |> 
-        dplyr::full_join(ParameterTable_new, by = join_by(ID, Name, Description, ColumnSpec, Patrons, Grambank_ID_desc, Boundness, Flexivity,
-                                                          Gender_or_Noun_Class, Locus_of_Marking, Word_Order, Informativity))
+        dplyr::full_join(ParameterTable_new, by = c("ID", "Name", "Description", "ColumnSpec", "Patrons", "Grambank_ID_desc", "Boundness", "Flexivity",  "Gender_or_Noun_Class", "Locus_of_Marking", "Word_Order", "Informativity"))
     }
   
 # there can be two binary rows for the same feature, e.g. GB024a. This removes that issue
