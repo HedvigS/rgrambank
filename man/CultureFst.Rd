@@ -19,11 +19,11 @@ CultureFst(
 \arguments{
 \item{d}{a NxM matrix of N observations for M traits, the first column must consist of population names; columns are given "trait" names, within which are variants of each trait. If d is not defined, ValueTable_long  and PopTable need to be defined}
 
-\item{ValueTable_long}{dataframe with columns ID, Parameter_ID and Value. If ValueTable_long is defined, d must be NULL}
+\item{ValueTable_long}{dataframe with columns ID, Parameter_ID and Value. If ValueTable_long is defined, d and loci must be NULL}
 
 \item{PopTable}{dataframe with columns ID and Pop_ID. If PopTable is defined, d must be NULL}
 
-\item{loci}{character vector that name the traits for which the fst is to be computed}
+\item{loci}{character vector that name the traits for which the fst is to be computed. 'loci' must be NULL when 'ValueTable_long' is provided. loci are derived from 'ValueTable_long' directly if it is supplied.}
 
 \item{type}{Either a numeric vector of length 1 (0 = discrete/categorical, 1 = quantiatative/ordinal) or a named numeric vector of the same length as "loci" (or number of unique values in Parameter_ID in ValueTable_long) indicating what type of each trait it is. If the argument is of length 1, that type will be applied to all loci. If the argument is longer than 1, note that the names of the vector must be the vector loci, i.e. make sure that row.names(type) <- loci}
 

@@ -9,19 +9,23 @@
 Selection of functions related to the cross-linguistic dataset Grambank. Some functions are also useful for other linguistic datasets. See README.md for more details and see the folder "example_scripts" for examples for all functions.
 }
 \author{
-\strong{Maintainer}: Hedvig Skirgård \email{hedvig.public@gmail.com} (\href{https://orcid.org/0000-0002-7748-2381}{ORCID})
+\strong{Maintainer}: Hedvig Skirgård \email{hedvig.public@gmail.com} (\href{https://orcid.org/0000-0002-7748-2381}{ORCID}) (HedvigS)
 
 Authors:
 \itemize{
-  \item Sam Passmore [contributor]
-  \item Enock Appiah Tieku [reviewer]
-  \item Stephen Francis Mann [reviewer]
-  \item Clemens Schmid (\href{https://orcid.org/0000-0003-3448-5715}{ORCID}) [reviewer, contributor]
-  \item Taras Zakharko [contributor]
-  \item Anna Graff [contributor]
-  \item Angela Chira [contributor]
-  \item Michael Muthukrishna [contributor]
-  \item Adrian Viliami Bell [contributor]
+  \item Sam Passmore (\href{https://orcid.org/0000-0002-5302-356X}{ORCID}) (SamPassmore) [contributor]
+  \item Enock Appiah Tieku (\href{https://orcid.org/0000-0003-0766-366X}{ORCID}) (enockappiahtieku) [reviewer]
+  \item Stephen Francis Mann (\href{https://orcid.org/0000-0002-4136-8595}{ORCID}) (stephenfmann) [reviewer]
+  \item Clemens Schmid (\href{https://orcid.org/0000-0003-3448-5715}{ORCID}) (nevrome) [reviewer, contributor]
+  \item Taras Zakharko (\href{https://orcid.org/0000-0001-7601-8424}{ORCID}) (tzakharko) [contributor]
+  \item Anna Graff (\href{https://orcid.org/0000-0002-7703-3471}{ORCID}) (annagraff) [contributor]
+  \item Angela Chira (\href{https://orcid.org/0000-0002-2964-7583}{ORCID}) (angela-mc) [contributor]
+  \item Michael Muthukrishna (\href{https://orcid.org/0000-0002-7079-5166}{ORCID}) (muthukrishna) [contributor]
+  \item Adrian Viliami Bell (avbell) [contributor]
+  \item Alexander Gedranovich (redmode) [contributor]
+  \item Jason McInerney (wwwslinger) [contributor]
+  \item Braden Thue (brrraden) [contributor]
+  \item Cameron M. Curtin (cmcurtin) [contributor]
 }
 
 }

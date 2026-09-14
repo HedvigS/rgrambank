@@ -11,6 +11,7 @@ densify_GB(
   verbose = TRUE,
   min_variability = 3,
   density_mean = "log_odds",
+  multiple = "random",
   density_mean_weights = list(coding = 0.999, taxonomy = 1),
   random_seed = 1111,
   limits = list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA),
@@ -31,9 +32,11 @@ densify_GB(
 
 \item{density_mean}{parameter for densify::densify(). Defaults to log_odds}
 
+\item{multiple}{Character vector, either "warn", "first" or "random". This argument defines what to do if densify::prune finds multipe matches. Defaults to "random".}
+
 \item{density_mean_weights}{parameter for densify::densify() (defaults to list(coding = 0.999, taxonomy = 1))}
 
-\item{random_seed}{Integer}
+\item{random_seed}{Integer to defined random seed (some processes rely on randomness)}
 
 \item{limits}{list which defines lower bounds to aim for when pruning. Defaults to list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA).}
 
