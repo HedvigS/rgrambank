@@ -9,7 +9,8 @@
 #' @param density_mean_weights parameter for densify::densify() (defaults to list(coding = 0.999, taxonomy = 1))
 #' @param scoring_function character vector, either "n_data_points*coding_density*row_coding_density_min*taxonomic_index^3" or "n_data_points * coding_density". Other scoring_functions are currently not supported by wrapper function due to evaluation issues.
 #' @param limits list which defines lower bounds to aim for when pruning. Defaults to list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA).
-#' @param random_seed  Integer
+#' @param random_seed  Integer to defined random seed (some processes rely on randomness)
+#' @param multiple  Character vector, either "warn", "first" or "random". This argument defines what to do if densify::prune finds multipe matches. Defaults to "random".
 #' @note This is a Wrapper function for densify::densify and densify::prune tailored to Grambank data specifically, based on annagrawf/crossling-curated/blob/main/scripts/GBI/densify-datasets.R. The function requires the package densify, which can be installed like this: remotes::install_github("annagraff/densify"). The authors of the original densify package are: Anna Graff, Marc, Lischka, Taras Zakharko, Reinhard Furrer and Balthasar Bickel.
 #'@references Graff, A., Chousou-Polydouri, N., Inman, D., Skirgård, H., Lischka, M., Zakharko, T., Barbieri, C., and Bickel, B., (2025). Curating global datasets of structural linguistic features for independence. Scientific Data 12:106 https://doi.org/10.1038/s41597-024-04319-4
 #'@references Graff, A., Lischka, M., Zakharko, T., Furrer, R., & Bickel, B. (2024). densify: An R package to reduce empty cells in data frames of typological linguistic data. Journal of Open Source Software, 9(101), 7024.
@@ -21,6 +22,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
                        verbose = TRUE,
                        min_variability = 3,  # each variable must have at least 3 languages in its second-largest state
                        density_mean = "log_odds",
+                       multiple = "random",
                        density_mean_weights = list(coding = 0.999, taxonomy = 1),
                        random_seed = 1111,
                        limits = list(min_coding_density = 1, min_prop_rows = NA, min_prop_cols = NA),
@@ -135,10 +137,10 @@ densify_GB <- function(Grambank_ValueTable = NA,
     # string argument that needs to be dynamically evaluated as an expression 
     # inside densify::prune(). Direct passing of the string variable does not work.
       
-      logical_densified <- densify::prune(logical_log, 
+      logical_densified <- densify::prune(logical_log,  multiple = multiple,
                                           scoring_function = !!rlang::parse_expr(scoring_function))
       
-      statistical_densified <- densify::prune(statistical_log, 
+      statistical_densified <- densify::prune(statistical_log, multiple = multiple,
                                               scoring_function =  !!rlang::parse_expr(scoring_function))
     
     
@@ -207,7 +209,7 @@ densify_GB <- function(Grambank_ValueTable = NA,
     # string argument that needs to be dynamically evaluated as an expression 
     # inside densify::prune(). Direct passing of the string variable does not work.
     
-    Grambank_densified <- densify::prune(Grambank_ValueTable_log, 
+    Grambank_densified <- densify::prune(Grambank_ValueTable_log, multiple = multiple,
                                            scoring_function =  !!rlang::parse_expr(scoring_function))
       
   
