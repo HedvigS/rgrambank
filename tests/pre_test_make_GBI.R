@@ -11,8 +11,6 @@ if(!grepl("rgrambank/tests$", getwd())) {
   quit(save = "no")
 }
 
-return() # debug
-
 # fetching Grambank v1.0.3 from Zenodo using rcldf (requires internet)
 GB_rcldf_obj <- rcldf::cldf("https://zenodo.org/record/7844558/files/grambank/grambank-v1.0.3.zip", load_bib = F)
 
@@ -47,12 +45,12 @@ GBI <- rgrambank::make_GBI(ValueTable = Grambank_ValueTable, recode_patterns_ful
 # The language IDs are listed in Language_ID.
 # The GB091 values are listed in GB091.
 # So find hooo1248 in the Language_ID column and look at the corresponding GB091 value.
-print("This value should be 1: ")
-print(GBI$data_for_statsGBI[GBI$data_for_statsGBI$Language_ID == "hooo1248", "GB091"]) # Should be 1 as per https://grambank.clld.org/languages/hooo1248
+message("This value should be 1: ")
+message(GBI$data_for_statsGBI[GBI$data_for_statsGBI$Language_ID == "hooo1248", "GB091"]) # Should be 1 as per https://grambank.clld.org/languages/hooo1248
 
 # Now get GB123, should be 0.
-print("This value should be 0: ")
-print(GBI$data_for_statsGBI[GBI$data_for_statsGBI$Language_ID == "hooo1248", "GB123"]) # Should be 0 as per https://grambank.clld.org/languages/hooo1248
+message("This value should be 0: ")
+message(GBI$data_for_statsGBI[GBI$data_for_statsGBI$Language_ID == "hooo1248", "GB123"]) # Should be 0 as per https://grambank.clld.org/languages/hooo1248
 
 check_against_csv_logical  <- function(GBI, csv_path, test_count = 1) {
     # Check that GBI$logicalGBI matches the provided csv.
@@ -208,4 +206,4 @@ check_against_csv_statistical(GBI, "test_data/statisticalGBI.csv", test_count = 
 # Run against incorrect data, should find a mismatch
 check_against_csv_statistical(GBI, "test_data/statisticalGBI_incorrect.csv", test_count = 4)
 
-print("If mismatches were found for alya1239/GB027 and amri1238/GB024e, and there are no other mismatches, everything works as expected.")
+message("If mismatches were found for alya1239/GB027 and amri1238/GB024e, and there are no other mismatches, everything works as expected.")
