@@ -193,6 +193,12 @@ counts_per_pop <- table(d[,1])
       ". Please remove these populations, or reassign the observations to a different group."
     )
   }
+
+if(bootstrap  == FALSE && no.samples > 0){
+  message("Boostrap is set to FALSE, but no.samples is larger than 0. Boostrapping won't happen, no.samples will be ignored.")
+}
+
+
   
   # ------- function to compute an Fst for a single trait ----------
   Fst.loci = function( d, l ){
