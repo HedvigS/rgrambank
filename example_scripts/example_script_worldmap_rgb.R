@@ -3,11 +3,14 @@
 #install.packages("remotes", version = "2.4.2.1", repos = "http://cran.us.r-project.org")
 library(remotes)
 
-#remotes::install_github("Hedvigs/rgrambank",   ref = "ipac")
+#remotes::install_github("Hedvigs/rgrambank")
 library(rgrambank)
 
 #remotes::install_version("tidyverse", version = "2.0.0", repos = "http://cran.us.r-project.org")
 library(tidyverse)
+
+#remotes::install_version("GGally", version = "2.2.1", repos = "http://cran.us.r-project.org")
+library(GGally)
 
 #remotes::install_version("missForest", version = "1.5", repos = "http://cran.us.r-project.org")
 library(missForest)
@@ -25,7 +28,7 @@ library(mapproj)
 library(FactoMineR)
 
 #remotes::install_github("HedvigS/SH.misc")
-library(SH.misc)
+#library(SH.misc)
 
 if(!dir.exists("output")){dir.create("output")}
 if(!dir.exists("output/plots")){dir.create("output/plots")}
@@ -114,15 +117,23 @@ basemap_list  <- rgrambank::basemap_pacific_center(LongLatTable = LongLatTable, 
 
 #specifically to plot RGB we can't use mapping = aes() because we want to refer to the values themselves, not have ggplot then map them to colors on its own. Therefore we need to pass it the RGB vector outside of aes().
 map <- basemap_list$basemap +
-  geom_jitter(mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
+  ggplot2::geom_jitter(mapping = aes(x = Longitude, y = Latitude), 
+              color =  basemap_list$MapTable$RGB, 
+              fill =  basemap_list$MapTable$RGB, 
+              shape = 21,
+              size = 2, alpha = 0.7) +
+  ggplot2::ggtitle("Grambank v1: first three PCA mapped to RGB")
 
-ggsave(plot = map, filename = "output/plots/PCA_RGB_map.png", width = 10, height = 10)
+ggplot2::ggsave(plot = map, filename = "output/plots/PCA_RGB_map.png", width = 10, height = 10)
 
-p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
-  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2) +
-  ggtitle("Grambank v1: first three PCA mapped to RGB")
 
-ggsave(plot = p, filename = "output/plots/PCA_RGB_map_eez.png", width = 10, height = 10)
+### OPTIONAL: Plot with EEZ (exclusive economic zones) using work in progress package SH.misc ####
+
+#p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
+#  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2) +
+#  ggtitle("Grambank v1: first three PCA mapped to RGB")
+
+#ggplot2::ggsave(plot = p, filename = "output/plots/PCA_RGB_map_eez.png", width = 10, height = 10)
 
 
 #MCA
@@ -143,34 +154,59 @@ basemap_list  <- rgrambank::basemap_pacific_center(LongLatTable = LongLatTable, 
 
 #specifically to plot RGB we can't use mapping = aes() because we want to refer to the values themselves, not have ggplot then map them to colors on its own. Therefore we need to pass it the RGB vector outside of aes().
 map <- basemap_list$basemap +
-  geom_jitter(mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, size = 2)
+  ggplot2::geom_jitter(mapping = aes(x = Longitude, y = Latitude), 
+              color =  basemap_list$MapTable$RGB, 
+              fill =  basemap_list$MapTable$RGB, 
+              shape = 21,
+              size = 2, alpha = 0.7) +
+  ggplot2::ggtitle("Grambank v1: first three MCA mapped to RGB")
 
-p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
-  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, fill = basemap_list$MapTable$RGB, size = 2, alpha = 0.65, shape = 21, width= 2) +
-  ggtitle("  Grambank v1: first three MCA mapped to RGB")
-
-ggsave(plot = p, filename = "output/plots/MCA_RGB_map_eez.pdf", dpi = 400, units = "cm", height = 20, width = 30 )
+ggplot2::ggsave(plot = map, filename = "output/plots/MCA_RGB_map.png", width = 10, height = 10)
 
 
-######SPLOM time
 
-theo_scores_table <- rgrambank::make_theo_scores(ValueTable = ValueTable_binary , ParameterTable = ParameterTable, Fusion_option = "count_one_and_half") 
+
+
+### OPTIONAL: Plot with EEZ (exclusive economic zones) using work in progress package SH.misc ####
+
+#p <- SH.misc::basemap_EEZ(south = "down", colour_border_land = "white", colour_border_eez = "lightgray", padding = 0) +
+#  geom_jitter(data = basemap_list$MapTable, mapping = aes(x = Longitude, y = Latitude), color =  basemap_list$MapTable$RGB, fill = basemap_list$MapTable$RGB, size = 2, alpha = 0.65, shape = 21, width= 2) +
+#  ggtitle("  Grambank v1: first three MCA mapped to RGB")
+
+#ggplot2::ggsave(plot = p, filename = "output/plots/MCA_RGB_map_eez.pdf", dpi = 400, units = "cm", height = 20, width = 30 )
+
+
+######SPLOM time (compare PCA to MCA to theoretical scores)
+# theoretical scores in Grambank = https://github.com/grambank/grambank/wiki/Aggregate-metrics-derived-from-Grambank-data
+
+theo_scores_table <- rgrambank::make_theo_scores(ValueTable = ValueTable_binary , 
+                                                 ParameterTable = ParameterTable, Fusion_option = "count_one_and_half") 
 
 df <- GB_PCA$x |> 
   as.data.frame() |> 
   dplyr::select(PC1, PC2, PC3)   |>
   tibble::rownames_to_column("ID") |> 
-  full_join(theo_scores_table, by = c("ID" = "Language_ID")) |> 
-  left_join(MCA_df, by = "ID") |> 
+  dplyr::full_join(theo_scores_table, by = c("ID" = "Language_ID")) |> 
+  dplyr::left_join(MCA_df, by = "ID") |> 
   dplyr::select( "PC1"  , "PC2" ,  "PC3" ,  
                  "MC1" = "Dim 1" ,"MC2" = "Dim 2" ,"MC3" = "Dim 3", 
-                 "Word_Order"      ,     "Flexivity"     ,       "Gender_or_Noun_Class", "Locus_of_Marking"    ,"Fusion"      ,         "Informativity"  ) 
+                 "Word_Order"      ,     "Flexivity"     ,       "Gender_or_Noun_Class", "Locus_of_Marking"  ,"Fusion"      ,         "Informativity"  ) 
 
-set.seed(322444)
-p <- SH.misc::coloured_SPLOM(df = df, herringbone = T)
-p
 
-ggsave(plot = p, filename = "output/plots/GB_PCA_MCA_SPLOM_plus_theo.png", height = 14, width =14)
+GGally::ggpairs(df)
+
+
+
+### OPTIONAL: compare PCA and MCA and theoretical scores using work in progress SH.misc plotting function coloured SPLOM
+
+
+
+
+#set.seed(322444)
+#p <- SH.misc::coloured_SPLOM(df = df, herringbone = T)
+#p
+
+#ggplot2::ggsave(plot = p, filename = "output/plots/GB_PCA_MCA_SPLOM_plus_theo.png", height = 14, width =14)
 
 
 
