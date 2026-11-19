@@ -4,6 +4,7 @@
 #' @param keep_multistate logical vector. If FALSE,the multistate parent features of the binarised features are dropped, only binary and/or binarised features remain. If TRUE, they are kept alongside their binarised versions.
 #' @param keep_native_binary logical vector. If TRUE and if the ValueTable already contains some binarised features, they are kept. If false, they are overriden and replaced by values derived from the multi-state features. Note that native binary coding and binarised coding principally differs in terms of ? and 0 coding. See note.
 #' @param  trim_to_only_native_binary logical vector. If TRUE, multi-state features are dropped and not binarised.
+#' @param check_dups logical vector. If TRUE, function checks for duplicate rows for Language_ID and Parameter_ID. Should be set to FALSE if applied to datasets for inter-coder reliability checking.
 #' @param verbose logical. If TRUE (default), reports any clashes between
 #'   multistate and native binary feature codings via warning. If FALSE,
 #'   clash detection runs silently.
@@ -16,6 +17,7 @@
 make_binary_ValueTable <- function(ValueTable = NULL,
                      keep_multistate = FALSE,
                      keep_native_binary = TRUE,
+                     check_dups = TRUE, 
                      trim_to_only_native_binary = FALSE,
                      verbose = TRUE){
   
@@ -29,7 +31,9 @@ make_binary_ValueTable <- function(ValueTable = NULL,
   }
   
   .check_binarised_feature_pairs(ValueTable = ValueTable, verbose = verbose)
-  .check_dups_ValueTable(ValueTable = ValueTable, verbose = verbose)
+  
+if(check_dups == TRUE){
+  .check_dups_ValueTable(ValueTable = ValueTable, verbose = verbose)}
 
   .binary_parameters <- c(
     "GB024a", "GB024b",
